@@ -6,13 +6,16 @@ namespace CacheSimulation
     public enum WritePolicy
     {
         WriteThrough = 0,
-        WriteBack = 1
+        WriteBack = 1,
+        WriteAllocate = 2,
+        WriteAround = 3
     }
 
     public enum ReplacementPolicy
     {
         LeastRecentlyUsed = 0,
-        Belady = 1
+        Belady = 1,
+        FirstInFirstOut = 2
     }
 
     public class Cache
