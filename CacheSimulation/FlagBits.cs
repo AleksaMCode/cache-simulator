@@ -2,12 +2,7 @@ namespace CacheSimulation
 {
     public class FlagBits
     {
-        public int valid;
-        public int dirty;
-
-        public FlagBits()
-        {
-            valid = dirty = 0;
-        }
+        public int Valid { get; set; } = 0;
+        public int Dirty { get; set; } = 0;
     }
 }
