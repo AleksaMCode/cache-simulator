@@ -1,8 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
-VisualStudioVersion = 16.0.31424.327
+VisualStudioVersion = 16.0.30804.86
 MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{9E389F69-F745-4B43-B345-08716ED39D9E}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CacheSimulation", "CacheSimulation\CacheSimulation.csproj", "{2AC77101-3E57-41ED-8A57-0AB22305D194}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RamGenerator", "RamGenerator\RamGenerator.csproj", "{94B4902D-43A8-4492-941D-8D5244AC667B}"
@@ -32,6 +37,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {2F5F6476-064D-4D26-922F-50476DDFB1FD}
+		SolutionGuid = {B9F549BE-B160-4A49-AD3F-5179CCBE0BFB}
 	EndGlobalSection
 EndGlobal
