@@ -1,11 +1,9 @@
-using System.Collections;
-
 namespace CacheSimulation
 {
     public class CacheEntry
     {
         public string Tag { get; set; }
-        public BitArray DataBlock { get; set; }
+        public byte[] DataBlock { get; set; }
         public int Set { get; set; }
         /// <summary>
         /// Age bits used when Cache uses Least-recently used replacment algorithm to track of the usage of the LRU cache-lines.

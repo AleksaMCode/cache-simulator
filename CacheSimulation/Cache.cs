@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 
 namespace CacheSimulation
 {
@@ -117,28 +118,29 @@ namespace CacheSimulation
         /// <summary>
         /// Updates the most recently used set, allowing the LRU algorithm to work.
         /// </summary>
-        /// <param name="newest"></param>
+        /// <param name="newestEntryIndex">Index of the newest entry in the cache.</param>
         /// <param name="index"></param>
-        public void Aging(int newest, int index)
+        public void Aging(int newestEntryIndex, int index)
         {
             for (var i = index * Associativity; i < index * Associativity + Associativity; ++i)
             {
                 ++CacheEntries[i].Age;
             }
 
-            CacheEntries[newest].Age = 0;
+            CacheEntries[newestEntryIndex].Age = 0;
         }
 
-        public void WriteToCache(string binaryAddress)
+        public void WriteToCache(string binaryAddress, string data)
         {
             if (CacheConfig.WritePolicy == WritePolicy.WriteBack)
             {
-                WriteBackWriteToCache(binaryAddress);
+                WriteBackWriteToCache(binaryAddress, data);
             }
         }
 
-        public void WriteBackWriteToCache(string address)
+        public void WriteBackWriteToCache(string address, string data)
         {
+            // Check if address exists in the cache first.
             var binaryAddress = GetBinaryAddress(address);
             var index = GetIndex(binaryAddress, GetTagLength(binaryAddress)) * Associativity;
             var highestAgeEntryIndex = index;
@@ -155,6 +157,9 @@ namespace CacheSimulation
                         if (CacheConfig.ReplacementPolicy == ReplacementPolicy.LeastRecentlyUsed)
                         {
                             CacheEntries[i].FlagBits.Dirty = true;
+                            // Write data to cache.
+                            CacheEntries[i].DataBlock = Encoding.ASCII.GetBytes(data);
+                            // Set age values.
                             Aging(i, CacheEntries[i].Set);
                         }
 
@@ -163,6 +168,7 @@ namespace CacheSimulation
                 }
             }
 
+            // After a cache miss look for available entry structure.
             ++CacheMisses;
             ++MemoryReads;
             index = GetIndex(binaryAddress, GetTagLength(binaryAddress)) * Associativity;
@@ -178,6 +184,9 @@ namespace CacheSimulation
                     if (CacheConfig.ReplacementPolicy == ReplacementPolicy.LeastRecentlyUsed)
                     {
                         CacheEntries[i].FlagBits.Dirty = true;
+                        // Write data to cache.
+                        CacheEntries[i].DataBlock = Encoding.ASCII.GetBytes(data);
+                        // Set age values.
                         Aging(i, CacheEntries[i].Set);
                     }
 
@@ -185,6 +194,7 @@ namespace CacheSimulation
                 }
             }
 
+            // Check for entry structure in cache that can be removed and replaced with new data.
             index = GetIndex(binaryAddress, GetTagLength(binaryAddress)) * Associativity;
             var highestAge = 0;
 
@@ -201,10 +211,12 @@ namespace CacheSimulation
             {
                 try
                 {
+                    // Write oldest data data in cache to RAM because the dirty flag has been set.
                     using var stream = File.Open(ramFileName, FileMode.Open);
                     if (UInt64.TryParse(address, out var offset))
                     {
                         stream.Seek((long)offset, SeekOrigin.Begin);
+                        stream.Write(CacheEntries[highestAgeEntryIndex].DataBlock, 0, CacheEntries[highestAgeEntryIndex].DataBlock.Length);
                         ++MemoryWrites;
                     }
                     //TODO: handle else case!
@@ -215,9 +227,13 @@ namespace CacheSimulation
                 }
             }
 
+            // Else just replace data in cache with new data.
             CacheEntries[highestAgeEntryIndex].TagLength = GetTagLength(binaryAddress);
             CacheEntries[highestAgeEntryIndex].Tag = binaryAddress;
             CacheEntries[highestAgeEntryIndex].FlagBits.Dirty = true;
+            // Write data to cache.
+            CacheEntries[highestAgeEntryIndex].DataBlock = Encoding.ASCII.GetBytes(data);
+            // Set age values.
             Aging(highestAgeEntryIndex, CacheEntries[highestAgeEntryIndex].Set);
         }
 
