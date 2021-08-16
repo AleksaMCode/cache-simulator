@@ -151,7 +151,6 @@ namespace CacheSimulation
 
                         return;
                     }
-
                 }
             }
 
@@ -228,7 +227,6 @@ namespace CacheSimulation
 
                         return;
                     }
-
                 }
             }
 
