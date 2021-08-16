@@ -84,5 +84,42 @@ namespace CacheSimulation
             return string.Join(string.Empty,
                 address.Select(c => Convert.ToString(Convert.ToInt32(c.ToString(), 16), 2).PadLeft(4, '0')));
         }
+
+        /// <summary>
+        /// Gets set index from binary address.
+        /// </summary>
+        /// <param name="binaryAddress">Address in binary format.</param>
+        /// <param name="tagLength">Length of the tag.</param>
+        /// <returns>Set index.</returns>
+        public int GetIndex(string binaryAddress, int tagLength)
+        {
+            var index = 0;
+            var exp = 1;
+            for (var i = binaryAddress.Length - 1 - BlockOffsetLength; i >= tagLength; --i)
+            {
+                if (binaryAddress[i] == '1')
+                {
+                    index += exp;
+                }
+                exp <<= 1;
+            }
+
+            return index;
+        }
+
+        /// <summary>
+        /// Updates the most recently used set, allowing the LRU algorithm to work.
+        /// </summary>
+        /// <param name="newest"></param>
+        /// <param name="index"></param>
+        public void Aging(int newest, int index)
+        {
+            for (var i = index * Associativity; i < index * Associativity + Associativity; ++i)
+            {
+                ++CacheEntries[i].Age;
+            }
+
+            CacheEntries[newest].Age = 0;
+        }
     }
 }
