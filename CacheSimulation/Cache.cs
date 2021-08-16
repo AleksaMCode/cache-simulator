@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace CacheSimulation
@@ -33,6 +34,13 @@ namespace CacheSimulation
         public int BlockOffsetLength { get; set; } = 0;
         public int SetIndexLength { get; set; } = 0;
         public CacheConfiguration CacheConfig { get; set; } = new CacheConfiguration();
+
+        private string ramFileName { get; set; }
+
+        public Cache(string ramFileName)
+        {
+            this.ramFileName = ramFileName;
+        }
 
         public void CreateColdCache(int numberOfLines)
         {
@@ -129,8 +137,9 @@ namespace CacheSimulation
             }
         }
 
-        public void WriteBackWriteToCache(string binaryAddress)
+        public void WriteBackWriteToCache(string address)
         {
+            var binaryAddress = GetBinaryAddress(address);
             var index = GetIndex(binaryAddress, GetTagLength(binaryAddress)) * Associativity;
             var highestAgeEntryIndex = index;
 
@@ -190,7 +199,19 @@ namespace CacheSimulation
 
             if (CacheEntries[highestAgeEntryIndex].FlagBits.Dirty)
             {
-                ++MemoryWrites;
+                try
+                {
+                    using var stream = File.Open(ramFileName, FileMode.Open);
+                    if (UInt64.TryParse(address, out var offset))
+                    {
+                        stream.Seek((long)offset, SeekOrigin.Begin);
+                        ++MemoryWrites;
+                    }
+                }
+                catch (Exception)
+                {
+                    //TOOD: handle this!
+                }
             }
 
             CacheEntries[highestAgeEntryIndex].TagLength = GetTagLength(binaryAddress);
