@@ -156,23 +156,21 @@ namespace CacheSimulation
                         ++CacheHits;
                         CacheEntries[i].TagLength = GetTagLength(binaryAddress);
 
-                        if (CacheConfig.ReplacementPolicy == ReplacementPolicy.LeastRecentlyUsed)
+                        //if (CacheConfig.ReplacementPolicy == ReplacementPolicy.LeastRecentlyUsed)
+                        CacheEntries[i].FlagBits.Dirty = true;
+                        // Write data to cache.
+                        buffer = Encoding.ASCII.GetBytes(data);
+                        if (buffer.Length > size)
                         {
-                            CacheEntries[i].FlagBits.Dirty = true;
-                            // Write data to cache.
-                            buffer = Encoding.ASCII.GetBytes(data);
-                            if (buffer.Length > size)
-                            {
-                                CacheEntries[i].DataBlock = new byte[size];
-                                Buffer.BlockCopy(buffer, 0, CacheEntries[i].DataBlock, 0, size);
-                            }
-                            else
-                            {
-                                CacheEntries[highestAgeEntryIndex].DataBlock = buffer;
-                            }
-                            // Set age values.
-                            Aging(i, CacheEntries[i].Set);
+                            CacheEntries[i].DataBlock = new byte[size];
+                            Buffer.BlockCopy(buffer, 0, CacheEntries[i].DataBlock, 0, size);
                         }
+                        else
+                        {
+                            CacheEntries[highestAgeEntryIndex].DataBlock = buffer;
+                        }
+                        // Set age values.
+                        Aging(i, CacheEntries[i].Set);
 
                         return;
                     }
@@ -192,23 +190,20 @@ namespace CacheSimulation
                     CacheEntries[i].TagLength = GetTagLength(binaryAddress);
                     CacheEntries[i].Tag = binaryAddress;
 
-                    if (CacheConfig.ReplacementPolicy == ReplacementPolicy.LeastRecentlyUsed)
+                    CacheEntries[i].FlagBits.Dirty = true;
+                    // Write data to cache.
+                    buffer = Encoding.ASCII.GetBytes(data);
+                    if (buffer.Length > size)
                     {
-                        CacheEntries[i].FlagBits.Dirty = true;
-                        // Write data to cache.
-                        buffer = Encoding.ASCII.GetBytes(data);
-                        if (buffer.Length > size)
-                        {
-                            CacheEntries[i].DataBlock = new byte[size];
-                            Buffer.BlockCopy(buffer, 0, CacheEntries[i].DataBlock, 0, size);
-                        }
-                        else
-                        {
-                            CacheEntries[highestAgeEntryIndex].DataBlock = buffer;
-                        }
-                        // Set age values.
-                        Aging(i, CacheEntries[i].Set);
+                        CacheEntries[i].DataBlock = new byte[size];
+                        Buffer.BlockCopy(buffer, 0, CacheEntries[i].DataBlock, 0, size);
                     }
+                    else
+                    {
+                        CacheEntries[highestAgeEntryIndex].DataBlock = buffer;
+                    }
+                    // Set age values.
+                    Aging(i, CacheEntries[i].Set);
 
                     return;
                 }
@@ -332,9 +327,10 @@ namespace CacheSimulation
                         //TOOD: handle this!
                     }
 
+                    CacheEntries[i].FlagBits.Dirty = true;
+
                     if (CacheConfig.ReplacementPolicy == ReplacementPolicy.LeastRecentlyUsed)
                     {
-                        CacheEntries[i].FlagBits.Dirty = true;
                         // Set age values.
                         Aging(i, CacheEntries[i].Set);
                     }
