@@ -131,15 +131,15 @@ namespace CacheSimulation
             CacheEntries[newestEntryIndex].Age = 0;
         }
 
-        public void WriteToCache(string binaryAddress, int size, string data)
-        {
-            if (CacheConfig.WritePolicy == WritePolicy.WriteBack)
-            {
-                WriteBackWriteToCache(binaryAddress, size, data);
-            }
-        }
+        //public void WriteToCache(string binaryAddress, int size, string data)
+        //{
+        //    if (CacheConfig.WritePolicy == WritePolicy.WriteBack)
+        //    {
+        //        WriteBackWriteToCache(binaryAddress, size, data);
+        //    }
+        //}
 
-        public void WriteBackWriteToCache(string address, int size, string data)
+        public void WriteToCache(string address, int size, string data)
         {
             // Check if address exists in the cache first.
             byte[] buffer;
@@ -157,7 +157,11 @@ namespace CacheSimulation
                         CacheEntries[i].TagLength = GetTagLength(binaryAddress);
 
                         //if (CacheConfig.ReplacementPolicy == ReplacementPolicy.LeastRecentlyUsed)
-                        CacheEntries[i].FlagBits.Dirty = true;
+                        if (CacheConfig.WritePolicy == WritePolicy.WriteBack)
+                        {
+                            CacheEntries[i].FlagBits.Dirty = true;
+                        }
+
                         // Write data to cache.
                         buffer = Encoding.ASCII.GetBytes(data);
                         if (buffer.Length > size)
@@ -190,7 +194,11 @@ namespace CacheSimulation
                     CacheEntries[i].TagLength = GetTagLength(binaryAddress);
                     CacheEntries[i].Tag = binaryAddress;
 
-                    CacheEntries[i].FlagBits.Dirty = true;
+                    if (CacheConfig.WritePolicy == WritePolicy.WriteBack)
+                    {
+                        CacheEntries[i].FlagBits.Dirty = true;
+                    }
+
                     // Write data to cache.
                     buffer = Encoding.ASCII.GetBytes(data);
                     if (buffer.Length > size)
@@ -222,7 +230,7 @@ namespace CacheSimulation
                 }
             }
 
-            if (CacheEntries[highestAgeEntryIndex].FlagBits.Dirty)
+            if (CacheConfig.WritePolicy == WritePolicy.WriteBack && CacheEntries[highestAgeEntryIndex].FlagBits.Dirty)
             {
                 try
                 {
@@ -245,7 +253,10 @@ namespace CacheSimulation
             // Else just replace data in cache with new data.
             CacheEntries[highestAgeEntryIndex].TagLength = GetTagLength(binaryAddress);
             CacheEntries[highestAgeEntryIndex].Tag = binaryAddress;
-            CacheEntries[highestAgeEntryIndex].FlagBits.Dirty = true;
+            if (CacheConfig.WritePolicy == WritePolicy.WriteBack)
+            {
+                CacheEntries[highestAgeEntryIndex].FlagBits.Dirty = true;
+            }
             // Write data to cache.
             buffer = Encoding.ASCII.GetBytes(data);
             if (buffer.Length > size)
@@ -261,15 +272,15 @@ namespace CacheSimulation
             Aging(highestAgeEntryIndex, CacheEntries[highestAgeEntryIndex].Set);
         }
 
-        public void ReadFromCache(string binaryAddress, int size)
-        {
-            if (CacheConfig.WritePolicy == WritePolicy.WriteBack)
-            {
-                WriteBackReadFromCache(binaryAddress, size);
-            }
-        }
+        //public void ReadFromCache(string binaryAddress, int size)
+        //{
+        //    if (CacheConfig.WritePolicy == WritePolicy.WriteBack)
+        //    {
+        //        WriteBackReadFromCache(binaryAddress, size);
+        //    }
+        //}
 
-        public void WriteBackReadFromCache(string address, int size)
+        public void ReadFromCache(string address, int size)
         {
             // Check if address exists in the cache first.
             var binaryAddress = GetBinaryAddress(address);
@@ -327,7 +338,10 @@ namespace CacheSimulation
                         //TOOD: handle this!
                     }
 
-                    CacheEntries[i].FlagBits.Dirty = true;
+                    if (CacheConfig.WritePolicy == WritePolicy.WriteBack)
+                    {
+                        CacheEntries[i].FlagBits.Dirty = false;
+                    }
 
                     if (CacheConfig.ReplacementPolicy == ReplacementPolicy.LeastRecentlyUsed)
                     {
@@ -351,7 +365,7 @@ namespace CacheSimulation
                 }
             }
 
-            if (CacheEntries[highestAgeEntryIndex].FlagBits.Dirty)
+            if (CacheConfig.WritePolicy == WritePolicy.WriteBack && CacheEntries[highestAgeEntryIndex].FlagBits.Dirty)
             {
                 try
                 {
@@ -373,7 +387,12 @@ namespace CacheSimulation
 
             CacheEntries[highestAgeEntryIndex].TagLength = GetTagLength(binaryAddress);
             CacheEntries[highestAgeEntryIndex].Tag = binaryAddress;
-            CacheEntries[highestAgeEntryIndex].FlagBits.Dirty = false;
+
+            if (CacheConfig.WritePolicy == WritePolicy.WriteBack)
+            {
+                CacheEntries[highestAgeEntryIndex].FlagBits.Dirty = false;
+            }
+
             try
             {
                 // Read the data from the RAM.
