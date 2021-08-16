@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -40,7 +39,7 @@ namespace CacheSimulation
             CacheEntries = new List<CacheEntry>(numberOfLines);
         }
 
-        public int GetTagLength(BitArray address)
+        public int GetTagLength(string address)
         {
             return address.Length - SetIndexLength - BlockOffsetLength;
         }
@@ -120,6 +119,162 @@ namespace CacheSimulation
             }
 
             CacheEntries[newest].Age = 0;
+        }
+
+        public void WriteToCache(string binaryAddress)
+        {
+            if (CacheConfig.WritePolicy == WritePolicy.WriteBack)
+            {
+                WriteBackWriteToCache(binaryAddress);
+            }
+        }
+
+        public void WriteBackWriteToCache(string binaryAddress)
+        {
+            var index = GetIndex(binaryAddress, GetTagLength(binaryAddress)) * Associativity;
+            var highestAgeEntryIndex = index;
+
+            for (var i = index; i < index + Associativity; ++i)
+            {
+                if (CacheEntries[i].FlagBits.Valid == Validity.Valid)
+                {
+                    if (CacheEntries[i].Tag == binaryAddress.Substring(0, CacheEntries[i].TagLength))
+                    {
+                        ++CacheHits;
+                        CacheEntries[i].TagLength = GetTagLength(binaryAddress);
+
+                        if (CacheConfig.ReplacementPolicy == ReplacementPolicy.LeastRecentlyUsed)
+                        {
+                            CacheEntries[i].FlagBits.Dirty = true;
+                            Aging(i, CacheEntries[i].Set);
+                        }
+
+                        return;
+                    }
+
+                }
+            }
+
+            ++CacheMisses;
+            ++MemoryReads;
+            index = GetIndex(binaryAddress, GetTagLength(binaryAddress)) * Associativity;
+
+            for (var i = index; i < index + Associativity; ++i)
+            {
+                if (CacheEntries[i].FlagBits.Valid == Validity.Invalid)
+                {
+                    CacheEntries[i].FlagBits.Valid = Validity.Valid;
+                    CacheEntries[i].TagLength = GetTagLength(binaryAddress);
+                    CacheEntries[i].Tag = binaryAddress;
+
+                    if (CacheConfig.ReplacementPolicy == ReplacementPolicy.LeastRecentlyUsed)
+                    {
+                        CacheEntries[i].FlagBits.Dirty = true;
+                        Aging(i, CacheEntries[i].Set);
+                    }
+
+                    return;
+                }
+            }
+
+            index = GetIndex(binaryAddress, GetTagLength(binaryAddress)) * Associativity;
+            var highestAge = 0;
+
+            for (var i = index; i < index + Associativity; ++i)
+            {
+                if (CacheEntries[i].Age > highestAge)
+                {
+                    highestAge = CacheEntries[i].Age;
+                    highestAgeEntryIndex = i;
+                }
+            }
+
+            if (CacheEntries[highestAgeEntryIndex].FlagBits.Dirty)
+            {
+                ++MemoryWrites;
+            }
+
+            CacheEntries[highestAgeEntryIndex].TagLength = GetTagLength(binaryAddress);
+            CacheEntries[highestAgeEntryIndex].Tag = binaryAddress;
+            CacheEntries[highestAgeEntryIndex].FlagBits.Dirty = true;
+            Aging(highestAgeEntryIndex, CacheEntries[highestAgeEntryIndex].Set);
+        }
+
+        public void ReadFromCache(string binaryAddress)
+        {
+            if (CacheConfig.WritePolicy == WritePolicy.WriteBack)
+            {
+                WriteBackReadFromCache(binaryAddress);
+            }
+        }
+
+        public void WriteBackReadFromCache(string binaryAddress)
+        {
+            var index = GetIndex(binaryAddress, GetTagLength(binaryAddress)) * Associativity;
+            var highestAgeEntryIndex = index;
+
+            for (var i = index; i < index + Associativity; ++i)
+            {
+                if (CacheEntries[i].FlagBits.Valid == Validity.Valid)
+                {
+                    if (CacheEntries[i].Tag == binaryAddress.Substring(0, CacheEntries[i].TagLength))
+                    {
+                        ++CacheHits;
+
+                        if (CacheConfig.ReplacementPolicy == ReplacementPolicy.LeastRecentlyUsed)
+                        {
+                            Aging(i, CacheEntries[i].Set);
+                        }
+
+                        return;
+                    }
+
+                }
+            }
+
+            ++CacheMisses;
+            ++MemoryReads;
+            index = GetIndex(binaryAddress, GetTagLength(binaryAddress)) * Associativity;
+
+            for (var i = index; i < index + Associativity; ++i)
+            {
+                if (CacheEntries[i].FlagBits.Valid == Validity.Invalid)
+                {
+                    CacheEntries[i].FlagBits.Valid = Validity.Valid;
+                    CacheEntries[i].TagLength = GetTagLength(binaryAddress);
+                    CacheEntries[i].Tag = binaryAddress;
+
+                    if (CacheConfig.ReplacementPolicy == ReplacementPolicy.LeastRecentlyUsed)
+                    {
+                        CacheEntries[i].FlagBits.Dirty = true;
+                        Aging(i, CacheEntries[i].Set);
+                    }
+
+                    return;
+                }
+            }
+
+            index = GetIndex(binaryAddress, GetTagLength(binaryAddress)) * Associativity;
+            var highestAge = 0;
+
+            for (var i = index; i < index + Associativity; ++i)
+            {
+                if (CacheEntries[i].Age > highestAge)
+                {
+                    highestAge = CacheEntries[i].Age;
+                    highestAgeEntryIndex = i;
+                }
+            }
+
+            if (CacheEntries[highestAgeEntryIndex].FlagBits.Dirty)
+            {
+                ++MemoryWrites;
+            }
+
+            CacheEntries[highestAgeEntryIndex].TagLength = GetTagLength(binaryAddress);
+            CacheEntries[highestAgeEntryIndex].Tag = binaryAddress;
+            CacheEntries[highestAgeEntryIndex].FlagBits.Dirty = false;
+            Aging(highestAgeEntryIndex, CacheEntries[highestAgeEntryIndex].Set);
         }
     }
 }

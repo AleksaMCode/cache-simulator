@@ -4,7 +4,7 @@ namespace CacheSimulation
 {
     public class CacheEntry
     {
-        public BitArray Tag { get; set; } = new BitArray(81);
+        public string Tag { get; set; }
         public BitArray DataBlock { get; set; }
         public int Set { get; set; }
         /// <summary>
