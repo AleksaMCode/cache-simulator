@@ -131,17 +131,18 @@ namespace CacheSimulation
             CacheEntries[newestEntryIndex].Age = 0;
         }
 
-        public void WriteToCache(string binaryAddress, string data)
+        public void WriteToCache(string binaryAddress, int size, string data)
         {
             if (CacheConfig.WritePolicy == WritePolicy.WriteBack)
             {
-                WriteBackWriteToCache(binaryAddress, data);
+                WriteBackWriteToCache(binaryAddress, size, data);
             }
         }
 
-        public void WriteBackWriteToCache(string address, string data)
+        public void WriteBackWriteToCache(string address, int size, string data)
         {
             // Check if address exists in the cache first.
+            byte[] buffer;
             var binaryAddress = GetBinaryAddress(address);
             var index = GetIndex(binaryAddress, GetTagLength(binaryAddress)) * Associativity;
             var highestAgeEntryIndex = index;
@@ -159,7 +160,16 @@ namespace CacheSimulation
                         {
                             CacheEntries[i].FlagBits.Dirty = true;
                             // Write data to cache.
-                            CacheEntries[i].DataBlock = Encoding.ASCII.GetBytes(data);
+                            buffer = Encoding.ASCII.GetBytes(data);
+                            if (buffer.Length > size)
+                            {
+                                CacheEntries[i].DataBlock = new byte[size];
+                                Buffer.BlockCopy(buffer, 0, CacheEntries[i].DataBlock, 0, size);
+                            }
+                            else
+                            {
+                                CacheEntries[highestAgeEntryIndex].DataBlock = buffer;
+                            }
                             // Set age values.
                             Aging(i, CacheEntries[i].Set);
                         }
@@ -186,7 +196,16 @@ namespace CacheSimulation
                     {
                         CacheEntries[i].FlagBits.Dirty = true;
                         // Write data to cache.
-                        CacheEntries[i].DataBlock = Encoding.ASCII.GetBytes(data);
+                        buffer = Encoding.ASCII.GetBytes(data);
+                        if (buffer.Length > size)
+                        {
+                            CacheEntries[i].DataBlock = new byte[size];
+                            Buffer.BlockCopy(buffer, 0, CacheEntries[i].DataBlock, 0, size);
+                        }
+                        else
+                        {
+                            CacheEntries[highestAgeEntryIndex].DataBlock = buffer;
+                        }
                         // Set age values.
                         Aging(i, CacheEntries[i].Set);
                     }
@@ -233,7 +252,16 @@ namespace CacheSimulation
             CacheEntries[highestAgeEntryIndex].Tag = binaryAddress;
             CacheEntries[highestAgeEntryIndex].FlagBits.Dirty = true;
             // Write data to cache.
-            CacheEntries[highestAgeEntryIndex].DataBlock = Encoding.ASCII.GetBytes(data);
+            buffer = Encoding.ASCII.GetBytes(data);
+            if (buffer.Length > size)
+            {
+                CacheEntries[highestAgeEntryIndex].DataBlock = new byte[size];
+                Buffer.BlockCopy(buffer, 0, CacheEntries[highestAgeEntryIndex].DataBlock, 0, size);
+            }
+            else
+            {
+                CacheEntries[highestAgeEntryIndex].DataBlock = buffer;
+            }
             // Set age values.
             Aging(highestAgeEntryIndex, CacheEntries[highestAgeEntryIndex].Set);
         }
