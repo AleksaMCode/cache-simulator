@@ -28,12 +28,10 @@ namespace CacheSimulation
         public int MemoryWrites { get; set; } = 0;
         public int NumLines { get; set; } = 0;
         public int Size { get; set; } = 0;
-        public int BlockSize { get; set; } = 0;
         public int Associativity { get; set; } = 0;
         public int BlockNumber { get; set; } = 0;
         public int SetNumber { get; set; } = 0;
-        public WritePolicy WritePolicy { get; set; } = WritePolicy.WriteBack;
-        public ReplacementPolicy ReplacementPolicy { get; set; } = ReplacementPolicy.LeastRecentlyUsed;
+        public CacheConfiguration CacheConfig { get; set; } = new CacheConfiguration();
 
         public void CreateColdCache(int numberOfLines)
         {

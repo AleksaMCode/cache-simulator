@@ -43,6 +43,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Cache.cs" />
+    <Compile Include="CacheConfiguration.cs" />
     <Compile Include="CacheEntry.cs" />
     <Compile Include="FlagBits.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
