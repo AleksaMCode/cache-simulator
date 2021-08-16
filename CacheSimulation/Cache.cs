@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 
 namespace CacheSimulation
@@ -237,16 +238,18 @@ namespace CacheSimulation
             Aging(highestAgeEntryIndex, CacheEntries[highestAgeEntryIndex].Set);
         }
 
-        public void ReadFromCache(string binaryAddress)
+        public void ReadFromCache(string binaryAddress, int size)
         {
             if (CacheConfig.WritePolicy == WritePolicy.WriteBack)
             {
-                WriteBackReadFromCache(binaryAddress);
+                WriteBackReadFromCache(binaryAddress, size);
             }
         }
 
-        public void WriteBackReadFromCache(string binaryAddress)
+        public void WriteBackReadFromCache(string address, int size)
         {
+            // Check if address exists in the cache first.
+            var binaryAddress = GetBinaryAddress(address);
             var index = GetIndex(binaryAddress, GetTagLength(binaryAddress)) * Associativity;
             var highestAgeEntryIndex = index;
 
@@ -260,6 +263,7 @@ namespace CacheSimulation
 
                         if (CacheConfig.ReplacementPolicy == ReplacementPolicy.LeastRecentlyUsed)
                         {
+                            // Set age values.
                             Aging(i, CacheEntries[i].Set);
                         }
 
@@ -268,6 +272,7 @@ namespace CacheSimulation
                 }
             }
 
+            // After a cache miss look for available entry structure.
             ++CacheMisses;
             ++MemoryReads;
             index = GetIndex(binaryAddress, GetTagLength(binaryAddress)) * Associativity;
@@ -280,9 +285,29 @@ namespace CacheSimulation
                     CacheEntries[i].TagLength = GetTagLength(binaryAddress);
                     CacheEntries[i].Tag = binaryAddress;
 
+                    try
+                    {
+                        // Read the data from the RAM.
+                        using var stream = new FileStream(ramFileName, FileMode.Open, FileAccess.Read);
+                        if (UInt64.TryParse(address, out var offset))
+                        {
+                            var buffer = new byte[size];
+                            // TODO: could be a problem conversion from long to int. Fix this!
+                            stream.Read(buffer, (int)offset, size);
+                            CacheEntries[i].DataBlock = buffer;
+                            ++MemoryWrites;
+                        }
+                        //TODO: handle else case!
+                    }
+                    catch (Exception)
+                    {
+                        //TOOD: handle this!
+                    }
+
                     if (CacheConfig.ReplacementPolicy == ReplacementPolicy.LeastRecentlyUsed)
                     {
                         CacheEntries[i].FlagBits.Dirty = true;
+                        // Set age values.
                         Aging(i, CacheEntries[i].Set);
                     }
 
@@ -304,12 +329,46 @@ namespace CacheSimulation
 
             if (CacheEntries[highestAgeEntryIndex].FlagBits.Dirty)
             {
-                ++MemoryWrites;
+                try
+                {
+                    // Write oldest data data in cache to RAM because the dirty flag has been set.
+                    using var stream = File.Open(ramFileName, FileMode.Open);
+                    if (UInt64.TryParse(address, out var offset))
+                    {
+                        stream.Seek((long)offset, SeekOrigin.Begin);
+                        stream.Write(CacheEntries[highestAgeEntryIndex].DataBlock, 0, CacheEntries[highestAgeEntryIndex].DataBlock.Length);
+                        ++MemoryWrites;
+                    }
+                    //TODO: handle else case!
+                }
+                catch (Exception)
+                {
+                    //TOOD: handle this!
+                }
             }
 
             CacheEntries[highestAgeEntryIndex].TagLength = GetTagLength(binaryAddress);
             CacheEntries[highestAgeEntryIndex].Tag = binaryAddress;
             CacheEntries[highestAgeEntryIndex].FlagBits.Dirty = false;
+            try
+            {
+                // Read the data from the RAM.
+                using var stream = new FileStream(ramFileName, FileMode.Open, FileAccess.Read);
+                if (UInt64.TryParse(address, out var offset))
+                {
+                    var buffer = new byte[size];
+                    // TODO: could be a problem conversion from long to int. Fix this!
+                    stream.Read(buffer, (int)offset, size);
+                    CacheEntries[highestAgeEntryIndex].DataBlock = buffer;
+                    ++MemoryWrites;
+                }
+                //TODO: handle else case!
+            }
+            catch (Exception)
+            {
+                //TOOD: handle this!
+            }
+            // Set age values.
             Aging(highestAgeEntryIndex, CacheEntries[highestAgeEntryIndex].Set);
         }
     }
