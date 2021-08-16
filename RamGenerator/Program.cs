@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,6 +10,8 @@ namespace RamGenerator
     {
         static void Main(string[] args)
         {
+            var ramGn = new RamGenerator(1_000);
+            ramGn.GenerateRam();
         }
     }
 }

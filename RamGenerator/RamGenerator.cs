@@ -25,7 +25,7 @@ namespace RamGenerator
         /// </summary>
         /// <param name="fileName">Name of the ram file.</param>
         /// <param name="ramSize">Size of RAM file in megabytes.</param>
-        public RamGenerator(string fileName = "RAM.dat", int ramSize)
+        public RamGenerator(int ramSize, string fileName = "RAM.dat")
         {
             this.fileName = fileName;
             this.ramSize = ramSize;
