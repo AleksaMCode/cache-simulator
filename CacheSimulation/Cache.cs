@@ -207,6 +207,7 @@ namespace CacheSimulation
                         stream.Seek((long)offset, SeekOrigin.Begin);
                         ++MemoryWrites;
                     }
+                    //TODO: handle else case!
                 }
                 catch (Exception)
                 {
