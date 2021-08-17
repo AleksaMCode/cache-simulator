@@ -38,8 +38,8 @@ namespace TraceGenerator
         /// <summary>
         /// Generates object of class TraceGenerator which can then be used to create a trace file on HDD filled with instructions.
         /// </summary>
-        /// <param name="traceSize"></param>
-        /// <param name="fileName"></param>
+        /// <param name="traceSize">Trace file category (string label for trace size).</param>
+        /// <param name="fileName">Name of the trace file.</param>
         public TraceGenerator(string traceSize, string fileName = "instructions")
         {
             this.fileName = $"{fileName}-{DateTime.Now:yyyyMMddHHmmss}.trace";
