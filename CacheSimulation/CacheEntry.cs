@@ -6,7 +6,7 @@ namespace CacheSimulation
         public byte[] DataBlock { get; set; }
         public int Set { get; set; }
         /// <summary>
-        /// Age bits used when Cache uses Least-recently used replacment algorithm to track of the usage of the LRU cache-lines.
+        /// Age bits used when Cache uses Least-recently used replacement algorithm to track of the usage of the LRU cache-lines.
         /// </summary>
         public int Age { get; set; } = 0;
         public int TagLength { get; set; } = 1;

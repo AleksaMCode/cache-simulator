@@ -47,6 +47,10 @@ namespace CacheSimulation
         public void CreateColdCache(int numberOfLines)
         {
             CacheEntries = new List<CacheEntry>(numberOfLines);
+            for(var i = 0; i<numberOfLines; ++i)
+            {
+                CacheEntries[i].Set = i / Associativity;
+            }
         }
 
         public int GetTagLength(string address)

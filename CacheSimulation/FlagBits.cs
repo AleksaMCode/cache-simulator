@@ -2,8 +2,8 @@ namespace CacheSimulation
 {
     public enum Validity
     {
-        Valid = 0,
-        Invalid = 1
+        Invalid = 0,
+        Valid = 1
     }
 
     public class FlagBits
