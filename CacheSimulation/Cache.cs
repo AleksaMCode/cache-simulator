@@ -374,18 +374,25 @@ namespace CacheSimulation
                 }
             }
 
-            index = GetIndex(binaryAddress, GetTagLength(binaryAddress)) * Associativity;
-            var highestAge = 0;
-
-            for (var i = index; i < index + Associativity; ++i)
+            if (CacheConfig.ReplacementPolicy == ReplacementPolicy.LeastRecentlyUsed)
             {
-                if (CacheEntries[i].Age > highestAge)
+                index = GetIndex(binaryAddress, GetTagLength(binaryAddress)) * Associativity;
+
+                for (int i = index, highestAge = 0; i < index + Associativity; ++i)
                 {
-                    highestAge = CacheEntries[i].Age;
-                    highestAgeEntryIndex = i;
+                    if (CacheEntries[i].Age > highestAge)
+                    {
+                        highestAge = CacheEntries[i].Age;
+                        highestAgeEntryIndex = i;
+                    }
                 }
             }
+            else if (CacheConfig.ReplacementPolicy == ReplacementPolicy.FirstInFirstOut)
+            {
+                highestAgeEntryIndex = 0;
+            }
 
+            // If the write policy is write-back and the dirty flag is set, write the cache entry to RAM first.
             if (CacheConfig.WritePolicy == WritePolicy.WriteBack && CacheEntries[highestAgeEntryIndex].FlagBits.Dirty)
             {
                 try
@@ -432,8 +439,12 @@ namespace CacheSimulation
             {
                 //TOOD: handle this!
             }
+
             // Set age values.
-            Aging(highestAgeEntryIndex, CacheEntries[highestAgeEntryIndex].Set);
+            if (CacheConfig.ReplacementPolicy == ReplacementPolicy.LeastRecentlyUsed)
+            {
+                Aging(highestAgeEntryIndex, CacheEntries[highestAgeEntryIndex].Set);
+            }
         }
     }
 }
