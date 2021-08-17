@@ -51,7 +51,11 @@ namespace TraceGenerator
         private string GenerateTraceLine(int ramSize, int dataBlockSize)
         {
             var size = RandomIntegerGenerator(dataBlockSize);
-            return $"{instructions[RandomIntegerGenerator(2)]}\t0x{RandomAddressInRangeGenerator(ramSize, dataBlockSize)},\t{size},\t0x{RandomHexNumberGenerator(size)}";
+            var instruction = instructions[size % 2];
+
+            return instruction == "L"
+                ? $"{instruction}\t0x{RandomAddressInRangeGenerator(ramSize, dataBlockSize)}"
+                : $"{instruction}\t0x{RandomAddressInRangeGenerator(ramSize, dataBlockSize)},\t{size},\t0x{RandomHexNumberGenerator(size)}";
         }
 
         public bool GenerateTraceFile(int ramSize, int dataBlockSize)
