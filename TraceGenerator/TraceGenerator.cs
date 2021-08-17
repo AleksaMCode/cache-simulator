@@ -22,11 +22,11 @@ namespace TraceGenerator
         /// </summary>
         private readonly int traceSize;
 
-        private readonly string[] instructions = new string[] { "L", "S", "M" };
+        private readonly string[] instructions = new string[] { "L", "S" };
 
-        public TraceGenerator(int traceSize, string fileName = "instructions.trace")
+        public TraceGenerator(int traceSize, string fileName = "instructions")
         {
-            this.fileName = fileName;
+            this.fileName = $"{fileName}-{DateTime.Now:yyyyMMddHHmmss}.trace";
             this.traceSize = traceSize;
         }
 
