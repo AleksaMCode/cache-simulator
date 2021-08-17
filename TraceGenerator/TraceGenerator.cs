@@ -101,7 +101,7 @@ namespace TraceGenerator
         /// Creates a trace file on HDD filled with CPU instructions used to store data in cache.
         /// </summary>
         /// <param name="ramSize">Size of RAM in megabytes.</param>
-        /// <param name="dataBlockSize">Size of data block in cache entries.</param>
+        /// <param name="dataBlockSize">Size of data block in cache entries in bytes.</param>
         /// <returns>true if the trace creation process is successful; otherwise false.</returns>
         public bool GenerateTraceFile(int ramSize, int dataBlockSize)
         {
