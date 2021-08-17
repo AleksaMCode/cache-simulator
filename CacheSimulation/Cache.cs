@@ -158,7 +158,7 @@ namespace CacheSimulation
             byte[] buffer;
             var binaryAddress = GetBinaryAddress(address);
             var index = GetIndex(binaryAddress, GetTagLength(binaryAddress)) * Associativity;
-            var highestAgeEntryIndex = index;
+            var replacementIndex = index;
 
             for (var i = index; i < index + Associativity; ++i)
             {
@@ -271,25 +271,25 @@ namespace CacheSimulation
                     if (CacheEntries[i].Age > highestAge)
                     {
                         highestAge = CacheEntries[i].Age;
-                        highestAgeEntryIndex = i;
+                        replacementIndex = i;
                     }
                 }
             }
             else if (CacheConfig.ReplacementPolicy == ReplacementPolicy.FirstInFirstOut)
             {
-                highestAgeEntryIndex = 0;
+                replacementIndex = 0;
             }
             else if (CacheConfig.ReplacementPolicy == ReplacementPolicy.LastInFirstOut)
             {
-                highestAgeEntryIndex = CacheEntries.Count - 1;
+                replacementIndex = CacheEntries.Count - 1;
             }
             else if (CacheConfig.ReplacementPolicy == ReplacementPolicy.Belady)
             {
-                highestAgeEntryIndex = BeladyGetIndex(LoadFutureCacheEntries(address.TrimStart('0')));
+                replacementIndex = BeladyGetIndex(LoadFutureCacheEntries(address.TrimStart('0')));
             }
 
             // If the write policy is write-back and the dirty flag is set, write the cache entry to RAM first.
-            if (CacheConfig.WritePolicy == WritePolicy.WriteBack && CacheEntries[highestAgeEntryIndex].FlagBits.Dirty)
+            if (CacheConfig.WritePolicy == WritePolicy.WriteBack && CacheEntries[replacementIndex].FlagBits.Dirty)
             {
                 try
                 {
@@ -298,7 +298,7 @@ namespace CacheSimulation
                     if (UInt64.TryParse(address, out var offset))
                     {
                         stream.Seek((long)offset, SeekOrigin.Begin);
-                        stream.Write(CacheEntries[highestAgeEntryIndex].DataBlock, 0, CacheEntries[highestAgeEntryIndex].DataBlock.Length);
+                        stream.Write(CacheEntries[replacementIndex].DataBlock, 0, CacheEntries[replacementIndex].DataBlock.Length);
                         ++MemoryWrites;
                     }
                     //TODO: handle else case!
@@ -310,24 +310,24 @@ namespace CacheSimulation
             }
 
             // Else just replace data in cache with new data.
-            CacheEntries[highestAgeEntryIndex].TagLength = GetTagLength(binaryAddress);
-            CacheEntries[highestAgeEntryIndex].Tag = binaryAddress;
+            CacheEntries[replacementIndex].TagLength = GetTagLength(binaryAddress);
+            CacheEntries[replacementIndex].Tag = binaryAddress;
 
             // Write data to cache.
             buffer = Encoding.ASCII.GetBytes(data);
             if (buffer.Length > size)
             {
-                CacheEntries[highestAgeEntryIndex].DataBlock = new byte[size];
-                Buffer.BlockCopy(buffer, 0, CacheEntries[highestAgeEntryIndex].DataBlock, 0, size);
+                CacheEntries[replacementIndex].DataBlock = new byte[size];
+                Buffer.BlockCopy(buffer, 0, CacheEntries[replacementIndex].DataBlock, 0, size);
             }
             else
             {
-                CacheEntries[highestAgeEntryIndex].DataBlock = buffer;
+                CacheEntries[replacementIndex].DataBlock = buffer;
             }
 
             if (CacheConfig.WritePolicy == WritePolicy.WriteBack)
             {
-                CacheEntries[highestAgeEntryIndex].FlagBits.Dirty = true;
+                CacheEntries[replacementIndex].FlagBits.Dirty = true;
             }
             else if (CacheConfig.WritePolicy == WritePolicy.WriteThrough)
             {
@@ -335,7 +335,7 @@ namespace CacheSimulation
                 if (UInt64.TryParse(address, out var offset))
                 {
                     stream.Seek((long)offset, SeekOrigin.Begin);
-                    stream.Write(CacheEntries[highestAgeEntryIndex].DataBlock, 0, CacheEntries[highestAgeEntryIndex].DataBlock.Length);
+                    stream.Write(CacheEntries[replacementIndex].DataBlock, 0, CacheEntries[replacementIndex].DataBlock.Length);
                     ++MemoryWrites;
                 }
                 //TODO: handle else case!
@@ -344,7 +344,7 @@ namespace CacheSimulation
             // Set age values.
             if (CacheConfig.ReplacementPolicy == ReplacementPolicy.LeastRecentlyUsed)
             {
-                Aging(highestAgeEntryIndex, CacheEntries[highestAgeEntryIndex].Set);
+                Aging(replacementIndex, CacheEntries[replacementIndex].Set);
             }
         }
 
@@ -414,7 +414,7 @@ namespace CacheSimulation
             // Check if address exists in the cache first.
             var binaryAddress = GetBinaryAddress(address);
             var index = GetIndex(binaryAddress, GetTagLength(binaryAddress)) * Associativity;
-            var highestAgeEntryIndex = index;
+            var replacementIndex = index;
 
             for (var i = index; i < index + Associativity; ++i)
             {
@@ -482,6 +482,7 @@ namespace CacheSimulation
                 }
             }
 
+
             if (CacheConfig.ReplacementPolicy == ReplacementPolicy.LeastRecentlyUsed)
             {
                 index = GetIndex(binaryAddress, GetTagLength(binaryAddress)) * Associativity;
@@ -491,25 +492,25 @@ namespace CacheSimulation
                     if (CacheEntries[i].Age > highestAge)
                     {
                         highestAge = CacheEntries[i].Age;
-                        highestAgeEntryIndex = i;
+                        replacementIndex = i;
                     }
                 }
             }
             else if (CacheConfig.ReplacementPolicy == ReplacementPolicy.FirstInFirstOut)
             {
-                highestAgeEntryIndex = 0;
+                replacementIndex = 0;
             }
             else if (CacheConfig.ReplacementPolicy == ReplacementPolicy.LastInFirstOut)
             {
-                highestAgeEntryIndex = CacheEntries.Count - 1;
+                replacementIndex = CacheEntries.Count - 1;
             }
             else if (CacheConfig.ReplacementPolicy == ReplacementPolicy.Belady)
             {
-                highestAgeEntryIndex = BeladyGetIndex(LoadFutureCacheEntries(address.TrimStart('0')));
+                replacementIndex = BeladyGetIndex(LoadFutureCacheEntries(address.TrimStart('0')));
             }
 
             // If the write policy is write-back and the dirty flag is set, write the cache entry to RAM first.
-            if (CacheConfig.WritePolicy == WritePolicy.WriteBack && CacheEntries[highestAgeEntryIndex].FlagBits.Dirty)
+            if (CacheConfig.WritePolicy == WritePolicy.WriteBack && CacheEntries[replacementIndex].FlagBits.Dirty)
             {
                 try
                 {
@@ -518,7 +519,7 @@ namespace CacheSimulation
                     if (UInt64.TryParse(address, out var offset))
                     {
                         stream.Seek((long)offset, SeekOrigin.Begin);
-                        stream.Write(CacheEntries[highestAgeEntryIndex].DataBlock, 0, CacheEntries[highestAgeEntryIndex].DataBlock.Length);
+                        stream.Write(CacheEntries[replacementIndex].DataBlock, 0, CacheEntries[replacementIndex].DataBlock.Length);
                         ++MemoryWrites;
                     }
                     //TODO: handle else case!
@@ -529,12 +530,12 @@ namespace CacheSimulation
                 }
             }
 
-            CacheEntries[highestAgeEntryIndex].TagLength = GetTagLength(binaryAddress);
-            CacheEntries[highestAgeEntryIndex].Tag = binaryAddress;
+            CacheEntries[replacementIndex].TagLength = GetTagLength(binaryAddress);
+            CacheEntries[replacementIndex].Tag = binaryAddress;
 
             if (CacheConfig.WritePolicy == WritePolicy.WriteBack)
             {
-                CacheEntries[highestAgeEntryIndex].FlagBits.Dirty = false;
+                CacheEntries[replacementIndex].FlagBits.Dirty = false;
             }
 
             try
@@ -546,7 +547,7 @@ namespace CacheSimulation
                     var buffer = new byte[size];
                     // TODO: could be a problem conversion from long to int. Fix this!
                     stream.Read(buffer, (int)offset, size);
-                    CacheEntries[highestAgeEntryIndex].DataBlock = buffer;
+                    CacheEntries[replacementIndex].DataBlock = buffer;
                     ++MemoryWrites;
                 }
                 //TODO: handle else case!
@@ -559,7 +560,7 @@ namespace CacheSimulation
             // Set age values.
             if (CacheConfig.ReplacementPolicy == ReplacementPolicy.LeastRecentlyUsed)
             {
-                Aging(highestAgeEntryIndex, CacheEntries[highestAgeEntryIndex].Set);
+                Aging(replacementIndex, CacheEntries[replacementIndex].Set);
             }
         }
     }
