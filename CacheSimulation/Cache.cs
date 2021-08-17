@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Runtime.InteropServices.ComTypes;
 using System.Text;
+using System.Xml.Linq;
 
 namespace CacheSimulation
 {
@@ -37,13 +38,19 @@ namespace CacheSimulation
         public int Associativity { get; set; } = 0;
         public int BlockOffsetLength { get; set; } = 0;
         public int SetIndexLength { get; set; } = 0;
+        /// <summary>
+        /// Index of the latest cache entry. This values is used to implement Bélády's algorithm.
+        /// </summary>
+        public int LatestIndex { get; set; } = -1;
         public CacheConfiguration CacheConfig { get; set; } = new CacheConfiguration();
 
         private string ramFileName { get; set; }
+        private string traceFileName { get; set; }
 
-        public Cache(string ramFileName)
+        public Cache(string ramFileName, string traceFileName)
         {
             this.ramFileName = ramFileName;
+            this.traceFileName = traceFileName;
         }
 
         public void CreateColdCache(int numberOfLines)
@@ -163,7 +170,7 @@ namespace CacheSimulation
                         CacheEntries[i].TagLength = GetTagLength(binaryAddress);
 
                         //if (CacheConfig.ReplacementPolicy == ReplacementPolicy.LeastRecentlyUsed)
-                        
+
                         // Write data to cache.
                         buffer = Encoding.ASCII.GetBytes(data);
                         if (buffer.Length > size)
@@ -186,7 +193,7 @@ namespace CacheSimulation
                             if (UInt64.TryParse(address, out var offset))
                             {
                                 stream.Seek((long)offset, SeekOrigin.Begin);
-                                stream.Write(CacheEntries[highestAgeEntryIndex].DataBlock, 0, CacheEntries[highestAgeEntryIndex].DataBlock.Length);
+                                stream.Write(CacheEntries[i].DataBlock, 0, CacheEntries[i].DataBlock.Length);
                                 ++MemoryWrites;
                             }
                             //TODO: handle else case!
@@ -238,7 +245,7 @@ namespace CacheSimulation
                         if (UInt64.TryParse(address, out var offset))
                         {
                             stream.Seek((long)offset, SeekOrigin.Begin);
-                            stream.Write(CacheEntries[highestAgeEntryIndex].DataBlock, 0, CacheEntries[highestAgeEntryIndex].DataBlock.Length);
+                            stream.Write(CacheEntries[i].DataBlock, 0, CacheEntries[i].DataBlock.Length);
                             ++MemoryWrites;
                         }
                         //TODO: handle else case!
@@ -276,6 +283,10 @@ namespace CacheSimulation
             {
                 highestAgeEntryIndex = CacheEntries.Count - 1;
             }
+            else if (CacheConfig.ReplacementPolicy == ReplacementPolicy.Belady)
+            {
+                highestAgeEntryIndex = BeladyGetIndex(LoadFutureCacheEntries(address.TrimStart('0')));
+            }
 
             // If the write policy is write-back and the dirty flag is set, write the cache entry to RAM first.
             if (CacheConfig.WritePolicy == WritePolicy.WriteBack && CacheEntries[highestAgeEntryIndex].FlagBits.Dirty)
@@ -301,7 +312,7 @@ namespace CacheSimulation
             // Else just replace data in cache with new data.
             CacheEntries[highestAgeEntryIndex].TagLength = GetTagLength(binaryAddress);
             CacheEntries[highestAgeEntryIndex].Tag = binaryAddress;
-            
+
             // Write data to cache.
             buffer = Encoding.ASCII.GetBytes(data);
             if (buffer.Length > size)
@@ -335,6 +346,59 @@ namespace CacheSimulation
             {
                 Aging(highestAgeEntryIndex, CacheEntries[highestAgeEntryIndex].Set);
             }
+        }
+
+        /// <summary>
+        /// Returns index of the cache entry that needs to be replaced.
+        /// </summary>
+        /// <param name="addressList">List of all of the memory addresses that will be used in the future.</param>
+        /// <returns>Index of the cache entry that needs to be replaced.</returns>
+        private int BeladyGetIndex(List<string> addressList)
+        {
+            //TODO: test this!
+            int farthestElement = 0, index = 0;
+
+            for (var i = 0; i < CacheEntries.Count; ++i)
+            {
+                var tmpIndex = addressList.IndexOf(Convert.ToInt32(CacheEntries[i].Tag, 2).ToString("X"));
+
+                if (tmpIndex >= farthestElement)
+                {
+                    farthestElement = tmpIndex;
+                    index = i;
+                }
+                else if (tmpIndex == -1)
+                {
+                    return i;
+                }
+            }
+
+            return index;
+        }
+
+        /// <summary>
+        /// Load all of the addresses from the trace file used for the Bélády's algorithm.
+        /// </summary>
+        /// <param name="currentAddress">Address of the current request.</param>
+        /// <returns>List of all of the unique memory addresses that will be used in the future.</returns>
+        private List<string> LoadFutureCacheEntries(string currentAddress)
+        {
+            const int BufferSize = 4_096;
+            using var fileStream = File.OpenRead(traceFileName);
+            using var streamReader = new StreamReader(fileStream, Encoding.UTF8, true, BufferSize);
+
+            var output = new HashSet<string>();
+            string line;
+            while ((line = streamReader.ReadLine()) != null)
+            {
+                var address = line.Split(' ')[1].TrimStart('0');
+                if (currentAddress != address && !output.Contains(address))
+                {
+                    output.Add(address);
+                }
+            }
+
+            return output.ToList();
         }
 
         //public void ReadFromCache(string binaryAddress, int size)
@@ -438,6 +502,10 @@ namespace CacheSimulation
             else if (CacheConfig.ReplacementPolicy == ReplacementPolicy.LastInFirstOut)
             {
                 highestAgeEntryIndex = CacheEntries.Count - 1;
+            }
+            else if (CacheConfig.ReplacementPolicy == ReplacementPolicy.Belady)
+            {
+                highestAgeEntryIndex = BeladyGetIndex(LoadFutureCacheEntries(address.TrimStart('0')));
             }
 
             // If the write policy is write-back and the dirty flag is set, write the cache entry to RAM first.
