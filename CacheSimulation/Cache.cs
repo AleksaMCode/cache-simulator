@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 
 namespace CacheSimulation
@@ -162,11 +163,7 @@ namespace CacheSimulation
                         CacheEntries[i].TagLength = GetTagLength(binaryAddress);
 
                         //if (CacheConfig.ReplacementPolicy == ReplacementPolicy.LeastRecentlyUsed)
-                        if (CacheConfig.WritePolicy == WritePolicy.WriteBack)
-                        {
-                            CacheEntries[i].FlagBits.Dirty = true;
-                        }
-
+                        
                         // Write data to cache.
                         buffer = Encoding.ASCII.GetBytes(data);
                         if (buffer.Length > size)
@@ -178,6 +175,23 @@ namespace CacheSimulation
                         {
                             CacheEntries[i].DataBlock = buffer;
                         }
+
+                        if (CacheConfig.WritePolicy == WritePolicy.WriteBack)
+                        {
+                            CacheEntries[i].FlagBits.Dirty = true;
+                        }
+                        else if (CacheConfig.WritePolicy == WritePolicy.WriteThrough)
+                        {
+                            using var stream = File.Open(ramFileName, FileMode.Open);
+                            if (UInt64.TryParse(address, out var offset))
+                            {
+                                stream.Seek((long)offset, SeekOrigin.Begin);
+                                stream.Write(CacheEntries[highestAgeEntryIndex].DataBlock, 0, CacheEntries[highestAgeEntryIndex].DataBlock.Length);
+                                ++MemoryWrites;
+                            }
+                            //TODO: handle else case!
+                        }
+
                         // Set age values.
                         if (CacheConfig.ReplacementPolicy == ReplacementPolicy.LeastRecentlyUsed)
                         {
@@ -202,11 +216,6 @@ namespace CacheSimulation
                     CacheEntries[i].TagLength = GetTagLength(binaryAddress);
                     CacheEntries[i].Tag = binaryAddress;
 
-                    if (CacheConfig.WritePolicy == WritePolicy.WriteBack)
-                    {
-                        CacheEntries[i].FlagBits.Dirty = true;
-                    }
-
                     // Write data to cache.
                     buffer = Encoding.ASCII.GetBytes(data);
                     if (buffer.Length > size)
@@ -218,6 +227,23 @@ namespace CacheSimulation
                     {
                         CacheEntries[i].DataBlock = buffer;
                     }
+
+                    if (CacheConfig.WritePolicy == WritePolicy.WriteBack)
+                    {
+                        CacheEntries[i].FlagBits.Dirty = true;
+                    }
+                    else if (CacheConfig.WritePolicy == WritePolicy.WriteThrough)
+                    {
+                        using var stream = File.Open(ramFileName, FileMode.Open);
+                        if (UInt64.TryParse(address, out var offset))
+                        {
+                            stream.Seek((long)offset, SeekOrigin.Begin);
+                            stream.Write(CacheEntries[highestAgeEntryIndex].DataBlock, 0, CacheEntries[highestAgeEntryIndex].DataBlock.Length);
+                            ++MemoryWrites;
+                        }
+                        //TODO: handle else case!
+                    }
+
                     // Set age values.
                     if (CacheConfig.ReplacementPolicy == ReplacementPolicy.LeastRecentlyUsed)
                     {
@@ -275,10 +301,7 @@ namespace CacheSimulation
             // Else just replace data in cache with new data.
             CacheEntries[highestAgeEntryIndex].TagLength = GetTagLength(binaryAddress);
             CacheEntries[highestAgeEntryIndex].Tag = binaryAddress;
-            if (CacheConfig.WritePolicy == WritePolicy.WriteBack)
-            {
-                CacheEntries[highestAgeEntryIndex].FlagBits.Dirty = true;
-            }
+            
             // Write data to cache.
             buffer = Encoding.ASCII.GetBytes(data);
             if (buffer.Length > size)
@@ -289,6 +312,22 @@ namespace CacheSimulation
             else
             {
                 CacheEntries[highestAgeEntryIndex].DataBlock = buffer;
+            }
+
+            if (CacheConfig.WritePolicy == WritePolicy.WriteBack)
+            {
+                CacheEntries[highestAgeEntryIndex].FlagBits.Dirty = true;
+            }
+            else if (CacheConfig.WritePolicy == WritePolicy.WriteThrough)
+            {
+                using var stream = File.Open(ramFileName, FileMode.Open);
+                if (UInt64.TryParse(address, out var offset))
+                {
+                    stream.Seek((long)offset, SeekOrigin.Begin);
+                    stream.Write(CacheEntries[highestAgeEntryIndex].DataBlock, 0, CacheEntries[highestAgeEntryIndex].DataBlock.Length);
+                    ++MemoryWrites;
+                }
+                //TODO: handle else case!
             }
 
             // Set age values.
