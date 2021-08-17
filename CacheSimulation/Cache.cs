@@ -47,7 +47,7 @@ namespace CacheSimulation
         public void CreateColdCache(int numberOfLines)
         {
             CacheEntries = new List<CacheEntry>(numberOfLines);
-            for(var i = 0; i<numberOfLines; ++i)
+            for (var i = 0; i < numberOfLines; ++i)
             {
                 CacheEntries[i].Set = i / Associativity;
             }
@@ -175,10 +175,13 @@ namespace CacheSimulation
                         }
                         else
                         {
-                            CacheEntries[highestAgeEntryIndex].DataBlock = buffer;
+                            CacheEntries[i].DataBlock = buffer;
                         }
                         // Set age values.
-                        Aging(i, CacheEntries[i].Set);
+                        if (CacheConfig.ReplacementPolicy == ReplacementPolicy.LeastRecentlyUsed)
+                        {
+                            Aging(i, CacheEntries[i].Set);
+                        }
 
                         return;
                     }
@@ -212,28 +215,38 @@ namespace CacheSimulation
                     }
                     else
                     {
-                        CacheEntries[highestAgeEntryIndex].DataBlock = buffer;
+                        CacheEntries[i].DataBlock = buffer;
                     }
                     // Set age values.
-                    Aging(i, CacheEntries[i].Set);
+                    if (CacheConfig.ReplacementPolicy == ReplacementPolicy.LeastRecentlyUsed)
+                    {
+                        Aging(i, CacheEntries[i].Set);
+                    }
 
                     return;
                 }
             }
 
-            // Check for entry structure in cache that can be removed and replaced with new data.
-            index = GetIndex(binaryAddress, GetTagLength(binaryAddress)) * Associativity;
-            var highestAge = 0;
-
-            for (var i = index; i < index + Associativity; ++i)
+            if (CacheConfig.ReplacementPolicy == ReplacementPolicy.LeastRecentlyUsed)
             {
-                if (CacheEntries[i].Age > highestAge)
+                // Check for entry structure in cache that can be removed and replaced with new data.
+                index = GetIndex(binaryAddress, GetTagLength(binaryAddress)) * Associativity;
+
+                for (int i = index, highestAge = 0; i < index + Associativity; ++i)
                 {
-                    highestAge = CacheEntries[i].Age;
-                    highestAgeEntryIndex = i;
+                    if (CacheEntries[i].Age > highestAge)
+                    {
+                        highestAge = CacheEntries[i].Age;
+                        highestAgeEntryIndex = i;
+                    }
                 }
             }
+            else if (CacheConfig.ReplacementPolicy == ReplacementPolicy.FirstInFirstOut)
+            {
+                highestAgeEntryIndex = 0;
+            }
 
+            // If the write policy is write-back and the dirty flag is set, write the cache entry to RAM first.
             if (CacheConfig.WritePolicy == WritePolicy.WriteBack && CacheEntries[highestAgeEntryIndex].FlagBits.Dirty)
             {
                 try
@@ -272,8 +285,12 @@ namespace CacheSimulation
             {
                 CacheEntries[highestAgeEntryIndex].DataBlock = buffer;
             }
+
             // Set age values.
-            Aging(highestAgeEntryIndex, CacheEntries[highestAgeEntryIndex].Set);
+            if (CacheConfig.ReplacementPolicy == ReplacementPolicy.LeastRecentlyUsed)
+            {
+                Aging(highestAgeEntryIndex, CacheEntries[highestAgeEntryIndex].Set);
+            }
         }
 
         //public void ReadFromCache(string binaryAddress, int size)
