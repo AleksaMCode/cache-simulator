@@ -19,7 +19,8 @@ namespace CacheSimulation
     {
         LeastRecentlyUsed = 0,
         Belady = 1,
-        FirstInFirstOut = 2
+        FirstInFirstOut = 2,
+        LastInFirstOut = 3
     }
 
     public class Cache
@@ -245,6 +246,10 @@ namespace CacheSimulation
             {
                 highestAgeEntryIndex = 0;
             }
+            else if (CacheConfig.ReplacementPolicy == ReplacementPolicy.LastInFirstOut)
+            {
+                highestAgeEntryIndex = CacheEntries.Count - 1;
+            }
 
             // If the write policy is write-back and the dirty flag is set, write the cache entry to RAM first.
             if (CacheConfig.WritePolicy == WritePolicy.WriteBack && CacheEntries[highestAgeEntryIndex].FlagBits.Dirty)
@@ -390,6 +395,10 @@ namespace CacheSimulation
             else if (CacheConfig.ReplacementPolicy == ReplacementPolicy.FirstInFirstOut)
             {
                 highestAgeEntryIndex = 0;
+            }
+            else if (CacheConfig.ReplacementPolicy == ReplacementPolicy.LastInFirstOut)
+            {
+                highestAgeEntryIndex = CacheEntries.Count - 1;
             }
 
             // If the write policy is write-back and the dirty flag is set, write the cache entry to RAM first.
