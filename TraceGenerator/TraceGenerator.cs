@@ -62,7 +62,6 @@ namespace TraceGenerator
         {
             try
             {
-
                 var sb = new StringBuilder();
                 for (var i = 0; i < traceSize; ++i)
                 {
@@ -70,11 +69,11 @@ namespace TraceGenerator
                 }
 
                 File.WriteAllText(fileName, sb.ToString());
-
                 return true;
             }
             catch (Exception)
             {
+                //TODO: handle this!
                 return false;
             }
         }
