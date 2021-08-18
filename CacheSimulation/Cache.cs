@@ -29,10 +29,10 @@ namespace CacheSimulation
     {
         public List<CacheEntry> CacheEntries;
 
-        public int CacheHits { get; set; } = 0;
-        public int CacheMisses { get; set; } = 0;
-        public int MemoryReads { get; set; } = 0;
-        public int MemoryWrites { get; set; } = 0;
+        /// <summary>
+        /// Data used for statistics.
+        /// </summary>
+        public StatisticsData StatisticsInfo { get; set; } = new StatisticsData();
         public int NumberOfLines { get; set; } = 0;
         public int Size { get; set; } = 0;
         public int Associativity { get; set; } = 0;
@@ -162,7 +162,7 @@ namespace CacheSimulation
                 {
                     if (CacheEntries[i].Tag == binaryAddress.Substring(0, CacheEntries[i].TagLength))
                     {
-                        ++CacheHits;
+                        ++StatisticsInfo.CacheHits;
                         CacheEntries[i].TagLength = GetTagLength(binaryAddress);
 
                         //if (CacheConfig.ReplacementPolicy == ReplacementPolicy.LeastRecentlyUsed)
@@ -190,7 +190,7 @@ namespace CacheSimulation
                             {
                                 stream.Seek((long)offset, SeekOrigin.Begin);
                                 stream.Write(CacheEntries[i].DataBlock, 0, CacheEntries[i].DataBlock.Length);
-                                ++MemoryWrites;
+                                ++StatisticsInfo.MemoryWrites;
                             }
                             //TODO: handle else case!
                         }
@@ -207,8 +207,8 @@ namespace CacheSimulation
             }
 
             // After a cache miss look for available entry structure.
-            ++CacheMisses;
-            ++MemoryReads;
+            ++StatisticsInfo.CacheMisses;
+            ++StatisticsInfo.MemoryReads;
             index = GetIndex(binaryAddress, GetTagLength(binaryAddress)) * Associativity;
 
             for (var i = index; i < index + Associativity; ++i)
@@ -242,7 +242,7 @@ namespace CacheSimulation
                         {
                             stream.Seek((long)offset, SeekOrigin.Begin);
                             stream.Write(CacheEntries[i].DataBlock, 0, CacheEntries[i].DataBlock.Length);
-                            ++MemoryWrites;
+                            ++StatisticsInfo.MemoryWrites;
                         }
                         //TODO: handle else case!
                     }
@@ -257,6 +257,7 @@ namespace CacheSimulation
                 }
             }
 
+            ++StatisticsInfo.CacheEviction;
             if (CacheConfig.ReplacementPolicy == ReplacementPolicy.LeastRecentlyUsed)
             {
                 // Check for entry structure in cache that can be removed and replaced with new data.
@@ -295,7 +296,7 @@ namespace CacheSimulation
                     {
                         stream.Seek((long)offset, SeekOrigin.Begin);
                         stream.Write(CacheEntries[replacementIndex].DataBlock, 0, CacheEntries[replacementIndex].DataBlock.Length);
-                        ++MemoryWrites;
+                        ++StatisticsInfo.MemoryWrites;
                     }
                     //TODO: handle else case!
                 }
@@ -332,7 +333,7 @@ namespace CacheSimulation
                 {
                     stream.Seek((long)offset, SeekOrigin.Begin);
                     stream.Write(CacheEntries[replacementIndex].DataBlock, 0, CacheEntries[replacementIndex].DataBlock.Length);
-                    ++MemoryWrites;
+                    ++StatisticsInfo.MemoryWrites;
                 }
                 //TODO: handle else case!
             }
@@ -419,7 +420,7 @@ namespace CacheSimulation
                 {
                     if (CacheEntries[i].Tag == binaryAddress.Substring(0, CacheEntries[i].TagLength))
                     {
-                        ++CacheHits;
+                        ++StatisticsInfo.CacheHits;
 
                         if (CacheConfig.ReplacementPolicy == ReplacementPolicy.LeastRecentlyUsed)
                         {
@@ -433,8 +434,8 @@ namespace CacheSimulation
             }
 
             // After a cache miss look for available entry structure.
-            ++CacheMisses;
-            ++MemoryReads;
+            ++StatisticsInfo.CacheMisses;
+            ++StatisticsInfo.MemoryReads;
             index = GetIndex(binaryAddress, GetTagLength(binaryAddress)) * Associativity;
 
             for (var i = index; i < index + Associativity; ++i)
@@ -455,7 +456,7 @@ namespace CacheSimulation
                             // TODO: could be a problem conversion from long to int. Fix this!
                             stream.Read(buffer, (int)offset, size);
                             CacheEntries[i].DataBlock = buffer;
-                            ++MemoryWrites;
+                            ++StatisticsInfo.MemoryWrites;
                         }
                         //TODO: handle else case!
                     }
@@ -479,7 +480,7 @@ namespace CacheSimulation
                 }
             }
 
-
+            ++StatisticsInfo.CacheEviction;
             if (CacheConfig.ReplacementPolicy == ReplacementPolicy.LeastRecentlyUsed)
             {
                 index = GetIndex(binaryAddress, GetTagLength(binaryAddress)) * Associativity;
@@ -517,7 +518,7 @@ namespace CacheSimulation
                     {
                         stream.Seek((long)offset, SeekOrigin.Begin);
                         stream.Write(CacheEntries[replacementIndex].DataBlock, 0, CacheEntries[replacementIndex].DataBlock.Length);
-                        ++MemoryWrites;
+                        ++StatisticsInfo.MemoryWrites;
                     }
                     //TODO: handle else case!
                 }
@@ -545,7 +546,7 @@ namespace CacheSimulation
                     // TODO: could be a problem conversion from long to int. Fix this!
                     stream.Read(buffer, (int)offset, size);
                     CacheEntries[replacementIndex].DataBlock = buffer;
-                    ++MemoryWrites;
+                    ++StatisticsInfo.MemoryWrites;
                 }
                 //TODO: handle else case!
             }
