@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using TraceGenerator;
 
 namespace CacheSimulation
 {
@@ -44,6 +45,30 @@ namespace CacheSimulation
         {
             this.ramFileName = ramFileName;
             this.traceFileName = traceFileName;
+        }
+
+        public void StartSimulation()
+        {
+            const int bufferSize = 4_096;
+            using var fileStream = File.OpenRead(traceFileName);
+            using var streamReader = new StreamReader(fileStream, Encoding.UTF8, true, bufferSize);
+
+            string line;
+            while ((line = streamReader.ReadLine()) != null)
+            {
+                var instruction = TraceLineParser(line);
+            }
+        }
+
+        public Instruction TraceLineParser(string line)
+        {
+            char[] charsToTrim = { ' ', '0' };
+
+            return line[0] == 'L'
+                ? new Instruction(MemoryRelatedInstructions.Load, line.Split('\t')[1].Trim(' ').Substring(2).Trim(charsToTrim))
+                : line[0] == 'S'
+                    ? new Instruction(MemoryRelatedInstructions.Store, line.Split('\t')[1].Substring(2).Trim(charsToTrim), line.Split(',')[2].Trim(' ').Substring(2).Trim(charsToTrim))
+                    : throw new Exception("Unknown instruction used in trace file.");
         }
 
         public void CreateColdCache(int numberOfLines)
