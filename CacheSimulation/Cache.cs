@@ -213,7 +213,7 @@ namespace CacheSimulation
                         //if (CacheConfig.ReplacementPolicy == ReplacementPolicy.LeastRecentlyUsed)
 
                         // Write data to cache.
-                        buffer = Encoding.ASCII.GetBytes(data);
+                        buffer = BitConverter.GetBytes(Convert.ToInt32(data, 16));
                         if (buffer.Length > size)
                         {
                             CacheEntries[i].DataBlock = new byte[size];
@@ -265,7 +265,7 @@ namespace CacheSimulation
                     CacheEntries[i].Tag = binaryAddress;
 
                     // Write data to cache.
-                    buffer = Encoding.ASCII.GetBytes(data);
+                    buffer = BitConverter.GetBytes(Convert.ToInt32(data, 16));
                     if (buffer.Length > size)
                     {
                         CacheEntries[i].DataBlock = new byte[size];
@@ -356,7 +356,7 @@ namespace CacheSimulation
             CacheEntries[replacementIndex].Tag = binaryAddress;
 
             // Write data to cache.
-            buffer = Encoding.ASCII.GetBytes(data);
+            buffer = BitConverter.GetBytes(Convert.ToInt32(data, 16));
             if (buffer.Length > size)
             {
                 CacheEntries[replacementIndex].DataBlock = new byte[size];
