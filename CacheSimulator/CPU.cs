@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Text;
 using CacheSimulation;
@@ -22,7 +23,16 @@ namespace CacheSimulator
             string line;
             while ((line = streamReader.ReadLine()) != null)
             {
-                var instruction = L1.TraceLineParser(line);
+                Instruction instruction;
+                try
+                {
+                    instruction = L1.TraceLineParser(line);
+                }
+                catch(Exception)
+                {
+                    continue;
+                }
+
                 if (instruction != null)
                 {
                     if (instruction.InstructionType == MemoryRelatedInstructions.Store)
