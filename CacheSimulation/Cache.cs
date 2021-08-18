@@ -387,7 +387,8 @@ namespace CacheSimulation
             string line;
             while ((line = streamReader.ReadLine()) != null)
             {
-                var address = line.Split(' ')[1].TrimStart('0');
+                // Skip 0x and any leading 0 from the address.
+                var address = line.Split(' ')[1].Substring(2).TrimStart('0');
                 if (currentAddress != address && !output.Contains(address))
                 {
                     output.Add(address);
