@@ -425,9 +425,9 @@ namespace CacheSimulation
         /// <returns>List of all of the unique memory addresses that will be used in the future.</returns>
         private List<string> LoadFutureCacheEntries(string currentAddress)
         {
-            const int BufferSize = 4_096;
+            const int bufferSize = 4_096;
             using var fileStream = File.OpenRead(TraceFileName);
-            using var streamReader = new StreamReader(fileStream, Encoding.UTF8, true, BufferSize);
+            using var streamReader = new StreamReader(fileStream, Encoding.UTF8, true, bufferSize);
 
             var output = new HashSet<string>();
             string line;
