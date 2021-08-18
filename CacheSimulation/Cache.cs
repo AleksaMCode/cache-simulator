@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using TraceGenerator;
 
 namespace CacheSimulation
 {
@@ -38,43 +37,66 @@ namespace CacheSimulation
         public int SetIndexLength { get; set; } = 0;
         public CacheConfiguration CacheConfig { get; set; } = new CacheConfiguration();
 
-        private string ramFileName { get; set; }
-        private string traceFileName { get; set; }
+        public readonly int NumberOfSets;
+        public readonly int SetSize;
 
-        public Cache(string ramFileName, string traceFileName)
+        public string RamFileName { get; set; }
+        public string TraceFileName { get; set; }
+
+        public Cache((string ramFileName, string traceFileName, int size, int associativity, int blockSize, WritePolicy writePolicy, ReplacementPolicy replacementPolicy) cacheInfo)
         {
-            this.ramFileName = ramFileName;
-            this.traceFileName = traceFileName;
-        }
+            RamFileName = cacheInfo.ramFileName;
+            TraceFileName = cacheInfo.traceFileName;
 
-        public void StartSimulation()
-        {
-            const int bufferSize = 4_096;
-            using var fileStream = File.OpenRead(traceFileName);
-            using var streamReader = new StreamReader(fileStream, Encoding.UTF8, true, bufferSize);
-
-            string line;
-            while ((line = streamReader.ReadLine()) != null)
+            // Explanation for this check implementation https://stackoverflow.com/questions/2751593/how-to-determine-if-a-decimal-double-is-an-integer .
+            if (Math.Abs(Math.Log(cacheInfo.blockSize, 2) % 1) <= (double.Epsilon * 100))
             {
-                var instruction = TraceLineParser(line);
+                throw new Exception("Block size is not a power of 2.");
             }
+            else if (Math.Abs(Math.Log(cacheInfo.associativity, 2) % 1) <= (double.Epsilon * 100))
+            {
+                throw new Exception("Associativity is not a power of 2.");
+            }
+
+            Size = cacheInfo.size;
+            SetSize = Associativity = cacheInfo.associativity;
+            CacheConfig.SetCacheConfig(cacheInfo.blockSize, cacheInfo.writePolicy, cacheInfo.replacementPolicy);
+
+            NumberOfSets = Size / (SetSize * CacheConfig.BlockSize);
+            NumberOfLines = Size / CacheConfig.BlockSize;
+            BlockOffsetLength = (int)Math.Ceiling(Math.Log(CacheConfig.BlockSize, 2));
+            SetIndexLength = (int)Math.Ceiling(Math.Log(Size / (SetSize * CacheConfig.BlockSize), 2));
+
+            CreateColdCache();
         }
 
         public Instruction TraceLineParser(string line)
         {
             char[] charsToTrim = { ' ', '0' };
+            var splitLine = line.Split(',');
 
-            return line[0] == 'L'
-                ? new Instruction(MemoryRelatedInstructions.Load, line.Split('\t')[1].Trim(' ').Substring(2).Trim(charsToTrim))
-                : line[0] == 'S'
-                    ? new Instruction(MemoryRelatedInstructions.Store, line.Split('\t')[1].Substring(2).Trim(charsToTrim), line.Split(',')[2].Trim(' ').Substring(2).Trim(charsToTrim))
-                    : throw new Exception("Unknown instruction used in trace file.");
+            if (line[0] == 'L')
+            {
+                return Int32.TryParse(splitLine[1].Trim(), out var size)
+                    ? new Instruction(MemoryRelatedInstructions.Load, line.Split('\t')[1].Trim(' ').Substring(2).Trim(charsToTrim), size) :
+                    null;
+            }
+            else if (line[0] == 'S')
+            {
+                return Int32.TryParse(splitLine[1].Trim(), out var size)
+                    ? new Instruction(MemoryRelatedInstructions.Store, line.Split('\t')[1].Substring(2).Trim(charsToTrim), size, splitLine[2].Trim(' ').Substring(2).Trim(charsToTrim))
+                    : null;
+            }
+            else
+            {
+                throw new Exception("Unknown instruction used in trace file.");
+            }
         }
 
-        public void CreateColdCache(int numberOfLines)
+        public void CreateColdCache()
         {
-            CacheEntries = new List<CacheEntry>(numberOfLines);
-            for (var i = 0; i < numberOfLines; ++i)
+            CacheEntries = new List<CacheEntry>(NumberOfLines);
+            for (var i = 0; i < NumberOfLines; ++i)
             {
                 CacheEntries[i].Set = i / Associativity;
             }
@@ -85,6 +107,7 @@ namespace CacheSimulation
             return address.Length - SetIndexLength - BlockOffsetLength;
         }
 
+        [Obsolete("This method is no longer necessary, because we calculate lengths using ceiling and log2 in class constructor.", true)]
         /// <summary>
         /// Sets the length of set index and block offset.
         /// </summary>
@@ -207,7 +230,7 @@ namespace CacheSimulation
                         }
                         else if (CacheConfig.WritePolicy == WritePolicy.WriteThrough)
                         {
-                            using var stream = File.Open(ramFileName, FileMode.Open);
+                            using var stream = File.Open(RamFileName, FileMode.Open);
                             if (UInt64.TryParse(address, out var offset))
                             {
                                 stream.Seek((long)offset, SeekOrigin.Begin);
@@ -259,7 +282,7 @@ namespace CacheSimulation
                     }
                     else if (CacheConfig.WritePolicy == WritePolicy.WriteThrough)
                     {
-                        using var stream = File.Open(ramFileName, FileMode.Open);
+                        using var stream = File.Open(RamFileName, FileMode.Open);
                         if (UInt64.TryParse(address, out var offset))
                         {
                             stream.Seek((long)offset, SeekOrigin.Begin);
@@ -313,7 +336,7 @@ namespace CacheSimulation
                 try
                 {
                     // Write oldest data data in cache to RAM because the dirty flag has been set.
-                    using var stream = File.Open(ramFileName, FileMode.Open);
+                    using var stream = File.Open(RamFileName, FileMode.Open);
                     if (UInt64.TryParse(address, out var offset))
                     {
                         stream.Seek((long)offset, SeekOrigin.Begin);
@@ -350,7 +373,7 @@ namespace CacheSimulation
             }
             else if (CacheConfig.WritePolicy == WritePolicy.WriteThrough)
             {
-                using var stream = File.Open(ramFileName, FileMode.Open);
+                using var stream = File.Open(RamFileName, FileMode.Open);
                 if (UInt64.TryParse(address, out var offset))
                 {
                     stream.Seek((long)offset, SeekOrigin.Begin);
@@ -403,7 +426,7 @@ namespace CacheSimulation
         private List<string> LoadFutureCacheEntries(string currentAddress)
         {
             const int BufferSize = 4_096;
-            using var fileStream = File.OpenRead(traceFileName);
+            using var fileStream = File.OpenRead(TraceFileName);
             using var streamReader = new StreamReader(fileStream, Encoding.UTF8, true, BufferSize);
 
             var output = new HashSet<string>();
@@ -471,7 +494,7 @@ namespace CacheSimulation
                     try
                     {
                         // Read the data from the RAM.
-                        using var stream = new FileStream(ramFileName, FileMode.Open, FileAccess.Read);
+                        using var stream = new FileStream(RamFileName, FileMode.Open, FileAccess.Read);
                         if (UInt64.TryParse(address, out var offset))
                         {
                             var buffer = new byte[size];
@@ -535,7 +558,7 @@ namespace CacheSimulation
                 try
                 {
                     // Write oldest data data in cache to RAM because the dirty flag has been set.
-                    using var stream = File.Open(ramFileName, FileMode.Open);
+                    using var stream = File.Open(RamFileName, FileMode.Open);
                     if (UInt64.TryParse(address, out var offset))
                     {
                         stream.Seek((long)offset, SeekOrigin.Begin);
@@ -561,7 +584,7 @@ namespace CacheSimulation
             try
             {
                 // Read the data from the RAM.
-                using var stream = new FileStream(ramFileName, FileMode.Open, FileAccess.Read);
+                using var stream = new FileStream(RamFileName, FileMode.Open, FileAccess.Read);
                 if (UInt64.TryParse(address, out var offset))
                 {
                     var buffer = new byte[size];
