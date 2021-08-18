@@ -8,15 +8,15 @@ namespace CacheSimulation
 
     public class Instruction
     {
-        private readonly MemoryRelatedInstructions instructionType;
-        private string memoryAddress;
-        private string data;
+        public readonly MemoryRelatedInstructions InstructionType;
+        public readonly string MemoryAddress;
+        public readonly string Data;
 
         public Instruction(MemoryRelatedInstructions instructionType, string memoryAddress, string data = null)
         {
-            this.instructionType = instructionType;
-            this.memoryAddress = memoryAddress;
-            this.data = data;
+            InstructionType = instructionType;
+            MemoryAddress = memoryAddress;
+            Data = data;
         }
     }
 }
