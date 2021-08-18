@@ -46,6 +46,7 @@
     <Compile Include="CacheConfiguration.cs" />
     <Compile Include="CacheEntry.cs" />
     <Compile Include="FlagBits.cs" />
+    <Compile Include="Instruction.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
