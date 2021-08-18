@@ -8,7 +8,78 @@
         xmlns:local="clr-namespace:CacheSimulator"
         Topmost="False"
         Title="MainWindow" Height="450" Width="800">
-    <Grid>
-        
+    <Grid Margin="5">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid x:Name="memoryGenerators" Grid.Row="0" Grid.Column="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <Label Grid.Row="0">Generate trace file:</Label>
+                <Grid Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Label Grid.Column="0" VerticalAlignment="Center">Size:</Label>
+                    <ComboBox x:Name="traceFileSizeComboBox"
+                              VerticalAlignment="Center"
+                              ToolTip="large is 10,000, medium 1,000 and small is 100 instructions."
+                              Margin="0,0,4,0"
+                              Grid.Column="2">
+                        <ComboBoxItem IsSelected="True">small</ComboBoxItem>
+                        <ComboBoxItem>medium</ComboBoxItem>
+                        <ComboBoxItem>large</ComboBoxItem>
+                    </ComboBox>
+                    <Separator Grid.Column="1" Width="20" Background="Transparent"/>
+                    <Button x:Name="generateTraceFileButton" Margin="5,2,5,2" Grid.Column="3">Generate</Button>
+                </Grid>
+            </Grid>
+            <Grid Grid.Row="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Label Grid.Row="0">Generate RAM file:</Label>
+                <Grid Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Label Grid.Column="0" VerticalAlignment="Center">
+                        <TextBlock>Size<LineBreak/>(in Mb):</TextBlock>
+                    </Label>
+                    <MetroControls:NumericUpDown x:Name="ramSizeNumericUpDown"
+                        Grid.Column="1"
+                        Interval="500"
+                        Value="500"
+                        Minimum="500"
+                        Maximum="4000"
+                        Margin="7,5,0,5"/>
+                    <Button x:Name="generateRamFileButton" Margin="7,5,5,5" Grid.Column="3">Generate</Button>
+                </Grid>
+            </Grid>
+        </Grid>
     </Grid>
 </Window>
