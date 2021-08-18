@@ -51,5 +51,11 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CacheSimulation\CacheSimulation.csproj">
+      <Project>{2AC77101-3E57-41ED-8A57-0AB22305D194}</Project>
+      <Name>CacheSimulation</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
