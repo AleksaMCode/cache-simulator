@@ -28,7 +28,7 @@ namespace CacheSimulator
                 {
                     instruction = L1.TraceLineParser(line);
                 }
-                catch(Exception)
+                catch (Exception)
                 {
                     continue;
                 }
