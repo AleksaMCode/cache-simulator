@@ -38,10 +38,6 @@ namespace CacheSimulation
         public int Associativity { get; set; } = 0;
         public int BlockOffsetLength { get; set; } = 0;
         public int SetIndexLength { get; set; } = 0;
-        /// <summary>
-        /// Index of the latest cache entry. This values is used to implement Bélády's algorithm.
-        /// </summary>
-        public int LatestIndex { get; set; } = -1;
         public CacheConfiguration CacheConfig { get; set; } = new CacheConfiguration();
 
         private string ramFileName { get; set; }
