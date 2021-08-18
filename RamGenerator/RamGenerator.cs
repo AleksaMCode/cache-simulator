@@ -21,7 +21,7 @@ namespace RamGenerator
         private const int blockSize = 1024 * 8;
 
         /// <summary>
-        /// Generates object of class RamGenerator which can then be used to create a RAM file on HDD filled with random data..
+        /// Generates object of class RamGenerator which can then be used to create a RAM file on HDD filled with random data.
         /// </summary>
         /// <param name="fileName">Name of the ram file.</param>
         /// <param name="ramSize">Size of RAM file in megabytes.</param>
