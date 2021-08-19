@@ -545,7 +545,8 @@ namespace CacheSimulation
                         var offset = BitConverter.ToInt32(bAddress, 0);
                         var buffer = new byte[size];
                         // TODO: could be a problem conversion from long to int. Fix this!
-                        stream.Read(buffer, offset, size);
+                        stream.Seek(offset, SeekOrigin.Begin);
+                        stream.Read(buffer, 0, size);
                         CacheEntries[i].DataBlock = buffer;
                         ++StatisticsInfo.MemoryWrites;
                         //TODO: handle else case!
