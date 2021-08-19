@@ -71,6 +71,8 @@ namespace CacheSimulation
                 throw new Exception("Associativity is not a power of 2.");
             }
 
+            Size = cacheInfo.size;
+            CacheConfig.SetCacheConfig(cacheInfo.blockSize, cacheInfo.writePolicy, cacheInfo.replacementPolicy);
             NumberOfLines = Size / CacheConfig.BlockSize;
 
             if (cacheInfo.associativity > NumberOfLines)
@@ -78,9 +80,7 @@ namespace CacheSimulation
                 throw new Exception($"The cache with {NumberOfLines}-lines can't be {cacheInfo.associativity}-way set-associative.");
             }
 
-            Size = cacheInfo.size;
             SetSize = Associativity = cacheInfo.associativity;
-            CacheConfig.SetCacheConfig(cacheInfo.blockSize, cacheInfo.writePolicy, cacheInfo.replacementPolicy);
 
             NumberOfSets = Size / (SetSize * CacheConfig.BlockSize);
             BlockOffsetLength = (int)Math.Ceiling(Math.Log(CacheConfig.BlockSize, 2));

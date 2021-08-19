@@ -112,11 +112,13 @@ namespace CacheSimulator
         private void TraceFilePicker(object sender, RoutedEventArgs e)
         {
             FilePicker();
+            traceFileNameTextBox.Text = traceFileFullPath.Substring(traceFileFullPath.LastIndexOf('\\') + 1);
         }
 
         private void RamFilePicker(object sender, RoutedEventArgs e)
         {
             FilePicker(false);
+            ramFileNameTextBox.Text = ramFileFullPath.Substring(ramFileFullPath.LastIndexOf('\\') + 1);
         }
 
         private void FilePicker(bool isItTraceFile = true)
