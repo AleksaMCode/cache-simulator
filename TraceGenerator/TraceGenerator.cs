@@ -96,7 +96,7 @@ namespace TraceGenerator
             var instruction = instructions[size % 2];
 
             return instruction == "L"
-                ? $"{instruction}\t0x{RandomAddressInRangeGenerator(ramSize, dataBlockSize)}"
+                ? $"{instruction}\t0x{RandomAddressInRangeGenerator(ramSize, dataBlockSize)},\t{size}"
                 : $"{instruction}\t0x{RandomAddressInRangeGenerator(ramSize, dataBlockSize)},\t{size},\t0x{RandomHexNumberGenerator(size)}";
         }
 

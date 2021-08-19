@@ -131,17 +131,21 @@ namespace CacheSimulator
 
         private void TraceFilePicker(object sender, RoutedEventArgs e)
         {
-            FilePicker();
-            traceFileNameTextBox.Text = traceFileFullPath.Substring(traceFileFullPath.LastIndexOf('\\') + 1);
+            if (FilePicker())
+            {
+                traceFileNameTextBox.Text = traceFileFullPath.Substring(traceFileFullPath.LastIndexOf('\\') + 1);
+            }
         }
 
         private void RamFilePicker(object sender, RoutedEventArgs e)
         {
-            FilePicker(false);
-            ramFileNameTextBox.Text = ramFileFullPath.Substring(ramFileFullPath.LastIndexOf('\\') + 1);
+            if (FilePicker(false))
+            {
+                ramFileNameTextBox.Text = ramFileFullPath.Substring(ramFileFullPath.LastIndexOf('\\') + 1);
+            }
         }
 
-        private void FilePicker(bool isItTraceFile = true)
+        private bool FilePicker(bool isItTraceFile = true)
         {
             var fileChooseDialog = new OpenFileDialog();
             var dialog = fileChooseDialog.ShowDialog();
@@ -160,7 +164,10 @@ namespace CacheSimulator
             else
             {
                 MessageBox.Show($"There was an error while getting your {(isItTraceFile ? "trace" : "ram")} file", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
             }
+
+            return true;
         }
 
         private void GenerateTraceFile(object sender, RoutedEventArgs e)
