@@ -7,14 +7,16 @@
         xmlns:controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
         xmlns:local="clr-namespace:CacheSimulator"
         Topmost="False"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="450" Width="1000">
     <Grid Margin="5">
         <Grid.RowDefinitions>
-            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <Grid x:Name="memoryGeneratorsGrid" Grid.Row="0" Grid.Column="0">
@@ -23,34 +25,34 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             <Grid Grid.Row="0">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
-                <Label Grid.Row="0">Generate trace file:</Label>
+                <Label Grid.Row="0" FontWeight="SemiBold">Generate trace file:</Label>
                 <Grid Grid.Row="1">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
                     <Label Grid.Column="0" VerticalAlignment="Center">Size:</Label>
+                    <Separator Grid.Column="1" Width="23" Background="Transparent"/>
                     <ComboBox x:Name="traceFileSizeComboBox"
                               VerticalAlignment="Center"
                               ToolTip="large is 10,000, medium 1,000 and small is 100 instructions."
-                              Margin="0,0,4,0"
+                              Width="130"
+                              HorizontalAlignment="Left"
                               Grid.Column="2">
                         <ComboBoxItem IsSelected="True">small</ComboBoxItem>
                         <ComboBoxItem>medium</ComboBoxItem>
                         <ComboBoxItem>large</ComboBoxItem>
                     </ComboBox>
-                    <Separator Grid.Column="1" Width="20" Background="Transparent"/>
-                    <Button x:Name="generateTraceFileButton" Margin="5,2,5,2" Grid.Column="3">Generate</Button>
+                    <Button x:Name="generateTraceFileButton" HorizontalAlignment="Left" Width="100" Margin="5,2,5,2" Grid.Column="3">Generate</Button>
                 </Grid>
             </Grid>
             <Grid Grid.Row="1">
@@ -58,14 +60,14 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
-                <Label Grid.Row="0">Generate RAM file:</Label>
+                <Label Grid.Row="0" FontWeight="SemiBold">Generate RAM file:</Label>
                 <Grid Grid.Row="1">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
                     <Label Grid.Column="0" VerticalAlignment="Center">
                         <TextBlock>Size<LineBreak/>(in Mb):</TextBlock>
@@ -76,30 +78,36 @@
                         Value="500"
                         Minimum="500"
                         Maximum="4000"
+                        Width="130"
+                        HorizontalAlignment="Left"
                         Margin="7,5,0,5"/>
-                    <Button x:Name="generateRamFileButton" Margin="7,5,5,5" Grid.Column="3">Generate</Button>
+                    <Button x:Name="generateRamFileButton" HorizontalAlignment="Left" Width="100" Margin="5,5,5,5" Grid.Column="2">Generate</Button>
                 </Grid>
             </Grid>
-            <Separator Grid.Row="2" Height="10" Background="Black"/>
+            <Separator Grid.Row="2" Height="10" Background="Transparent"/>
             <Grid Grid.Row="3">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*" />
                     <RowDefinition Height="*" />
                     <RowDefinition Height="*" />
+                    <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
                 <Grid Grid.Row="0">
+                    <Label FontWeight="SemiBold">Load cache files (trace and RAM file):</Label>
+                </Grid>
+                <Grid Grid.Row="1">
                     <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                     <Label Grid.Column="0">Load trace file:</Label>
                     <TextBox Grid.Column="1" IsReadOnly="True"/>
                     <Button Grid.Column="2" Margin="5,0,0,0">Choose</Button>
                 </Grid>
-                <Separator Grid.Row="1" Width="20" Background="Transparent"/>
-                <Grid Grid.Row="2">
+                <Separator Grid.Row="2" Width="20" Background="Transparent"/>
+                <Grid Grid.Row="3">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="*" />
@@ -112,8 +120,14 @@
                 </Grid>
             </Grid>
         </Grid>
-        <Grid x:Name="cacheParametersGrid" Grid.Row="0" Grid.Column="1">
+        <Rectangle Grid.Row="0" Grid.Column="1" VerticalAlignment="Stretch" Width="0.8" Margin="2" Stroke="Black" />
+        <Grid x:Name="cacheParametersGrid" Grid.Row="0" Grid.Column="2" VerticalAlignment="Center">
             <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
@@ -128,9 +142,105 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <Label Grid.Column="0">Cache size:</Label>
-                <Separator Grid.Column="1" Width="5" Background="Transparent"/>
-                <TextBox Grid.Column="2" Width="50" VerticalContentAlignment="Center" PreviewTextInput="TextBoxNumberValidator"/>
+                <Separator Grid.Column="1" Width="62" Background="Transparent"/>
+                <TextBox x:Name="cacheSize" Grid.Column="2" Width="50" VerticalContentAlignment="Center" PreviewTextInput="TextBoxNumberValidator"/>
+            </Grid>
+            <Separator Grid.Row="1" Height="1" Background="Transparent"/>
+            <Grid Grid.Row="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Label Grid.Column="0">Cache line size:</Label>
+                <Separator Grid.Column="1" Width="41" Background="Transparent"/>
+                <TextBox x:Name="cacheLineSize" Grid.Column="2" Width="50" VerticalContentAlignment="Center" PreviewTextInput="TextBoxNumberValidator"/>
+            </Grid>
+            <Separator Grid.Row="3" Height="1" Background="Transparent"/>
+            <Grid Grid.Row="4">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Label Grid.Column="0">Cache associativity:</Label>
+                <Separator Grid.Column="1" Width="20" Background="Transparent"/>
+                <ComboBox x:Name="cacheAssociativityComboBox"
+                              VerticalAlignment="Center"
+                              Margin="0,0,4,0"
+                              Width="238"
+                              Grid.Column="2">
+                    <ComboBoxItem IsSelected="True">Directly mapped</ComboBoxItem>
+                    <ComboBoxItem>N-way set associative</ComboBoxItem>
+                </ComboBox>
+                <TextBox x:Name="cacheAssociativity" Visibility="Collapsed" Grid.Column="3" Width="50" VerticalContentAlignment="Center" PreviewTextInput="TextBoxNumberValidator"/>
+            </Grid>
+            <Separator Grid.Row="5" Height="1" Background="Transparent"/>
+            <Grid Grid.Row="6">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Label Grid.Column="0">Write policy:</Label>
+                <Separator Grid.Column="1" Width="56" Background="Transparent"/>
+                <ComboBox x:Name="cacheWritePolicyComboBox"
+                              VerticalAlignment="Center"
+                              Margin="0,0,4,0"
+                              Width="238"
+                              Grid.Column="2">
+                    <ComboBoxItem IsSelected="True">Write-back</ComboBoxItem>
+                    <ComboBoxItem>Write-through</ComboBoxItem>
+                    <ComboBoxItem IsEnabled="False">Write allocate</ComboBoxItem>
+                    <ComboBoxItem IsEnabled="False">No-write allocate</ComboBoxItem>
+                </ComboBox>
+            </Grid>
+            <Separator Grid.Row="7" Height="1" Background="Transparent"/>
+            <Grid Grid.Row="8">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Label Grid.Column="0">Replacement policies:</Label>
+                <Separator Grid.Column="1" Width="8" Background="Transparent"/>
+                <ComboBox x:Name="cacheReplacementPolicyComboBox"
+                              VerticalAlignment="Center"
+                              Margin="0,0,4,0"
+                              Width="238"
+                              Grid.Column="2">
+                    <ComboBoxItem IsSelected="True">Least recently used (LRU)</ComboBoxItem>
+                    <ComboBoxItem>First in first out (FIFO)</ComboBoxItem>
+                    <ComboBoxItem>Last in first out (LIFO)</ComboBoxItem>
+                    <ComboBoxItem>Bélády's algorithm</ComboBoxItem>
+                    <ComboBoxItem IsEnabled="False">Time aware least recently used (TLRU)</ComboBoxItem>
+                    <ComboBoxItem IsEnabled="False">Most recently used (MRU)</ComboBoxItem>
+                    <ComboBoxItem IsEnabled="False">Random replacement (RR)</ComboBoxItem>
+                    <ComboBoxItem IsEnabled="False">Least-frequently used (LFU)</ComboBoxItem>
+                    <ComboBoxItem IsEnabled="False">LFU with dynamic aging (LFUDA)</ComboBoxItem>
+                </ComboBox>
+            </Grid>
+            <Separator Grid.Row="9" Height="1" Background="Transparent"/>
+            <Grid Grid.Row="10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Label Grid.Column="0">Cache levels:</Label>
+                <Separator Grid.Column="1" Width="55" Background="Transparent"/>
+                <ComboBox x:Name="cacheTypeComboBox"
+                              VerticalAlignment="Center"
+                              Margin="0,0,4,0"
+                              Width="238"
+                              Grid.Column="2">
+                    <ComboBoxItem IsSelected="True">L1 (data)</ComboBoxItem>
+                    <ComboBoxItem IsEnabled="False">L1 (instruction and data)</ComboBoxItem>
+                    <ComboBoxItem IsEnabled="False">L1 and L2</ComboBoxItem>
+                </ComboBox>
             </Grid>
         </Grid>
+        <Separator Grid.Row="1" Grid.ColumnSpan="3" Height="4" Margin="0,5,0,0" Background="Black"/>
     </Grid>
 </Window>
