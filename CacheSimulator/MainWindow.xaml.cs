@@ -66,9 +66,9 @@ namespace CacheSimulator
         {
             return policy switch
             {
-                "Write-through" => WritePolicy.WriteBack,
-                "Write allocate" => WritePolicy.WriteBack,
-                "No-write allocate" => WritePolicy.WriteBack,
+                "Write-through" => WritePolicy.WriteThrough,
+                "Write allocate" => WritePolicy.WriteAllocate,
+                "No-write allocate" => WritePolicy.WriteAround,
                 /*"Write-back"*/
                 _ => WritePolicy.WriteBack,
             };
