@@ -45,6 +45,11 @@ namespace CacheSimulation
 
         public Cache((string ramFileName, string traceFileName, int size, int associativity, int blockSize, WritePolicy writePolicy, ReplacementPolicy replacementPolicy) cacheInfo)
         {
+            if (cacheInfo.blockSize >= cacheInfo.size)
+            {
+                throw new Exception($"Size of the cache line ({cacheInfo.blockSize} B) can't be larger than the total cache size ({cacheInfo.size} B).");
+            }
+
             RamFileName = cacheInfo.ramFileName;
             TraceFileName = cacheInfo.traceFileName;
 

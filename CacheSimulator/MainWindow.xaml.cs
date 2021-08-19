@@ -25,9 +25,23 @@ namespace CacheSimulator
         private string traceFileFullPath = null;
         private string ramFileFullPath = null;
 
+        private CPU cpu = null;
+
         public MainWindow()
         {
             InitializeComponent();
+        }
+
+        private void StartSimulation(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                //cpu = new CPU(());
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
         }
 
         private void TextBoxNumberValidator(object sender, TextCompositionEventArgs e)
