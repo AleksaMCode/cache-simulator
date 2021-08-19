@@ -287,7 +287,7 @@ namespace CacheSimulation
                     CacheEntries[i].Tag = binaryAddress;
 
                     // Write data to cache.
-                    buffer = BitConverter.GetBytes(Convert.ToInt32(data, 16));
+                    buffer = GetBytesFromString(data);
                     if (buffer.Length > size)
                     {
                         CacheEntries[i].DataBlock = new byte[size];
@@ -378,7 +378,7 @@ namespace CacheSimulation
             CacheEntries[replacementIndex].Tag = binaryAddress;
 
             // Write data to cache.
-            buffer = BitConverter.GetBytes(Convert.ToInt32(data, 16));
+            buffer = GetBytesFromString(data);
             if (buffer.Length > size)
             {
                 CacheEntries[replacementIndex].DataBlock = new byte[size];
@@ -410,6 +410,23 @@ namespace CacheSimulation
             {
                 Aging(replacementIndex, CacheEntries[replacementIndex].Set);
             }
+        }
+
+        /// <summary>
+        /// Converts hex number in string to byte array.
+        /// </summary>
+        /// <param name="hexNumber">Hex number stored in string.</param>
+        /// <returns>Converted hex number in byte format.</returns>
+        private byte[] GetBytesFromString(string hexNumber)
+        {
+            var output = new byte[hexNumber.Length / 2];
+
+            for (var i = 0; i < hexNumber.Length; i += 2)
+            {
+                output[i / 2] = Convert.ToByte(hexNumber.Substring(i, 2), 16);
+            }
+
+            return output;
         }
 
         /// <summary>
