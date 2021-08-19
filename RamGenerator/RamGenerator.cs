@@ -27,7 +27,7 @@ namespace RamGenerator
         /// <param name="ramSize">Size of RAM file in megabytes.</param>
         public RamGenerator(int ramSize, string fileName = "ram")
         {
-            FileName = $"{fileName}{DateTime.Now:yyyyMMddHHmmss}.dat";
+            FileName = $"{fileName}-{DateTime.Now:yyyyMMddHHmmss}.dat";
             this.ramSize = ramSize;
         }
 
