@@ -534,32 +534,30 @@ namespace CacheSimulation
                     {
                         // Read the data from the RAM.
                         using var stream = new FileStream(RamFileName, FileMode.Open, FileAccess.Read);
-
                         var bAddress = GetBytesFromString(address);
 
                         if (BitConverter.IsLittleEndian)
                         {
-                            Array.Reverse(bAddress); 
+                            Array.Reverse(bAddress);
                         }
 
                         var offset = BitConverter.ToInt32(bAddress, 0);
                         var buffer = new byte[size];
-                        // TODO: could be a problem conversion from long to int. Fix this!
+
                         stream.Seek(offset, SeekOrigin.Begin);
                         stream.Read(buffer, 0, size);
                         CacheEntries[i].DataBlock = buffer;
+
                         ++StatisticsInfo.MemoryWrites;
-                        //TODO: handle else case!
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
-                        //TOOD: handle this!
                     }
 
-                    if (CacheConfig.WritePolicy == WritePolicy.WriteBack)
-                    {
-                        CacheEntries[i].FlagBits.Dirty = false;
-                    }
+                    //if (CacheConfig.WritePolicy == WritePolicy.WriteBack)
+                    //{
+                    //    CacheEntries[i].FlagBits.Dirty = false;
+                    //}
 
                     if (CacheConfig.ReplacementPolicy == ReplacementPolicy.LeastRecentlyUsed)
                     {
