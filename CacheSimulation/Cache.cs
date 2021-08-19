@@ -117,7 +117,10 @@ namespace CacheSimulation
             CacheEntries = new List<CacheEntry>(NumberOfLines);
             for (var i = 0; i < NumberOfLines; ++i)
             {
-                CacheEntries[i].Set = i / Associativity;
+                CacheEntries[i] = new CacheEntry
+                {
+                    Set = i / Associativity
+                };
             }
         }
 
