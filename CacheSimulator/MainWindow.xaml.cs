@@ -161,19 +161,15 @@ namespace CacheSimulator
 
         private void GenerateRamFile(object sender, RoutedEventArgs e)
         {
-            var msgReply = MessageBox.Show($"Trace file will use {(int)ramSizeNumericUpDown.Value.Value} MB RAM size for generating address range and cache line size {cacheLineSize.Text} B for generating random data.", "Warning", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
-            if (msgReply == MessageBoxResult.OK)
+            try
             {
-                try
-                {
-                    var ram = new RamGenerator.RamGenerator((int)ramSizeNumericUpDown.Value.Value);
-                    ram.GenerateRam();
-                    MessageBox.Show($"RAM file {ram.FileName} has been successfully created.", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(ex.Message, "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
-                }
+                var ram = new RamGenerator.RamGenerator((int)ramSizeNumericUpDown.Value.Value);
+                ram.GenerateRam();
+                MessageBox.Show($"RAM file {ram.FileName} has been successfully created.", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
     }
