@@ -13,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Microsoft.Win32;
 
 namespace CacheSimulator
 {
@@ -21,6 +22,9 @@ namespace CacheSimulator
     /// </summary>
     public partial class MainWindow : Window
     {
+        private string traceFileFullPath = null;
+        private string ramFileFullPath = null;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -41,6 +45,38 @@ namespace CacheSimulator
             else if (cacheAssociativity != null)
             {
                 cacheAssociativity.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private void TraceFilePicker(object sender, RoutedEventArgs e)
+        {
+            FilePicker();
+        }
+
+        private void RamFilePicker(object sender, RoutedEventArgs e)
+        {
+            FilePicker(false);
+        }
+
+        private void FilePicker(bool isItTraceFile = true)
+        {
+            var fileChooseDialog = new OpenFileDialog();
+            var dialog = fileChooseDialog.ShowDialog();
+
+            if (dialog.HasValue && dialog.Value)
+            {
+                if (isItTraceFile)
+                {
+                    traceFileFullPath = fileChooseDialog.FileName;
+                }
+                else
+                {
+                    ramFileFullPath = fileChooseDialog.FileName;
+                }
+            }
+            else
+            {
+                MessageBox.Show($"There was an error while getting your {(isItTraceFile ? "trace" : "ram")} file", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
     }
