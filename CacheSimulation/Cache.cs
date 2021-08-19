@@ -92,18 +92,18 @@ namespace CacheSimulation
         public Instruction TraceLineParser(string line)
         {
             char[] charsToTrim = { ' ', '0' };
-            var splitLine = line.Split(',');
+            var splitLine = line.Split(',').Select(x => x.TrimStart('\t')).ToArray();
 
             if (line[0] == 'L')
             {
                 return Int32.TryParse(splitLine[1].Trim(), out var size)
-                    ? new Instruction(MemoryRelatedInstructions.Load, line.Split('\t')[1].Trim(' ').Substring(2).TrimStart(charsToTrim), size) :
+                    ? new Instruction(MemoryRelatedInstructions.Load, splitLine[0].Split('\t')[1].Trim(' ').Substring(2).TrimStart(charsToTrim), size) :
                     null;
             }
             else if (line[0] == 'S')
             {
                 return Int32.TryParse(splitLine[1].Trim(), out var size)
-                    ? new Instruction(MemoryRelatedInstructions.Store, line.Split('\t')[1].Substring(2).Trim(charsToTrim), size, splitLine[2].Trim(' ').Substring(2).TrimStart(charsToTrim))
+                    ? new Instruction(MemoryRelatedInstructions.Store, splitLine[0].Split('\t')[1].Substring(2).Trim(charsToTrim), size, splitLine[2].Trim(' ').Substring(2).TrimStart(charsToTrim))
                     : null;
             }
             else
