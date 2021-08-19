@@ -81,11 +81,11 @@ namespace CacheSimulator
                 "First in first out (FIFO)" => ReplacementPolicy.FirstInFirstOut,
                 "Last in first out (LIFO)" => ReplacementPolicy.LastInFirstOut,
                 "Bélády's algorithm" => ReplacementPolicy.Belady,
-                "Time aware least recently used (TLRU)" => ReplacementPolicy.Belady,
-                "Most recently used (MRU)" => ReplacementPolicy.Belady,
-                "Random replacement (RR)" => ReplacementPolicy.Belady,
-                "Least-frequently used (LFU)" => ReplacementPolicy.Belady,
-                "LFU with dynamic aging (LFUDA)" => ReplacementPolicy.Belady,
+                "Time aware least recently used (TLRU)" => ReplacementPolicy.TimeAwareLeastRecentlyUsed,
+                "Most recently used (MRU)" => ReplacementPolicy.MostRecentlyUsed,
+                "Random replacement (RR)" => ReplacementPolicy.RandomReplacement,
+                "Least-frequently used (LFU)" => ReplacementPolicy.LeastFrequentlyUsed,
+                "LFU with dynamic aging (LFUDA)" => ReplacementPolicy.LeastFrequentlyUsedWithDynamicAging,
                 /*"Least recently used (LRU)"*/
                 _ => ReplacementPolicy.LeastRecentlyUsed
             };
