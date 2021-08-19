@@ -19,7 +19,12 @@ namespace CacheSimulation
         LeastRecentlyUsed = 0,
         Belady = 1,
         FirstInFirstOut = 2,
-        LastInFirstOut = 3
+        LastInFirstOut = 3,
+        TimeAwareLeastRecentlyUsed = 4,
+        MostRecentlyUsed = 5,
+        RandomReplacement = 6,
+        LeastFrequentlyUsed = 7,
+        LeastFrequentlyUsedWithDynamicAging = 8
     }
 
     public class Cache

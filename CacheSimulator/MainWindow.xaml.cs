@@ -13,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using CacheSimulation;
 using Microsoft.Win32;
 
 namespace CacheSimulator
@@ -36,12 +37,53 @@ namespace CacheSimulator
         {
             try
             {
-                //cpu = new CPU(());
+                var size = Int32.Parse(cacheSize.Text);
+                var lineSize = Int32.Parse(cacheLineSize.Text);
+
+                var associativity = cacheAssociativityComboBox.Text switch
+                {
+                    "Directly mapped" => 1,
+                    "Fully associative" => size / lineSize,
+                    /*"N-way set associative" */
+                    _ => Int32.Parse(cacheAssociativity.Text)
+                };
+
+                cpu = new CPU((ramFileFullPath, traceFileFullPath, size, associativity, lineSize,
+                    GetWritePolicy(cacheWritePolicyComboBox.Text), GetReplacementPolicy(cacheReplacementPolicyComboBox.Text)));
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message, "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
+        }
+
+        private WritePolicy GetWritePolicy(string policy)
+        {
+            return policy switch
+            {
+                "Write-through" => WritePolicy.WriteBack,
+                "Write allocate" => WritePolicy.WriteBack,
+                "No-write allocate" => WritePolicy.WriteBack,
+                /*"Write-back"*/
+                _ => WritePolicy.WriteBack,
+            };
+        }
+
+        private ReplacementPolicy GetReplacementPolicy(string policy)
+        {
+            return policy switch
+            {
+                "First in first out (FIFO)" => ReplacementPolicy.FirstInFirstOut,
+                "Last in first out (LIFO)" => ReplacementPolicy.LastInFirstOut,
+                "Bélády's algorithm" => ReplacementPolicy.Belady,
+                "Time aware least recently used (TLRU)" => ReplacementPolicy.Belady,
+                "Most recently used (MRU)" => ReplacementPolicy.Belady,
+                "Random replacement (RR)" => ReplacementPolicy.Belady,
+                "Least-frequently used (LFU)" => ReplacementPolicy.Belady,
+                "LFU with dynamic aging (LFUDA)" => ReplacementPolicy.Belady,
+                /*"Least recently used (LRU)"*/
+                _ => ReplacementPolicy.LeastRecentlyUsed
+            };
         }
 
         private void TextBoxNumberValidator(object sender, TextCompositionEventArgs e)
