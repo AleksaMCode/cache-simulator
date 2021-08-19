@@ -80,14 +80,15 @@
                         <TextBlock>Size<LineBreak/>(in Mb):</TextBlock>
                     </Label>
                     <MetroControls:NumericUpDown x:Name="ramSizeNumericUpDown"
-                        Grid.Column="1"
-                        Interval="500"
-                        Value="500"
-                        Minimum="500"
-                        Maximum="4000"
-                        Width="130"
-                        HorizontalAlignment="Left"
-                        Margin="7,5,0,5"/>
+                                                 Grid.Column="1"
+                                                 Interval="500"
+                                                 Value="500"
+                                                 Minimum="500"
+                                                 Maximum="4000"
+                                                 Width="130"
+                                                 HorizontalAlignment="Left"
+                                                 PreviewTextInput="TextBoxNumberValidator"
+                                                 Margin="7,5,0,5"/>
                     <Button x:Name="generateRamFileButton" HorizontalAlignment="Left" Width="100" Margin="5,5,5,5" Grid.Column="2">Generate</Button>
                 </Grid>
             </Grid>
