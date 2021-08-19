@@ -43,8 +43,8 @@
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                     <Label Grid.Column="0" VerticalAlignment="Center">Size:</Label>
                     <Separator Grid.Column="1" Width="23" Background="Transparent"/>
@@ -58,7 +58,8 @@
                         <ComboBoxItem>medium</ComboBoxItem>
                         <ComboBoxItem>large</ComboBoxItem>
                     </ComboBox>
-                    <Button x:Name="generateTraceFileButton" HorizontalAlignment="Left" Width="100" Margin="5,2,5,2" Grid.Column="3">Generate</Button>
+                    <Separator Grid.Column="3" Width="1" Background="Transparent"/>
+                    <Button x:Name="generateTraceFileButton" HorizontalAlignment="Left" Width="100" Margin="5,2,5,2" Grid.Column="4">Generate</Button>
                 </Grid>
             </Grid>
             <Grid Grid.Row="1">
@@ -148,7 +149,7 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <Label Grid.Column="0">Cache size:</Label>
-                <Separator Grid.Column="1" Width="62" Background="Transparent"/>
+                <Separator Grid.Column="1" Width="63" Background="Transparent"/>
                 <TextBox x:Name="cacheSize" Grid.Column="2" Width="50" VerticalContentAlignment="Center" PreviewTextInput="TextBoxNumberValidator"/>
             </Grid>
             <Separator Grid.Row="1" Height="1" Background="Transparent"/>
@@ -179,6 +180,7 @@
                               Grid.Column="2">
                     <ComboBoxItem IsSelected="True">Directly mapped</ComboBoxItem>
                     <ComboBoxItem>N-way set associative</ComboBoxItem>
+                    <ComboBoxItem>Fully associative</ComboBoxItem>
                 </ComboBox>
                 <TextBox x:Name="cacheAssociativity" Visibility="Collapsed" Grid.Column="3" Width="50" VerticalContentAlignment="Center" PreviewTextInput="TextBoxNumberValidator"/>
             </Grid>
