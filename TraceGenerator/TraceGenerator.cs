@@ -34,6 +34,11 @@ namespace TraceGenerator
         };
 
         /// <summary>
+        /// List of unique addresses.
+        /// </summary>
+        private List<string> uniqueAddresses;
+
+        /// <summary>
         /// Currently available instructions to execute on the simulated CPU used to interact with cache and RAM.
         /// </summary>
         private readonly string[] instructions = new string[] { "L", "S" };
@@ -63,7 +68,7 @@ namespace TraceGenerator
         }
 
         /// <summary>
-        /// Gnerates random number in hex format that is used as a memory address.
+        /// Generates random number in hex format that is used as a memory address.
         /// </summary>
         /// <param name="ramSize">Size of RAM in bytes.</param>
         /// <param name="dataBlockSize">Size of data block in bytes.</param>
@@ -75,9 +80,9 @@ namespace TraceGenerator
 
         /// <summary>
         /// Generates random integer inside of the range [lowerLimit,upperLimit].
-        /// <param name="lowerLimit">Lower limit of the range which is included in range.</param>
-        /// <param name="upperLimit">Upper limit of the range which is included in range.</param>
         /// </summary>
+        /// <param name="upperLimit">Lower limit of the range which is included in range.</param>
+        /// <param name="lowerLimit">Upper limit of the range which is included in range.</param>
         /// <returns>Random integer number from range.</returns>
         private int RandomIntegerGenerator(int upperLimit, int lowerLimit = 0)
         {
@@ -90,14 +95,14 @@ namespace TraceGenerator
         /// <param name="ramSize">Size of RAM in bytes.</param>
         /// <param name="dataBlockSize">Size of data block in bytes.</param>
         /// <returns>Generated instruction line.</returns>
-        private string GenerateTraceLine(int ramSize, int dataBlockSize)
+        private string GenerateTraceLine(int ramSize, int dataBlockSize, bool onlyUniqueAddress)
         {
             var size = RandomIntegerGenerator(dataBlockSize);
             var instruction = instructions[size % 2];
 
             return instruction == "L"
-                ? $"{instruction}\t0x{RandomAddressInRangeGenerator(ramSize, dataBlockSize)},\t{size}"
-                : $"{instruction}\t0x{RandomAddressInRangeGenerator(ramSize, dataBlockSize)},\t{size},\t0x{RandomHexNumberGenerator(size)}";
+                ? $"{instruction}\t0x{(onlyUniqueAddress ? RandomAddressInRangeGenerator(ramSize, dataBlockSize) : uniqueAddresses[RandomIntegerGenerator(uniqueAddresses.Count - 1)])},\t{size}"
+                : $"{instruction}\t0x{(onlyUniqueAddress ? RandomAddressInRangeGenerator(ramSize, dataBlockSize) : uniqueAddresses[RandomIntegerGenerator(uniqueAddresses.Count - 1)])},\t{size},\t0x{RandomHexNumberGenerator(size)}";
         }
 
         /// <summary>
@@ -106,14 +111,26 @@ namespace TraceGenerator
         /// <param name="ramSize">Size of RAM in megabytes.</param>
         /// <param name="dataBlockSize">Size of data block in cache entries in bytes.</param>
         /// <returns>true if the trace creation process is successful; otherwise false.</returns>
-        public void GenerateTraceFile(int ramSize, int dataBlockSize)
+        public void GenerateTraceFile(int ramSize, int dataBlockSize, bool onlyUniqueAddress = false)
         {
+            // Create a pool of unique address which will contain 10% of total addresses used in the trace file.
+            if (!onlyUniqueAddress)
+            {
+                var count = (int)(traceSize * 0.1);
+                uniqueAddresses = new List<string>(count);
+
+                for (var i = 0; i < count; ++i)
+                {
+                    uniqueAddresses.Add(RandomAddressInRangeGenerator(ramSize, dataBlockSize));
+                }
+            }
+
             try
             {
                 var sb = new StringBuilder();
                 for (var i = 0; i < traceSize; ++i)
                 {
-                    sb.AppendLine(GenerateTraceLine(ramSize * 1_024 * 1_000, dataBlockSize));
+                    sb.AppendLine(GenerateTraceLine(ramSize * 1_024 * 1_000, dataBlockSize, onlyUniqueAddress));
                 }
 
                 File.WriteAllText(FileName, sb.ToString());
