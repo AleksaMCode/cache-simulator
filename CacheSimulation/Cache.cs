@@ -103,7 +103,7 @@ namespace CacheSimulation
             else if (line[0] == 'S')
             {
                 return Int32.TryParse(splitLine[1].Trim(), out var size)
-                    ? new Instruction(MemoryRelatedInstructions.Store, splitLine[0].Split('\t')[1].Substring(2).Trim(charsToTrim), size, splitLine[2].Trim(' ').Substring(2).TrimStart(charsToTrim))
+                    ? new Instruction(MemoryRelatedInstructions.Store, splitLine[0].Split('\t')[1].Substring(2).TrimStart(charsToTrim), size, splitLine[2].Trim(' ').Substring(2).TrimStart(charsToTrim))
                     : null;
             }
             else
