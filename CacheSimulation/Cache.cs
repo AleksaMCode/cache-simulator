@@ -235,7 +235,7 @@ namespace CacheSimulation
                         //if (CacheConfig.ReplacementPolicy == ReplacementPolicy.LeastRecentlyUsed)
 
                         // Write data to cache.
-                        buffer = BitConverter.GetBytes(Convert.ToInt32(data, 16));
+                        buffer = GetBytesFromString(data);
                         if (buffer.Length > size)
                         {
                             CacheEntries[i].DataBlock = new byte[size];
@@ -419,6 +419,12 @@ namespace CacheSimulation
         /// <returns>Converted hex number in byte format.</returns>
         private byte[] GetBytesFromString(string hexNumber)
         {
+            // Adding a leading zero to avoid conversion errors.
+            if ((hexNumber.Length % 2) != 0)
+            {
+                hexNumber = 0 + hexNumber;
+            }
+
             var output = new byte[hexNumber.Length / 2];
 
             for (var i = 0; i < hexNumber.Length; i += 2)
