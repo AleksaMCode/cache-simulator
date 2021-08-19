@@ -49,13 +49,23 @@ namespace CacheSimulation
             TraceFileName = cacheInfo.traceFileName;
 
             // Explanation for this check implementation https://stackoverflow.com/questions/2751593/how-to-determine-if-a-decimal-double-is-an-integer .
-            if (Math.Abs(Math.Log(cacheInfo.blockSize, 2) % 1) <= (double.Epsilon * 100))
+            var logBlockSize = Math.Log(cacheInfo.blockSize, 2);
+            var logAssociativity = Math.Log(cacheInfo.associativity, 2);
+
+            if (Math.Ceiling(logBlockSize) != Math.Floor(logBlockSize))
             {
                 throw new Exception("Block size is not a power of 2.");
             }
-            else if (Math.Abs(Math.Log(cacheInfo.associativity, 2) % 1) <= (double.Epsilon * 100))
+            else if (Math.Ceiling(logAssociativity) != Math.Floor(logAssociativity))
             {
                 throw new Exception("Associativity is not a power of 2.");
+            }
+
+            NumberOfLines = Size / CacheConfig.BlockSize;
+
+            if (cacheInfo.associativity > NumberOfLines)
+            {
+                throw new Exception($"The cache with {NumberOfLines}-lines can't be {cacheInfo.associativity}-way set-associative.");
             }
 
             Size = cacheInfo.size;
@@ -63,7 +73,6 @@ namespace CacheSimulation
             CacheConfig.SetCacheConfig(cacheInfo.blockSize, cacheInfo.writePolicy, cacheInfo.replacementPolicy);
 
             NumberOfSets = Size / (SetSize * CacheConfig.BlockSize);
-            NumberOfLines = Size / CacheConfig.BlockSize;
             BlockOffsetLength = (int)Math.Ceiling(Math.Log(CacheConfig.BlockSize, 2));
             SetIndexLength = (int)Math.Ceiling(Math.Log(Size / (SetSize * CacheConfig.BlockSize), 2));
 
