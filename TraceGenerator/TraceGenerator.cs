@@ -16,7 +16,7 @@ namespace TraceGenerator
         /// <summary>
         /// Name of the trace file.
         /// </summary>
-        private readonly string fileName;
+        public readonly string FileName;
 
         /// <summary>
         /// Size of trace file (number of instructions).
@@ -45,7 +45,7 @@ namespace TraceGenerator
         /// <param name="fileName">Name of the trace file.</param>
         public TraceGenerator(string traceSize, string fileName = "instructions")
         {
-            this.fileName = $"{fileName}-{DateTime.Now:yyyyMMddHHmmss}.trace";
+            FileName = $"{fileName}-{DateTime.Now:yyyyMMddHHmmss}.trace";
             this.traceSize = traceSizes[traceSize.ToLower()];
         }
 
@@ -106,7 +106,7 @@ namespace TraceGenerator
         /// <param name="ramSize">Size of RAM in megabytes.</param>
         /// <param name="dataBlockSize">Size of data block in cache entries in bytes.</param>
         /// <returns>true if the trace creation process is successful; otherwise false.</returns>
-        public bool GenerateTraceFile(int ramSize, int dataBlockSize)
+        public void GenerateTraceFile(int ramSize, int dataBlockSize)
         {
             try
             {
@@ -116,13 +116,11 @@ namespace TraceGenerator
                     sb.AppendLine(GenerateTraceLine(ramSize * 1_024 * 1_000, dataBlockSize));
                 }
 
-                File.WriteAllText(fileName, sb.ToString());
-                return true;
+                File.WriteAllText(FileName, sb.ToString());
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                //TODO: handle this!
-                return false;
+                throw new Exception($"Trace file generating failed.\n{ex.Message}");
             }
         }
     }

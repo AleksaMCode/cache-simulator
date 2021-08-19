@@ -11,7 +11,7 @@ namespace RamGenerator
         /// <summary>
         /// Name of the RAM file.
         /// </summary>
-        private readonly string fileName;
+        public readonly string FileName;
 
         /// <summary>
         /// Size of RAM in megabytes.
@@ -25,9 +25,9 @@ namespace RamGenerator
         /// </summary>
         /// <param name="fileName">Name of the ram file.</param>
         /// <param name="ramSize">Size of RAM file in megabytes.</param>
-        public RamGenerator(int ramSize, string fileName = "RAM.dat")
+        public RamGenerator(int ramSize, string fileName = "ram")
         {
-            this.fileName = fileName;
+            FileName = $"{fileName}{DateTime.Now:yyyyMMddHHmmss}.dat";
             this.ramSize = ramSize;
         }
 
@@ -35,7 +35,7 @@ namespace RamGenerator
         /// Creates a RAM file on HDD filled with random data.
         /// </summary>
         /// <returns>true if the RAM creation process is successful; otherwise false.</returns>
-        public bool GenerateRam()
+        public void GenerateRam()
         {
             var blocksPerMb = (1_024 * 1_024) / blockSize;
             var data = new byte[blockSize];
@@ -43,18 +43,16 @@ namespace RamGenerator
             try
             {
 
-                using var stream = File.OpenWrite(fileName);
+                using var stream = File.OpenWrite(FileName);
                 for (var i = 0; i < ramSize * blocksPerMb; ++i)
                 {
                     rngCsp.GetBytes(data);
                     stream.Write(data, 0, data.Length);
                 }
-
-                return true;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return false;
+                throw new Exception($"RAM file generating failed.\n{ex.Message}");
             }
         }
     }
