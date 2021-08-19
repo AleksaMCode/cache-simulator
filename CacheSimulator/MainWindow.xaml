@@ -174,10 +174,11 @@
                 <Label Grid.Column="0">Cache associativity:</Label>
                 <Separator Grid.Column="1" Width="20" Background="Transparent"/>
                 <ComboBox x:Name="cacheAssociativityComboBox"
-                              VerticalAlignment="Center"
-                              Margin="0,0,4,0"
-                              Width="238"
-                              Grid.Column="2">
+                          SelectionChanged="CacheAssociativityChanged"
+                          VerticalAlignment="Center"
+                          Margin="0,0,4,0"
+                          Width="238"
+                          Grid.Column="2">
                     <ComboBoxItem IsSelected="True">Directly mapped</ComboBoxItem>
                     <ComboBoxItem>N-way set associative</ComboBoxItem>
                     <ComboBoxItem>Fully associative</ComboBoxItem>

@@ -31,5 +31,17 @@ namespace CacheSimulator
             var regex = new Regex("[^0-9]+");
             e.Handled = regex.IsMatch(e.Text);
         }
+
+        private void CacheAssociativityChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if ((((sender as ComboBox).SelectedItem as ComboBoxItem).Content as string) == "N-way set associative")
+            {
+                cacheAssociativity.Visibility = Visibility.Visible;
+            }
+            else if (cacheAssociativity != null)
+            {
+                cacheAssociativity.Visibility = Visibility.Collapsed;
+            }
+        }
     }
 }
