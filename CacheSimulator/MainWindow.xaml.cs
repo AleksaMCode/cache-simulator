@@ -38,6 +38,24 @@ namespace CacheSimulator
 
         private void StartSimulation(object sender, RoutedEventArgs e)
         {
+            if (traceFileFullPath == null)
+            {
+                MessageBox.Show("Please insert the trace file first.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+            else if (ramFileFullPath == null)
+            {
+                MessageBox.Show("Please insert the RAM file first.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+            else if (cacheSize.Text == "" || cacheLineSize.Text == "")
+            {
+                MessageBox.Show("Please fill out all of the cache parameters with values.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            startSimulationButton.IsEnabled = false;
+
             try
             {
                 var size = Int32.Parse(cacheSize.Text);
@@ -60,6 +78,8 @@ namespace CacheSimulator
             {
                 MessageBox.Show(ex.Message, "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
+
+            startSimulationButton.IsEnabled = true;
         }
 
         private WritePolicy GetWritePolicy(string policy)

@@ -114,13 +114,13 @@ namespace CacheSimulation
 
         public void CreateColdCache()
         {
-            CacheEntries = new List<CacheEntry>(NumberOfLines);
+            CacheEntries = new List<CacheEntry>();
             for (var i = 0; i < NumberOfLines; ++i)
             {
-                CacheEntries[i] = new CacheEntry
+                CacheEntries.Add(new CacheEntry
                 {
                     Set = i / Associativity
-                };
+                });
             }
         }
 
