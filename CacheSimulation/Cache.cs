@@ -295,7 +295,7 @@ namespace CacheSimulation
                 {
                     CacheEntries[i].FlagBits.Valid = Validity.Valid;
                     CacheEntries[i].TagLength = GetTagLength(binaryAddress);
-                    CacheEntries[i].Tag = binaryAddress;
+                    CacheEntries[i].Tag = binaryAddress.Substring(0, CacheEntries[i].TagLength);
 
                     // Write data to cache.
                     buffer = GetBytesFromString(data);
@@ -393,7 +393,7 @@ namespace CacheSimulation
                     CacheEntries[replacementIndex].DataBlock = buffer;
 
                     ++StatisticsInfo.MemoryWrites;
-                    sb.AppendLine($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] operation=EVICTION cache_entry_tag={CacheEntries[replacementIndex].Tag}");
+                    sb.Append($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] operation=EVICTION cache_entry_tag={CacheEntries[replacementIndex].Tag}");
                 }
                 catch (Exception)
                 {
@@ -403,7 +403,7 @@ namespace CacheSimulation
 
             // Else just replace data in cache with new data.
             CacheEntries[replacementIndex].TagLength = GetTagLength(binaryAddress);
-            CacheEntries[replacementIndex].Tag = binaryAddress;
+            CacheEntries[replacementIndex].Tag = binaryAddress.Substring(0, CacheEntries[replacementIndex].TagLength);
 
             // Write data to cache.
             buffer = GetBytesFromString(data);
@@ -576,7 +576,7 @@ namespace CacheSimulation
                 {
                     CacheEntries[i].FlagBits.Valid = Validity.Valid;
                     CacheEntries[i].TagLength = GetTagLength(binaryAddress);
-                    CacheEntries[i].Tag = binaryAddress;
+                    CacheEntries[i].Tag = binaryAddress.Substring(0, CacheEntries[i].TagLength);
 
                     try
                     {
@@ -657,7 +657,7 @@ namespace CacheSimulation
                         stream.Write(CacheEntries[replacementIndex].DataBlock, 0, CacheEntries[replacementIndex].DataBlock.Length);
                         ++StatisticsInfo.MemoryWrites;
 
-                        sb.AppendLine($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] operation=EVICTION cache_entry_tag={CacheEntries[replacementIndex].Tag}");
+                        sb.Append($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] operation=EVICTION cache_entry_tag={CacheEntries[replacementIndex].Tag}");
                     }
                     //TODO: handle else case!
                 }
@@ -668,7 +668,7 @@ namespace CacheSimulation
             }
 
             CacheEntries[replacementIndex].TagLength = GetTagLength(binaryAddress);
-            CacheEntries[replacementIndex].Tag = binaryAddress;
+            CacheEntries[replacementIndex].Tag = binaryAddress.Substring(0, CacheEntries[replacementIndex].TagLength);
 
             if (CacheConfig.WritePolicy == WritePolicy.WriteBack)
             {

@@ -37,7 +37,7 @@ namespace CacheSimulator
             InitializeComponent();
         }
 
-        private void StartSimulation(object sender, RoutedEventArgs e)
+        private async void StartSimulation(object sender, RoutedEventArgs e)
         {
             if (traceFileFullPath == null)
             {
@@ -80,7 +80,19 @@ namespace CacheSimulator
                 string line;
                 while ((line = streamReader.ReadLine()) != null)
                 {
-                    cacheStatsTextBox.AppendText(cpu.Start(line));
+                    var task = Task.Run(() =>
+                    {
+                        var cacheLogInfo = cpu.Start(line);
+                        Application.Current.Dispatcher.Invoke(() => cacheStatsTextBox.AppendText(cacheLogInfo));
+                    });
+
+                    try
+                    {
+                        await task;
+                    }
+                    catch (OperationCanceledException)
+                    {
+                    }
                 }
             }
             catch (Exception ex)

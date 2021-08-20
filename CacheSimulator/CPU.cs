@@ -56,8 +56,9 @@ namespace CacheSimulator
             try
             {
                 instruction = L1.TraceLineParser(traceLine);
-                var dataSizeString = $"data_size={instruction.DataSize} B";
-                sb.Append($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] operation={(instruction.InstructionType == MemoryRelatedInstructions.Load ? $"LOAD {dataSizeString}" : $"STORE {dataSizeString} data={instruction.Data}")} ");
+                var dataSizeString = $"data_size={instruction.DataSize}B";
+                var tmp = new StringBuilder();
+                tmp.Append($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] operation={(instruction.InstructionType == MemoryRelatedInstructions.Load ? $"LOAD {dataSizeString}" : $"STORE {dataSizeString} data=0x{instruction.Data}")} ");
 
                 if (instruction != null)
                 {
@@ -66,7 +67,8 @@ namespace CacheSimulator
                         var size = instruction.DataSize < L1.CacheConfig.BlockSize ? instruction.DataSize : L1.CacheConfig.BlockSize;
                         var hitCheck = L1.WriteToCache(instruction.MemoryAddress, size, instruction.Data, out var additionalData);
 
-                        sb.Append($"{(hitCheck ? "hit" : "miss")}");
+                        tmp.Append($"status={(hitCheck ? "hit" : "miss")}");
+                        sb.AppendLine(tmp.ToString());
 
                         if (additionalData != "")
                         {
@@ -78,7 +80,8 @@ namespace CacheSimulator
                         var size = instruction.DataSize < L1.CacheConfig.BlockSize ? instruction.DataSize : L1.CacheConfig.BlockSize;
                         var hitCheck = L1.ReadFromCache(instruction.MemoryAddress, size, out var additionalData);
 
-                        sb.Append($"{(hitCheck ? "hit" : "miss")}");
+                        tmp.Append($"status={(hitCheck ? "hit" : "miss")}");
+                        sb.AppendLine(tmp.ToString());
 
                         if (additionalData != "")
                         {
