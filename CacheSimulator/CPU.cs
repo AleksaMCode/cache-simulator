@@ -21,9 +21,12 @@ namespace CacheSimulator
             using var streamReader = new StreamReader(fileStream, Encoding.UTF8, true, bufferSize);
 
             string line;
+            var currentLine = -1;
             while ((line = streamReader.ReadLine()) != null)
             {
+                ++currentLine;
                 Instruction instruction;
+
                 try
                 {
                     instruction = L1.TraceLineParser(line);
@@ -38,18 +41,18 @@ namespace CacheSimulator
                     if (instruction.InstructionType == MemoryRelatedInstructions.Store)
                     {
                         var size = instruction.DataSize < L1.CacheConfig.BlockSize ? instruction.DataSize : L1.CacheConfig.BlockSize;
-                        L1.WriteToCache(instruction.MemoryAddress, size, instruction.Data, out var _);
+                        L1.WriteToCache(instruction.MemoryAddress, size, instruction.Data, out var _, currentLine);
                     }
                     else
                     {
                         var size = instruction.DataSize < L1.CacheConfig.BlockSize ? instruction.DataSize : L1.CacheConfig.BlockSize;
-                        L1.ReadFromCache(instruction.MemoryAddress, size, out var _);
+                        L1.ReadFromCache(instruction.MemoryAddress, size, out var _, currentLine);
                     }
                 }
             }
         }
 
-        public string Start(string traceLine)
+        public string ExecuteTraceLine(string traceLine, int traceIndex)
         {
             Instruction instruction;
             var sb = new StringBuilder();
@@ -65,7 +68,7 @@ namespace CacheSimulator
                     if (instruction.InstructionType == MemoryRelatedInstructions.Store)
                     {
                         var size = instruction.DataSize < L1.CacheConfig.BlockSize ? instruction.DataSize : L1.CacheConfig.BlockSize;
-                        var hitCheck = L1.WriteToCache(instruction.MemoryAddress, size, instruction.Data, out var additionalData);
+                        var hitCheck = L1.WriteToCache(instruction.MemoryAddress, size, instruction.Data, out var additionalData, traceIndex);
 
                         tmp.Append($"status={(hitCheck ? "hit" : "miss")}");
                         sb.AppendLine(tmp.ToString());
@@ -78,7 +81,7 @@ namespace CacheSimulator
                     else
                     {
                         var size = instruction.DataSize < L1.CacheConfig.BlockSize ? instruction.DataSize : L1.CacheConfig.BlockSize;
-                        var hitCheck = L1.ReadFromCache(instruction.MemoryAddress, size, out var additionalData);
+                        var hitCheck = L1.ReadFromCache(instruction.MemoryAddress, size, out var additionalData, traceIndex);
 
                         tmp.Append($"status={(hitCheck ? "hit" : "miss")}");
                         sb.AppendLine(tmp.ToString());

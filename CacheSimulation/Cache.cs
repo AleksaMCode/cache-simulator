@@ -215,7 +215,7 @@ namespace CacheSimulation
         //    }
         //}
 
-        public bool WriteToCache(string address, int size, string data, out string additionalData)
+        public bool WriteToCache(string address, int size, string data, out string additionalData, int traceIndex)
         {
             additionalData = "";
             var sb = new StringBuilder();
@@ -368,7 +368,7 @@ namespace CacheSimulation
             }
             else if (CacheConfig.ReplacementPolicy == ReplacementPolicy.Belady)
             {
-                replacementIndex = BeladyGetIndex(LoadFutureCacheEntries(address.TrimStart('0')));
+                replacementIndex = BeladyGetIndex(LoadFutureCacheEntries(traceIndex));
             }
 
             // If the write policy is write-back and the dirty flag is set, write the cache entry to RAM first.
@@ -474,6 +474,13 @@ namespace CacheSimulation
             return output;
         }
 
+        private string ConvertBinaryToHex(string binaryNumber)
+        {
+            return string.Join(string.Empty,
+            Enumerable.Range(0, binaryNumber.Length / 8)
+            .Select(i => Convert.ToByte(binaryNumber.Substring(i * 8, 8), 2).ToString("x2")));
+        }
+
         /// <summary>
         /// Returns index of the cache entry that needs to be replaced.
         /// </summary>
@@ -486,7 +493,12 @@ namespace CacheSimulation
 
             for (var i = 0; i < CacheEntries.Count; ++i)
             {
-                var tmpIndex = addressList.IndexOf(Convert.ToInt32(CacheEntries[i].Tag, 2).ToString("X"));
+                if (CacheEntries[i].Tag == null)
+                {
+                    continue;
+                }
+
+                var tmpIndex = addressList.IndexOf(ConvertBinaryToHex(CacheEntries[i].Tag));
 
                 if (tmpIndex >= farthestElement)
                 {
@@ -505,21 +517,31 @@ namespace CacheSimulation
         /// <summary>
         /// Load all of the addresses from the trace file used for the Bélády's algorithm.
         /// </summary>
-        /// <param name="currentAddress">Address of the current request.</param>
+        /// <param name="traceIndex">Current line in trace file.</param>
         /// <returns>List of all of the unique memory addresses that will be used in the future.</returns>
-        private List<string> LoadFutureCacheEntries(string currentAddress)
+        private List<string> LoadFutureCacheEntries(int traceIndex)
         {
             const int bufferSize = 4_096;
             using var fileStream = File.OpenRead(TraceFileName);
             using var streamReader = new StreamReader(fileStream, Encoding.UTF8, true, bufferSize);
+            streamReader.BaseStream.Seek(traceIndex, SeekOrigin.Begin);
 
             var output = new HashSet<string>();
             string line;
+            var currentLine = -1;
             while ((line = streamReader.ReadLine()) != null)
             {
+                ++currentLine;
+
+                // Go to the trace index line.
+                if (currentLine <= traceIndex)
+                {
+                    continue;
+                }
+
                 // Skip 0x and any leading 0 from the address.
                 var address = line.Split('\t')[1].Trim(' ').Substring(2).TrimStart('0').TrimEnd(',').Trim(' ');
-                if (currentAddress != address && !output.Contains(address))
+                if (!output.Contains(address))
                 {
                     output.Add(address);
                 }
@@ -536,7 +558,7 @@ namespace CacheSimulation
         //    }
         //}
 
-        public bool ReadFromCache(string address, int size, out string additionalData)
+        public bool ReadFromCache(string address, int size, out string additionalData, int traceIndex)
         {
             additionalData = "";
             var sb = new StringBuilder();
@@ -641,7 +663,7 @@ namespace CacheSimulation
             }
             else if (CacheConfig.ReplacementPolicy == ReplacementPolicy.Belady)
             {
-                replacementIndex = BeladyGetIndex(LoadFutureCacheEntries(address.TrimStart('0')));
+                replacementIndex = BeladyGetIndex(LoadFutureCacheEntries(traceIndex));
             }
 
             // If the write policy is write-back and the dirty flag is set, write the cache entry to RAM first.
