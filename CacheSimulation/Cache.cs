@@ -476,9 +476,14 @@ namespace CacheSimulation
 
         private string ConvertBinaryToHex(string binaryNumber)
         {
+            if ((binaryNumber.Length % 8) != 0)
+            {
+                binaryNumber = "0000" + binaryNumber;
+            }
+
             return string.Join(string.Empty,
             Enumerable.Range(0, binaryNumber.Length / 8)
-            .Select(i => Convert.ToByte(binaryNumber.Substring(i * 8, 8), 2).ToString("x2")));
+            .Select(i => Convert.ToByte(binaryNumber.Substring(i * 8, 8), 2).ToString("x2"))).TrimStart('0');
         }
 
         /// <summary>
@@ -526,7 +531,7 @@ namespace CacheSimulation
             using var streamReader = new StreamReader(fileStream, Encoding.UTF8, true, bufferSize);
             streamReader.BaseStream.Seek(traceIndex, SeekOrigin.Begin);
 
-            var output = new HashSet<string>();
+            var output = new List<string>();
             string line;
             var currentLine = -1;
             while ((line = streamReader.ReadLine()) != null)
@@ -534,7 +539,7 @@ namespace CacheSimulation
                 ++currentLine;
 
                 // Go to the trace index line.
-                if (currentLine <= traceIndex)
+                if (currentLine < traceIndex)
                 {
                     continue;
                 }
@@ -547,7 +552,7 @@ namespace CacheSimulation
                 }
             }
 
-            return output.ToList();
+            return output;
         }
 
         //public void ReadFromCache(string binaryAddress, int size)
