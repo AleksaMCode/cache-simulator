@@ -78,13 +78,12 @@ namespace CacheSimulator
                 using var streamReader = new StreamReader(fileStream, Encoding.UTF8, true, bufferSize);
 
                 string line;
-                var traceIndex = -1;
+                var traceIndex = 0;
                 while ((line = streamReader.ReadLine()) != null)
                 {
-                    ++traceIndex;
                     var task = Task.Run(() =>
                     {
-                        var cacheLogInfo = cpu.ExecuteTraceLine(line, traceIndex);
+                        var cacheLogInfo = cpu.ExecuteTraceLine(line, ++traceIndex);
                         Application.Current.Dispatcher.Invoke(() => cacheStatsTextBox.AppendText(cacheLogInfo));
                     });
 

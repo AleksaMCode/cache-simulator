@@ -529,17 +529,17 @@ namespace CacheSimulation
             const int bufferSize = 4_096;
             using var fileStream = File.OpenRead(TraceFileName);
             using var streamReader = new StreamReader(fileStream, Encoding.UTF8, true, bufferSize);
-            streamReader.BaseStream.Seek(traceIndex, SeekOrigin.Begin);
+            //streamReader.BaseStream.Seek(traceIndex, SeekOrigin.Begin);
 
             var output = new List<string>();
             string line;
-            var currentLine = -1;
+            var currentLine = 0;
             while ((line = streamReader.ReadLine()) != null)
             {
                 ++currentLine;
 
                 // Go to the trace index line.
-                if (currentLine < traceIndex)
+                if (currentLine < traceIndex - 1)
                 {
                     continue;
                 }
