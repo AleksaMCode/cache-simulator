@@ -230,7 +230,7 @@ namespace CacheSimulation
             {
                 if (CacheEntries[i].FlagBits.Valid == Validity.Valid)
                 {
-                    if (CacheEntries[i].Tag == binaryAddress.Substring(0, CacheEntries[i].TagLength))
+                    if (CacheEntries[i].Tag == binaryAddress/*.Substring(0, CacheEntries[i].TagLength)*/)
                     {
                         ++StatisticsInfo.CacheHits;
                         CacheEntries[i].TagLength = GetTagLength(binaryAddress);
@@ -295,7 +295,7 @@ namespace CacheSimulation
                 {
                     CacheEntries[i].FlagBits.Valid = Validity.Valid;
                     CacheEntries[i].TagLength = GetTagLength(binaryAddress);
-                    CacheEntries[i].Tag = binaryAddress.Substring(0, CacheEntries[i].TagLength);
+                    CacheEntries[i].Tag = binaryAddress;
 
                     // Write data to cache.
                     buffer = GetBytesFromString(data);
@@ -403,7 +403,7 @@ namespace CacheSimulation
 
             // Else just replace data in cache with new data.
             CacheEntries[replacementIndex].TagLength = GetTagLength(binaryAddress);
-            CacheEntries[replacementIndex].Tag = binaryAddress.Substring(0, CacheEntries[replacementIndex].TagLength);
+            CacheEntries[replacementIndex].Tag = binaryAddress;
 
             // Write data to cache.
             buffer = GetBytesFromString(data);
@@ -518,7 +518,7 @@ namespace CacheSimulation
             while ((line = streamReader.ReadLine()) != null)
             {
                 // Skip 0x and any leading 0 from the address.
-                var address = line.Split(' ')[1].Trim(' ').Substring(2).TrimStart('0');
+                var address = line.Split('\t')[1].Trim(' ').Substring(2).TrimStart('0').TrimEnd(',').Trim(' ');
                 if (currentAddress != address && !output.Contains(address))
                 {
                     output.Add(address);
@@ -550,7 +550,7 @@ namespace CacheSimulation
             {
                 if (CacheEntries[i].FlagBits.Valid == Validity.Valid)
                 {
-                    if (CacheEntries[i].Tag == binaryAddress.Substring(0, CacheEntries[i].TagLength))
+                    if (CacheEntries[i].Tag == binaryAddress/*.Substring(0, CacheEntries[i].TagLength)*/)
                     {
                         ++StatisticsInfo.CacheHits;
 
@@ -576,7 +576,7 @@ namespace CacheSimulation
                 {
                     CacheEntries[i].FlagBits.Valid = Validity.Valid;
                     CacheEntries[i].TagLength = GetTagLength(binaryAddress);
-                    CacheEntries[i].Tag = binaryAddress.Substring(0, CacheEntries[i].TagLength);
+                    CacheEntries[i].Tag = binaryAddress;
 
                     try
                     {
@@ -668,7 +668,7 @@ namespace CacheSimulation
             }
 
             CacheEntries[replacementIndex].TagLength = GetTagLength(binaryAddress);
-            CacheEntries[replacementIndex].Tag = binaryAddress.Substring(0, CacheEntries[replacementIndex].TagLength);
+            CacheEntries[replacementIndex].Tag = binaryAddress;
 
             if (CacheConfig.WritePolicy == WritePolicy.WriteBack)
             {
