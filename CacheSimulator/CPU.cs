@@ -14,7 +14,7 @@ namespace CacheSimulator
             L1 = new Cache(cacheInfo);
         }
 
-        public void StartSimulation()
+        public void Start()
         {
             const int bufferSize = 4_096;
             using var fileStream = File.OpenRead(L1.TraceFileName);

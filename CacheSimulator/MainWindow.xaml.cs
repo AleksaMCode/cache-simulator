@@ -72,7 +72,7 @@ namespace CacheSimulator
                 cpu = new CPU((ramFileFullPath, traceFileFullPath, size, associativity, lineSize,
                     GetWritePolicy(cacheWritePolicyComboBox.Text), GetReplacementPolicy(cacheReplacementPolicyComboBox.Text)));
 
-                cpu.StartSimulation();
+                cpu.Start();
             }
             catch (Exception ex)
             {
