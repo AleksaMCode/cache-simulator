@@ -121,7 +121,7 @@ namespace TraceGenerator
 
                 for (var i = 0; i < count; ++i)
                 {
-                    uniqueAddresses.Add(RandomAddressInRangeGenerator(ramSize, dataBlockSize));
+                    uniqueAddresses.Add(RandomAddressInRangeGenerator(ramSize * 1_024 * 1_000, dataBlockSize));
                 }
             }
 
