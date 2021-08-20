@@ -265,7 +265,7 @@
         </Grid>
         <Separator Grid.Row="4" Width="10" Margin="0,5,0,0" Background="Transparent"/>
         <Grid x:Name="cacheStatsGrid" Grid.Row="5" Grid.ColumnSpan="3">
-            <TextBox x:Name="caheStatsTextBox"
+            <TextBox x:Name="cacheStatsTextBox"
                      TextWrapping="Wrap"
                      AcceptsReturn="True"
                      IsReadOnly="True"

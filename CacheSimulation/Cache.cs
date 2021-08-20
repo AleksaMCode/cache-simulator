@@ -215,8 +215,11 @@ namespace CacheSimulation
         //    }
         //}
 
-        public void WriteToCache(string address, int size, string data)
+        public bool WriteToCache(string address, int size, string data, out string additionalData)
         {
+            additionalData = "";
+            var sb = new StringBuilder();
+
             // Check if address exists in the cache first.
             byte[] buffer;
             var binaryAddress = GetBinaryAddress(address);
@@ -268,7 +271,7 @@ namespace CacheSimulation
                             Aging(i, CacheEntries[i].Set);
                         }
 
-                        return;
+                        return true;
                     }
                 }
             }
@@ -320,7 +323,7 @@ namespace CacheSimulation
                         Aging(i, CacheEntries[i].Set);
                     }
 
-                    return;
+                    return false;
                 }
             }
 
@@ -357,13 +360,15 @@ namespace CacheSimulation
             {
                 try
                 {
-                    // Write oldest data data in cache to RAM because the dirty flag has been set.
+                    // Write data from cache entry to RAM because the dirty flag has been set.
                     using var stream = File.Open(RamFileName, FileMode.Open);
                     if (UInt64.TryParse(address, out var offset))
                     {
                         stream.Seek((long)offset, SeekOrigin.Begin);
                         stream.Write(CacheEntries[replacementIndex].DataBlock, 0, CacheEntries[replacementIndex].DataBlock.Length);
                         ++StatisticsInfo.MemoryWrites;
+
+                        sb.AppendLine($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] operation=EVICTION cache_entry_tag={CacheEntries[replacementIndex].Tag}");
                     }
                     //TODO: handle else case!
                 }
@@ -410,6 +415,9 @@ namespace CacheSimulation
             {
                 Aging(replacementIndex, CacheEntries[replacementIndex].Set);
             }
+
+            additionalData = sb.ToString();
+            return false;
         }
 
         /// <summary>
@@ -497,8 +505,11 @@ namespace CacheSimulation
         //    }
         //}
 
-        public void ReadFromCache(string address, int size)
+        public bool ReadFromCache(string address, int size, out string additionalData)
         {
+            additionalData = "";
+            var sb = new StringBuilder();
+
             // Check if address exists in the cache first.
             var binaryAddress = GetBinaryAddress(address);
             var index = GetIndex(binaryAddress, GetTagLength(binaryAddress)) * Associativity;
@@ -518,7 +529,7 @@ namespace CacheSimulation
                             Aging(i, CacheEntries[i].Set);
                         }
 
-                        return;
+                        return true;
                     }
                 }
             }
@@ -571,7 +582,7 @@ namespace CacheSimulation
                         Aging(i, CacheEntries[i].Set);
                     }
 
-                    return;
+                    return false;
                 }
             }
 
@@ -614,6 +625,8 @@ namespace CacheSimulation
                         stream.Seek((long)offset, SeekOrigin.Begin);
                         stream.Write(CacheEntries[replacementIndex].DataBlock, 0, CacheEntries[replacementIndex].DataBlock.Length);
                         ++StatisticsInfo.MemoryWrites;
+
+                        sb.AppendLine($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] operation=EVICTION cache_entry_tag={CacheEntries[replacementIndex].Tag}");
                     }
                     //TODO: handle else case!
                 }
@@ -655,6 +668,9 @@ namespace CacheSimulation
             {
                 Aging(replacementIndex, CacheEntries[replacementIndex].Set);
             }
+
+            additionalData = sb.ToString();
+            return false;
         }
     }
 }

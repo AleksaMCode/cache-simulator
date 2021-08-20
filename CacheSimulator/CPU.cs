@@ -7,7 +7,7 @@ namespace CacheSimulator
 {
     public class CPU
     {
-        private Cache L1;
+        public Cache L1;
 
         public CPU((string ramFileName, string traceFileName, int size, int associativity, int blockSize, WritePolicy writePolicy, ReplacementPolicy replacementPolicy) cacheInfo)
         {
@@ -38,14 +38,62 @@ namespace CacheSimulator
                     if (instruction.InstructionType == MemoryRelatedInstructions.Store)
                     {
                         var size = instruction.DataSize < L1.CacheConfig.BlockSize ? instruction.DataSize : L1.CacheConfig.BlockSize;
-                        L1.WriteToCache(instruction.MemoryAddress, size, instruction.Data);
+                        L1.WriteToCache(instruction.MemoryAddress, size, instruction.Data, out var _);
                     }
                     else
                     {
                         var size = instruction.DataSize < L1.CacheConfig.BlockSize ? instruction.DataSize : L1.CacheConfig.BlockSize;
-                        L1.ReadFromCache(instruction.MemoryAddress, size);
+                        L1.ReadFromCache(instruction.MemoryAddress, size, out var _);
                     }
                 }
+            }
+        }
+
+        public string Start(string traceLine)
+        {
+            Instruction instruction;
+            var sb = new StringBuilder();
+            try
+            {
+                instruction = L1.TraceLineParser(traceLine);
+                var dataSizeString = $"data_size={instruction.DataSize} B";
+                sb.Append($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] operation={(instruction.InstructionType == MemoryRelatedInstructions.Load ? $"LOAD {dataSizeString}" : $"STORE {dataSizeString} data={instruction.Data}")} ");
+
+                if (instruction != null)
+                {
+                    if (instruction.InstructionType == MemoryRelatedInstructions.Store)
+                    {
+                        var size = instruction.DataSize < L1.CacheConfig.BlockSize ? instruction.DataSize : L1.CacheConfig.BlockSize;
+                        var hitCheck = L1.WriteToCache(instruction.MemoryAddress, size, instruction.Data, out var additionalData);
+
+                        sb.Append($"{(hitCheck ? "hit" : "miss")}");
+
+                        if (additionalData != "")
+                        {
+                            sb.AppendLine(additionalData);
+                        }
+                    }
+                    else
+                    {
+                        var size = instruction.DataSize < L1.CacheConfig.BlockSize ? instruction.DataSize : L1.CacheConfig.BlockSize;
+                        var hitCheck = L1.ReadFromCache(instruction.MemoryAddress, size, out var additionalData);
+
+                        sb.Append($"{(hitCheck ? "hit" : "miss")}");
+
+                        if (additionalData != "")
+                        {
+                            sb.AppendLine(additionalData);
+                        }
+                    }
+
+                    return sb.ToString();
+                }
+
+                return null;
+            }
+            catch (Exception)
+            {
+                return null;
             }
         }
     }

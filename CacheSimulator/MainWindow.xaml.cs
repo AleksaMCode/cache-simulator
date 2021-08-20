@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -72,7 +73,15 @@ namespace CacheSimulator
                 cpu = new CPU((ramFileFullPath, traceFileFullPath, size, associativity, lineSize,
                     GetWritePolicy(cacheWritePolicyComboBox.Text), GetReplacementPolicy(cacheReplacementPolicyComboBox.Text)));
 
-                cpu.Start();
+                const int bufferSize = 4_096;
+                using var fileStream = File.OpenRead(cpu.L1.TraceFileName);
+                using var streamReader = new StreamReader(fileStream, Encoding.UTF8, true, bufferSize);
+
+                string line;
+                while ((line = streamReader.ReadLine()) != null)
+                {
+                    cacheStatsTextBox.AppendText(cpu.Start(line));
+                }
             }
             catch (Exception ex)
             {
