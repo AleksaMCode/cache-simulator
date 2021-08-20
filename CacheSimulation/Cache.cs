@@ -256,13 +256,21 @@ namespace CacheSimulation
                         else if (CacheConfig.WritePolicy == WritePolicy.WriteThrough)
                         {
                             using var stream = File.Open(RamFileName, FileMode.Open);
-                            if (UInt64.TryParse(address, out var offset))
+                            var bAddress = GetBytesFromString(address);
+
+                            if (BitConverter.IsLittleEndian)
                             {
-                                stream.Seek((long)offset, SeekOrigin.Begin);
-                                stream.Write(CacheEntries[i].DataBlock, 0, CacheEntries[i].DataBlock.Length);
-                                ++StatisticsInfo.MemoryWrites;
+                                Array.Reverse(bAddress);
                             }
-                            //TODO: handle else case!
+
+                            var offset = BitConverter.ToInt32(bAddress, 0);
+                            buffer = new byte[size];
+
+                            stream.Seek(offset, SeekOrigin.Begin);
+                            stream.Read(buffer, 0, size);
+                            CacheEntries[i].DataBlock = buffer;
+
+                            ++StatisticsInfo.MemoryWrites;
                         }
 
                         // Set age values.
@@ -308,13 +316,21 @@ namespace CacheSimulation
                     else if (CacheConfig.WritePolicy == WritePolicy.WriteThrough)
                     {
                         using var stream = File.Open(RamFileName, FileMode.Open);
-                        if (UInt64.TryParse(address, out var offset))
+                        var bAddress = GetBytesFromString(address);
+
+                        if (BitConverter.IsLittleEndian)
                         {
-                            stream.Seek((long)offset, SeekOrigin.Begin);
-                            stream.Write(CacheEntries[i].DataBlock, 0, CacheEntries[i].DataBlock.Length);
-                            ++StatisticsInfo.MemoryWrites;
+                            Array.Reverse(bAddress);
                         }
-                        //TODO: handle else case!
+
+                        var offset = BitConverter.ToInt32(bAddress, 0);
+                        buffer = new byte[size];
+
+                        stream.Seek(offset, SeekOrigin.Begin);
+                        stream.Read(buffer, 0, size);
+                        CacheEntries[i].DataBlock = buffer;
+
+                        ++StatisticsInfo.MemoryWrites;
                     }
 
                     // Set age values.
@@ -362,15 +378,22 @@ namespace CacheSimulation
                 {
                     // Write data from cache entry to RAM because the dirty flag has been set.
                     using var stream = File.Open(RamFileName, FileMode.Open);
-                    if (UInt64.TryParse(address, out var offset))
-                    {
-                        stream.Seek((long)offset, SeekOrigin.Begin);
-                        stream.Write(CacheEntries[replacementIndex].DataBlock, 0, CacheEntries[replacementIndex].DataBlock.Length);
-                        ++StatisticsInfo.MemoryWrites;
+                    var bAddress = GetBytesFromString(address);
 
-                        sb.AppendLine($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] operation=EVICTION cache_entry_tag={CacheEntries[replacementIndex].Tag}");
+                    if (BitConverter.IsLittleEndian)
+                    {
+                        Array.Reverse(bAddress);
                     }
-                    //TODO: handle else case!
+
+                    var offset = BitConverter.ToInt32(bAddress, 0);
+                    buffer = new byte[size];
+
+                    stream.Seek(offset, SeekOrigin.Begin);
+                    stream.Read(buffer, 0, size);
+                    CacheEntries[replacementIndex].DataBlock = buffer;
+
+                    ++StatisticsInfo.MemoryWrites;
+                    sb.AppendLine($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] operation=EVICTION cache_entry_tag={CacheEntries[replacementIndex].Tag}");
                 }
                 catch (Exception)
                 {
@@ -401,13 +424,21 @@ namespace CacheSimulation
             else if (CacheConfig.WritePolicy == WritePolicy.WriteThrough)
             {
                 using var stream = File.Open(RamFileName, FileMode.Open);
-                if (UInt64.TryParse(address, out var offset))
+                var bAddress = GetBytesFromString(address);
+
+                if (BitConverter.IsLittleEndian)
                 {
-                    stream.Seek((long)offset, SeekOrigin.Begin);
-                    stream.Write(CacheEntries[replacementIndex].DataBlock, 0, CacheEntries[replacementIndex].DataBlock.Length);
-                    ++StatisticsInfo.MemoryWrites;
+                    Array.Reverse(bAddress);
                 }
-                //TODO: handle else case!
+
+                var offset = BitConverter.ToInt32(bAddress, 0);
+                buffer = new byte[size];
+
+                stream.Seek(offset, SeekOrigin.Begin);
+                stream.Read(buffer, 0, size);
+                CacheEntries[replacementIndex].DataBlock = buffer;
+
+                ++StatisticsInfo.MemoryWrites;
             }
 
             // Set age values.
@@ -648,15 +679,21 @@ namespace CacheSimulation
             {
                 // Read the data from the RAM.
                 using var stream = new FileStream(RamFileName, FileMode.Open, FileAccess.Read);
-                if (UInt64.TryParse(address, out var offset))
+                var bAddress = GetBytesFromString(address);
+
+                if (BitConverter.IsLittleEndian)
                 {
-                    var buffer = new byte[size];
-                    // TODO: could be a problem conversion from long to int. Fix this!
-                    stream.Read(buffer, (int)offset, size);
-                    CacheEntries[replacementIndex].DataBlock = buffer;
-                    ++StatisticsInfo.MemoryWrites;
+                    Array.Reverse(bAddress);
                 }
-                //TODO: handle else case!
+
+                var offset = BitConverter.ToInt32(bAddress, 0);
+                var buffer = new byte[size];
+
+                stream.Seek(offset, SeekOrigin.Begin);
+                stream.Read(buffer, 0, size);
+                CacheEntries[replacementIndex].DataBlock = buffer;
+
+                ++StatisticsInfo.MemoryWrites;
             }
             catch (Exception)
             {
