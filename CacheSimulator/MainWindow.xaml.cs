@@ -55,7 +55,8 @@ namespace CacheSimulator
                 return;
             }
 
-            startSimulationButton.IsEnabled = false;
+            startSimulationButton.IsEnabled = cacheParametersGrid.IsEnabled = memoryGeneratorsGrid.IsEnabled = false;
+            cacheStatsTextBox.Text = "";
 
             try
             {
@@ -101,7 +102,7 @@ namespace CacheSimulator
                 MessageBox.Show(ex.Message, "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
 
-            startSimulationButton.IsEnabled = true;
+            startSimulationButton.IsEnabled = cacheParametersGrid.IsEnabled = memoryGeneratorsGrid.IsEnabled = true;
         }
 
         private WritePolicy GetWritePolicy(string policy)
