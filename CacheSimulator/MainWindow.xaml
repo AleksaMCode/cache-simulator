@@ -232,8 +232,8 @@
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
-                <Label Grid.Column="0">Replacement policies:</Label>
-                <Separator Grid.Column="1" Width="8" Background="Transparent"/>
+                <Label Grid.Column="0">Replacement policy:</Label>
+                <Separator Grid.Column="1" Width="17" Background="Transparent"/>
                 <ComboBox x:Name="cacheReplacementPolicyComboBox"
                               VerticalAlignment="Center"
                               Margin="0,0,4,0"
@@ -257,8 +257,8 @@
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
-                <Label Grid.Column="0">Cache levels:</Label>
-                <Separator Grid.Column="1" Width="55" Background="Transparent"/>
+                <Label Grid.Column="0">Cache level(s):</Label>
+                <Separator Grid.Column="1" Width="48" Background="Transparent"/>
                 <ComboBox x:Name="cacheTypeComboBox"
                               VerticalAlignment="Center"
                               Margin="0,0,4,0"
@@ -267,6 +267,25 @@
                     <ComboBoxItem IsSelected="True">L1 (data)</ComboBoxItem>
                     <ComboBoxItem IsEnabled="False">L1 (instruction and data)</ComboBoxItem>
                     <ComboBoxItem IsEnabled="False">L1 and L2</ComboBoxItem>
+                </ComboBox>
+            </Grid>
+            <Separator Grid.Row="13" Height="1" Background="Transparent"/>
+            <Grid Grid.Row="14">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Label Grid.Column="0">Type of CPU:</Label>
+                <Separator Grid.Column="1" Width="55" Background="Transparent"/>
+                <ComboBox x:Name="numberOfCoresComboBox"
+                              VerticalAlignment="Center"
+                              Margin="0,0,4,0"
+                              Width="238"
+                              Grid.Column="2">
+                    <ComboBoxItem IsSelected="True">Single-core</ComboBoxItem>
+                    <ComboBoxItem >Dual-cores</ComboBoxItem>
+                    <ComboBoxItem IsEnabled="False">Multi-cores</ComboBoxItem>
                 </ComboBox>
             </Grid>
         </Grid>
