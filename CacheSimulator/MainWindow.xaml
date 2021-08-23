@@ -8,9 +8,8 @@
         xmlns:local="clr-namespace:CacheSimulator"
         Topmost="False"
         Title="MainWindow"
-        Height="500"
-        Width="1000"
-        ResizeMode="NoResize">
+        MinHeight="500"
+        MinWidth="1000">
     <Grid Margin="5">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
