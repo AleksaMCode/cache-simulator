@@ -48,6 +48,13 @@ namespace CacheSimulation
         public string RamFileName { get; set; }
         public string TraceFileName { get; set; }
 
+        private List<int> fifoIndexQueue { get; set; }
+
+        /// <summary>
+        /// Index of the latest cache entry.
+        /// </summary>
+        private int lifoIndex { get; set; }
+
         public Cache((string ramFileName, string traceFileName, int size, int associativity, int blockSize, WritePolicy writePolicy, ReplacementPolicy replacementPolicy) cacheInfo)
         {
             if (cacheInfo.blockSize >= cacheInfo.size)
@@ -85,6 +92,12 @@ namespace CacheSimulation
             NumberOfSets = Size / (SetSize * CacheConfig.BlockSize);
             BlockOffsetLength = (int)Math.Ceiling(Math.Log(CacheConfig.BlockSize, 2));
             SetIndexLength = (int)Math.Ceiling(Math.Log(Size / (SetSize * CacheConfig.BlockSize), 2));
+
+
+            if (cacheInfo.replacementPolicy == ReplacementPolicy.FirstInFirstOut)
+            {
+                fifoIndexQueue = new List<int>();
+            }
 
             CreateColdCache();
         }
@@ -273,9 +286,9 @@ namespace CacheSimulation
                             ++StatisticsInfo.MemoryWrites;
                         }
 
-                        // Set age values.
                         if (CacheConfig.ReplacementPolicy == ReplacementPolicy.LeastRecentlyUsed)
                         {
+                            // Set age values.
                             Aging(i, CacheEntries[i].Set);
                         }
 
@@ -333,10 +346,18 @@ namespace CacheSimulation
                         ++StatisticsInfo.MemoryWrites;
                     }
 
-                    // Set age values.
                     if (CacheConfig.ReplacementPolicy == ReplacementPolicy.LeastRecentlyUsed)
                     {
+                        // Set age values.
                         Aging(i, CacheEntries[i].Set);
+                    }
+                    else if (CacheConfig.ReplacementPolicy == ReplacementPolicy.FirstInFirstOut)
+                    {
+                        fifoIndexQueue.Add(i);
+                    }
+                    else if (CacheConfig.ReplacementPolicy == ReplacementPolicy.LastInFirstOut)
+                    {
+                        lifoIndex = i;
                     }
 
                     return false;
@@ -360,11 +381,13 @@ namespace CacheSimulation
             }
             else if (CacheConfig.ReplacementPolicy == ReplacementPolicy.FirstInFirstOut)
             {
-                replacementIndex = 0;
+                replacementIndex = fifoIndexQueue.First();
+                fifoIndexQueue.RemoveAt(0);
+                fifoIndexQueue.Add(replacementIndex);
             }
             else if (CacheConfig.ReplacementPolicy == ReplacementPolicy.LastInFirstOut)
             {
-                replacementIndex = CacheEntries.Count - 1;
+                replacementIndex = lifoIndex;
             }
             else if (CacheConfig.ReplacementPolicy == ReplacementPolicy.Belady)
             {
@@ -639,6 +662,14 @@ namespace CacheSimulation
                         // Set age values.
                         Aging(i, CacheEntries[i].Set);
                     }
+                    else if (CacheConfig.ReplacementPolicy == ReplacementPolicy.FirstInFirstOut)
+                    {
+                        fifoIndexQueue.Add(i);
+                    }
+                    else if (CacheConfig.ReplacementPolicy == ReplacementPolicy.LastInFirstOut)
+                    {
+                        lifoIndex = i;
+                    }
 
                     return false;
                 }
@@ -660,11 +691,13 @@ namespace CacheSimulation
             }
             else if (CacheConfig.ReplacementPolicy == ReplacementPolicy.FirstInFirstOut)
             {
-                replacementIndex = 0;
+                replacementIndex = fifoIndexQueue.First();
+                fifoIndexQueue.RemoveAt(0);
+                fifoIndexQueue.Add(replacementIndex);
             }
             else if (CacheConfig.ReplacementPolicy == ReplacementPolicy.LastInFirstOut)
             {
-                replacementIndex = CacheEntries.Count - 1;
+                replacementIndex = lifoIndex;
             }
             else if (CacheConfig.ReplacementPolicy == ReplacementPolicy.Belady)
             {
