@@ -126,7 +126,7 @@ namespace CacheSimulator
             sb.AppendLine($"Block size: {L1.CacheConfig.BlockSize}");
             sb.AppendLine($"Write policy: {(L1.CacheConfig.WritePolicy == WritePolicy.WriteBack ? "Write-back" : "Write-through")}");
             sb.AppendLine("\nCACHE STATISTICS:");
-            sb.AppendLine(L1.StatisticsInfo.Statistics());
+            sb.AppendLine(L1.StatisticsInfo.GetStatistics());
 
             return sb.ToString();
         }

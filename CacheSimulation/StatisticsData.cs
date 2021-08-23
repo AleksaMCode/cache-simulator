@@ -29,7 +29,7 @@ namespace CacheSimulation
             return CacheHits + CacheMisses;
         }
 
-        public string Statistics()
+        public string GetStatistics()
         {
             var sb = new StringBuilder();
 
@@ -38,6 +38,9 @@ namespace CacheSimulation
             sb.AppendLine(value: $" (hit rate: {GetHitRate():0.000})");
             sb.AppendLine($"Number of misses: {string.Format(CultureInfo.InvariantCulture, "{0:0,0}", CacheMisses)}");
             sb.AppendLine(value: $" (miss rate: {GetMissRate():0.000})");
+            sb.AppendLine($"Number of cache evictions: {string.Format(CultureInfo.InvariantCulture, "{0:0,0}", CacheEviction)}");
+            sb.AppendLine($"Number of memory writes: {string.Format(CultureInfo.InvariantCulture, "{0:0,0}", MemoryWrites)}");
+            sb.AppendLine($"Number of memory reads: {string.Format(CultureInfo.InvariantCulture, "{0:0,0}", MemoryReads)}");
 
             return sb.ToString();
         }
