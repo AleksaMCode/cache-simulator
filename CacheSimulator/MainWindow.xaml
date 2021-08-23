@@ -197,7 +197,7 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <Label Grid.Column="0">Write-hit policy:</Label>
-                <Separator Grid.Column="1" Width="35" Background="Transparent"/>
+                <Separator Grid.Column="1" Width="38" Background="Transparent"/>
                 <ComboBox x:Name="cacheWriteHitPolicyComboBox"
                               VerticalAlignment="Center"
                               Margin="0,0,4,0"
@@ -215,7 +215,7 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <Label Grid.Column="0">Write-miss policy:</Label>
-                <Separator Grid.Column="1" Width="25" Background="Transparent"/>
+                <Separator Grid.Column="1" Width="28" Background="Transparent"/>
                 <ComboBox x:Name="cacheWriteMissPolicyComboBox"
                               VerticalAlignment="Center"
                               Margin="0,0,4,0"
