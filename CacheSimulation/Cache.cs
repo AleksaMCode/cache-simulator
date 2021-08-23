@@ -53,7 +53,7 @@ namespace CacheSimulation
 
         private List<int> fifoIndexQueue { get; set; }
 
-        private SecureRandom csprng;
+        private readonly SecureRandom csprng;
 
         /// <summary>
         /// Index of the latest cache entry.
@@ -762,17 +762,24 @@ namespace CacheSimulation
             {
                 try
                 {
-                    // Write oldest data data in cache to RAM because the dirty flag has been set.
+                    // Write data from cache entry to RAM because the dirty flag has been set.
                     using var stream = File.Open(RamFileName, FileMode.Open);
-                    if (UInt64.TryParse(address, out var offset))
-                    {
-                        stream.Seek((long)offset, SeekOrigin.Begin);
-                        stream.Write(CacheEntries[replacementIndex].DataBlock, 0, CacheEntries[replacementIndex].DataBlock.Length);
-                        ++StatisticsInfo.MemoryWrites;
+                    var bAddress = GetBytesFromString(address);
 
-                        sb.Append($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] operation=EVICTION cache_entry_tag={CacheEntries[replacementIndex].Tag}");
+                    if (BitConverter.IsLittleEndian)
+                    {
+                        Array.Reverse(bAddress);
                     }
-                    //TODO: handle else case!
+
+                    var offset = BitConverter.ToInt32(bAddress, 0);
+                    var buffer = new byte[size];
+
+                    stream.Seek(offset, SeekOrigin.Begin);
+                    stream.Read(buffer, 0, size);
+                    CacheEntries[replacementIndex].DataBlock = buffer;
+
+                    ++StatisticsInfo.MemoryWrites;
+                    sb.Append($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] operation=EVICTION cache_entry_tag={CacheEntries[replacementIndex].Tag}");
                 }
                 catch (Exception)
                 {
