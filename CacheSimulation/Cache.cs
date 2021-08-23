@@ -76,6 +76,11 @@ namespace CacheSimulation
                 throw new Exception($"Size of the cache line ({cacheInfo.blockSize} B) can't be larger than the total cache size ({cacheInfo.size} B).");
             }
 
+            if (cacheInfo.writeHitPolicy == WritePolicy.WriteThrough && cacheInfo.writeMissPolicy == WritePolicy.WriteAllocate)
+            {
+                throw new Exception("A write-through cache uses no-write allocate (write around). Here, subsequent writes have no advantage, since they still need to be written directly to the backing store.");
+            }
+
             RamFileName = cacheInfo.ramFileName;
             TraceFileName = cacheInfo.traceFileName;
 
