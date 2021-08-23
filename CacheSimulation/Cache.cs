@@ -293,7 +293,7 @@ namespace CacheSimulation
                             buffer = new byte[size];
 
                             stream.Seek(offset, SeekOrigin.Begin);
-                            stream.Read(buffer, 0, size);
+                            stream.Write(buffer, 0, size);
                             CacheEntries[i].DataBlock = buffer;
 
                             ++StatisticsInfo.MemoryWrites;
@@ -355,7 +355,7 @@ namespace CacheSimulation
                         buffer = new byte[size];
 
                         stream.Seek(offset, SeekOrigin.Begin);
-                        stream.Read(buffer, 0, size);
+                        stream.Write(buffer, 0, size);
                         CacheEntries[i].DataBlock = buffer;
 
                         ++StatisticsInfo.MemoryWrites;
@@ -445,7 +445,7 @@ namespace CacheSimulation
                     buffer = new byte[size];
 
                     stream.Seek(offset, SeekOrigin.Begin);
-                    stream.Read(buffer, 0, size);
+                    stream.Write(buffer, 0, size);
                     CacheEntries[replacementIndex].DataBlock = buffer;
 
                     ++StatisticsInfo.MemoryWrites;
@@ -491,7 +491,7 @@ namespace CacheSimulation
                 buffer = new byte[size];
 
                 stream.Seek(offset, SeekOrigin.Begin);
-                stream.Read(buffer, 0, size);
+                stream.Write(buffer, 0, size);
                 CacheEntries[replacementIndex].DataBlock = buffer;
 
                 ++StatisticsInfo.MemoryWrites;
@@ -775,7 +775,7 @@ namespace CacheSimulation
                     var buffer = new byte[size];
 
                     stream.Seek(offset, SeekOrigin.Begin);
-                    stream.Read(buffer, 0, size);
+                    stream.Write(buffer, 0, size);
                     CacheEntries[replacementIndex].DataBlock = buffer;
 
                     ++StatisticsInfo.MemoryWrites;
