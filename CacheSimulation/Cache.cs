@@ -281,22 +281,29 @@ namespace CacheSimulation
                         }
                         else if (CacheConfig.WritePolicy == WritePolicy.WriteThrough)
                         {
-                            using var stream = File.Open(RamFileName, FileMode.Open);
-                            var bAddress = GetBytesFromString(address);
-
-                            if (BitConverter.IsLittleEndian)
+                            try
                             {
-                                Array.Reverse(bAddress);
+                                using var stream = File.Open(RamFileName, FileMode.Open);
+                                var bAddress = GetBytesFromString(address);
+
+                                if (BitConverter.IsLittleEndian)
+                                {
+                                    Array.Reverse(bAddress);
+                                }
+
+                                var offset = BitConverter.ToInt32(bAddress, 0);
+                                buffer = new byte[size];
+
+                                stream.Seek(offset, SeekOrigin.Begin);
+                                stream.Write(buffer, 0, size);
+                                CacheEntries[i].DataBlock = buffer;
+
+                                ++StatisticsInfo.MemoryWrites;
                             }
-
-                            var offset = BitConverter.ToInt32(bAddress, 0);
-                            buffer = new byte[size];
-
-                            stream.Seek(offset, SeekOrigin.Begin);
-                            stream.Write(buffer, 0, size);
-                            CacheEntries[i].DataBlock = buffer;
-
-                            ++StatisticsInfo.MemoryWrites;
+                            catch (Exception)
+                            {
+                                sb.AppendLine($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] error=WRITE_TO_RAM_FAIL");
+                            }
                         }
 
                         if (CacheConfig.ReplacementPolicy is ReplacementPolicy.LeastRecentlyUsed
@@ -343,22 +350,29 @@ namespace CacheSimulation
                     }
                     else if (CacheConfig.WritePolicy == WritePolicy.WriteThrough)
                     {
-                        using var stream = File.Open(RamFileName, FileMode.Open);
-                        var bAddress = GetBytesFromString(address);
-
-                        if (BitConverter.IsLittleEndian)
+                        try
                         {
-                            Array.Reverse(bAddress);
+                            using var stream = File.Open(RamFileName, FileMode.Open);
+                            var bAddress = GetBytesFromString(address);
+
+                            if (BitConverter.IsLittleEndian)
+                            {
+                                Array.Reverse(bAddress);
+                            }
+
+                            var offset = BitConverter.ToInt32(bAddress, 0);
+                            buffer = new byte[size];
+
+                            stream.Seek(offset, SeekOrigin.Begin);
+                            stream.Write(buffer, 0, size);
+                            CacheEntries[i].DataBlock = buffer;
+
+                            ++StatisticsInfo.MemoryWrites;
                         }
-
-                        var offset = BitConverter.ToInt32(bAddress, 0);
-                        buffer = new byte[size];
-
-                        stream.Seek(offset, SeekOrigin.Begin);
-                        stream.Write(buffer, 0, size);
-                        CacheEntries[i].DataBlock = buffer;
-
-                        ++StatisticsInfo.MemoryWrites;
+                        catch (Exception)
+                        {
+                            sb.AppendLine($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] error=WRITE_TO_RAM_FAIL");
+                        }
                     }
 
                     if (CacheConfig.ReplacementPolicy is ReplacementPolicy.LeastRecentlyUsed
@@ -453,7 +467,7 @@ namespace CacheSimulation
                 }
                 catch (Exception)
                 {
-                    //TOOD: handle this!
+                    sb.AppendLine($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] error=WRITE_TO_RAM_FAIL");
                 }
             }
 
@@ -479,22 +493,29 @@ namespace CacheSimulation
             }
             else if (CacheConfig.WritePolicy == WritePolicy.WriteThrough)
             {
-                using var stream = File.Open(RamFileName, FileMode.Open);
-                var bAddress = GetBytesFromString(address);
-
-                if (BitConverter.IsLittleEndian)
+                try
                 {
-                    Array.Reverse(bAddress);
+                    using var stream = File.Open(RamFileName, FileMode.Open);
+                    var bAddress = GetBytesFromString(address);
+
+                    if (BitConverter.IsLittleEndian)
+                    {
+                        Array.Reverse(bAddress);
+                    }
+
+                    var offset = BitConverter.ToInt32(bAddress, 0);
+                    buffer = new byte[size];
+
+                    stream.Seek(offset, SeekOrigin.Begin);
+                    stream.Write(buffer, 0, size);
+                    CacheEntries[replacementIndex].DataBlock = buffer;
+
+                    ++StatisticsInfo.MemoryWrites;
                 }
-
-                var offset = BitConverter.ToInt32(bAddress, 0);
-                buffer = new byte[size];
-
-                stream.Seek(offset, SeekOrigin.Begin);
-                stream.Write(buffer, 0, size);
-                CacheEntries[replacementIndex].DataBlock = buffer;
-
-                ++StatisticsInfo.MemoryWrites;
+                catch (Exception)
+                {
+                    sb.AppendLine($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] error=WRITE_TO_RAM_FAIL");
+                }
             }
 
             if (CacheConfig.ReplacementPolicy is ReplacementPolicy.LeastRecentlyUsed
@@ -680,11 +701,10 @@ namespace CacheSimulation
                         stream.Seek(offset, SeekOrigin.Begin);
                         stream.Read(buffer, 0, size);
                         CacheEntries[i].DataBlock = buffer;
-
-                        ++StatisticsInfo.MemoryWrites;
                     }
                     catch (Exception)
                     {
+                        sb.AppendLine($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] error=READ_FROM_RAM_FAIL");
                     }
 
                     //if (CacheConfig.WritePolicy == WritePolicy.WriteBack)
@@ -783,7 +803,7 @@ namespace CacheSimulation
                 }
                 catch (Exception)
                 {
-                    //TOOD: handle this!
+                    sb.AppendLine($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] error=WRITE_TO_RAM_FAIL");
                 }
             }
 
@@ -812,12 +832,10 @@ namespace CacheSimulation
                 stream.Seek(offset, SeekOrigin.Begin);
                 stream.Read(buffer, 0, size);
                 CacheEntries[replacementIndex].DataBlock = buffer;
-
-                ++StatisticsInfo.MemoryWrites;
             }
             catch (Exception)
             {
-                //TOOD: handle this!
+                sb.AppendLine($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] error=READ_FROM_RAM_FAIL");
             }
 
             // Set age values.
