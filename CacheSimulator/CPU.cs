@@ -59,6 +59,12 @@ namespace CacheSimulator
             try
             {
                 instruction = L1.TraceLineParser(traceLine);
+
+                if (instruction.DataSize == 0)
+                {
+                    return null;
+                }
+
                 var dataSizeString = $"data_size={instruction.DataSize}B";
                 var tmp = new StringBuilder();
                 tmp.Append($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] operation={(instruction.InstructionType == MemoryRelatedInstructions.Load ? $"LOAD {dataSizeString}" : $"STORE {dataSizeString} data=0x{instruction.Data}")} ");

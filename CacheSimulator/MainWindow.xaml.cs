@@ -85,7 +85,10 @@ namespace CacheSimulator
                     var task = Task.Run(() =>
                     {
                         var cacheLogInfo = cpu.ExecuteTraceLine(line, ++traceIndex);
-                        Application.Current.Dispatcher.Invoke(() => cacheStatsTextBox.AppendText(cacheLogInfo));
+                        if (cacheLogInfo != null)
+                        {
+                            Application.Current.Dispatcher.Invoke(() => cacheStatsTextBox.AppendText(cacheLogInfo));
+                        }
                     });
 
                     try
