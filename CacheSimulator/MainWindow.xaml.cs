@@ -80,6 +80,9 @@ namespace CacheSimulator
 
                 string line;
                 var traceIndex = 0;
+
+                cacheLogProgressRing.Visibility = Visibility.Visible;
+
                 while ((line = streamReader.ReadLine()) != null)
                 {
                     var task = Task.Run(() =>
@@ -97,8 +100,11 @@ namespace CacheSimulator
                     }
                     catch (OperationCanceledException)
                     {
+                        cacheLogProgressRing.Visibility = Visibility.Hidden;
                     }
                 }
+
+                cacheLogProgressRing.Visibility = Visibility.Hidden;
 
                 MessageBox.Show(cpu.GetCacheStatistics(), "Cache Statistics", MessageBoxButton.OK, MessageBoxImage.Information);
             }
