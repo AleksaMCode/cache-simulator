@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Org.BouncyCastle.Crypto.Digests;
+using Org.BouncyCastle.Crypto.Prng;
+using Org.BouncyCastle.Security;
 
 namespace CacheSimulation
 {
@@ -49,6 +52,8 @@ namespace CacheSimulation
         public string TraceFileName { get; set; }
 
         private List<int> fifoIndexQueue { get; set; }
+
+        private SecureRandom csprng;
 
         /// <summary>
         /// Index of the latest cache entry.
@@ -97,6 +102,11 @@ namespace CacheSimulation
             if (cacheInfo.replacementPolicy == ReplacementPolicy.FirstInFirstOut)
             {
                 fifoIndexQueue = new List<int>();
+            }
+            else if (cacheInfo.replacementPolicy == ReplacementPolicy.RandomReplacement)
+            {
+                csprng = new(new DigestRandomGenerator(new Sha256Digest()));
+                csprng.SetSeed(DateTime.Now.Ticks);
             }
 
             CreateColdCache();
@@ -411,6 +421,10 @@ namespace CacheSimulation
             else if (CacheConfig.ReplacementPolicy == ReplacementPolicy.Belady)
             {
                 replacementIndex = BeladyGetIndex(LoadFutureCacheEntries(traceIndex));
+            }
+            else if (CacheConfig.ReplacementPolicy == ReplacementPolicy.RandomReplacement)
+            {
+                replacementIndex = csprng.Next(0, NumberOfLines - 1);
             }
 
             // If the write policy is write-back and the dirty flag is set, write the cache entry to RAM first.
@@ -737,6 +751,10 @@ namespace CacheSimulation
             else if (CacheConfig.ReplacementPolicy == ReplacementPolicy.Belady)
             {
                 replacementIndex = BeladyGetIndex(LoadFutureCacheEntries(traceIndex));
+            }
+            else if (CacheConfig.ReplacementPolicy == ReplacementPolicy.RandomReplacement)
+            {
+                replacementIndex = csprng.Next(0, NumberOfLines - 1);
             }
 
             // If the write policy is write-back and the dirty flag is set, write the cache entry to RAM first.
