@@ -221,11 +221,11 @@
                               Width="238"
                               Grid.Column="2">
                     <ComboBoxItem IsSelected="True">Least recently used (LRU)</ComboBoxItem>
+                    <ComboBoxItem>Most recently used (MRU)</ComboBoxItem>
                     <ComboBoxItem>First in first out (FIFO)</ComboBoxItem>
                     <ComboBoxItem>Last in first out (LIFO)</ComboBoxItem>
                     <ComboBoxItem>Bélády's algorithm</ComboBoxItem>
                     <ComboBoxItem IsEnabled="False">Time aware least recently used (TLRU)</ComboBoxItem>
-                    <ComboBoxItem IsEnabled="False">Most recently used (MRU)</ComboBoxItem>
                     <ComboBoxItem IsEnabled="False">Random replacement (RR)</ComboBoxItem>
                     <ComboBoxItem IsEnabled="False">Least-frequently used (LFU)</ComboBoxItem>
                     <ComboBoxItem IsEnabled="False">LFU with dynamic aging (LFUDA)</ComboBoxItem>

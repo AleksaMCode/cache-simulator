@@ -212,12 +212,15 @@ namespace CacheSimulation
         /// <param name="index"></param>
         public void Aging(int newestEntryIndex, int index)
         {
-            for (var i = index * Associativity; i < index * Associativity + Associativity; ++i)
+            var limit = index * Associativity;
+            var tmpAge = CacheEntries[newestEntryIndex].Age;
+
+            for (var i = limit; i < limit + Associativity; ++i)
             {
                 ++CacheEntries[i].Age;
             }
 
-            CacheEntries[newestEntryIndex].Age = 0;
+            CacheEntries[newestEntryIndex].Age = tmpAge;
         }
 
         //public void WriteToCache(string binaryAddress, int size, string data)
@@ -286,11 +289,13 @@ namespace CacheSimulation
                             ++StatisticsInfo.MemoryWrites;
                         }
 
-                        if (CacheConfig.ReplacementPolicy == ReplacementPolicy.LeastRecentlyUsed)
+                        if (CacheConfig.ReplacementPolicy is ReplacementPolicy.LeastRecentlyUsed
+                            or ReplacementPolicy.MostRecentlyUsed)
                         {
                             // Set age values.
                             Aging(i, CacheEntries[i].Set);
                         }
+
 
                         return true;
                     }
@@ -346,7 +351,8 @@ namespace CacheSimulation
                         ++StatisticsInfo.MemoryWrites;
                     }
 
-                    if (CacheConfig.ReplacementPolicy == ReplacementPolicy.LeastRecentlyUsed)
+                    if (CacheConfig.ReplacementPolicy is ReplacementPolicy.LeastRecentlyUsed
+                                               or ReplacementPolicy.MostRecentlyUsed)
                     {
                         // Set age values.
                         Aging(i, CacheEntries[i].Set);
@@ -375,6 +381,19 @@ namespace CacheSimulation
                     if (CacheEntries[i].Age > highestAge)
                     {
                         highestAge = CacheEntries[i].Age;
+                        replacementIndex = i;
+                    }
+                }
+            }
+            else if (CacheConfig.ReplacementPolicy == ReplacementPolicy.MostRecentlyUsed)
+            {
+                index = GetIndex(binaryAddress, GetTagLength(binaryAddress)) * Associativity;
+
+                for (int i = index, lowestAge = 0; i < index + Associativity; ++i)
+                {
+                    if (CacheEntries[i].Age < lowestAge)
+                    {
+                        lowestAge = CacheEntries[i].Age;
                         replacementIndex = i;
                     }
                 }
@@ -464,9 +483,10 @@ namespace CacheSimulation
                 ++StatisticsInfo.MemoryWrites;
             }
 
-            // Set age values.
-            if (CacheConfig.ReplacementPolicy == ReplacementPolicy.LeastRecentlyUsed)
+            if (CacheConfig.ReplacementPolicy is ReplacementPolicy.LeastRecentlyUsed
+                                       or ReplacementPolicy.MostRecentlyUsed)
             {
+                // Set age values.
                 Aging(replacementIndex, CacheEntries[replacementIndex].Set);
             }
 
@@ -604,7 +624,8 @@ namespace CacheSimulation
                     {
                         ++StatisticsInfo.CacheHits;
 
-                        if (CacheConfig.ReplacementPolicy == ReplacementPolicy.LeastRecentlyUsed)
+                        if (CacheConfig.ReplacementPolicy is ReplacementPolicy.LeastRecentlyUsed
+                                                   or ReplacementPolicy.MostRecentlyUsed)
                         {
                             // Set age values.
                             Aging(i, CacheEntries[i].Set);
@@ -657,7 +678,8 @@ namespace CacheSimulation
                     //    CacheEntries[i].FlagBits.Dirty = false;
                     //}
 
-                    if (CacheConfig.ReplacementPolicy == ReplacementPolicy.LeastRecentlyUsed)
+                    if (CacheConfig.ReplacementPolicy is ReplacementPolicy.LeastRecentlyUsed
+                                               or ReplacementPolicy.MostRecentlyUsed)
                     {
                         // Set age values.
                         Aging(i, CacheEntries[i].Set);
@@ -685,6 +707,19 @@ namespace CacheSimulation
                     if (CacheEntries[i].Age > highestAge)
                     {
                         highestAge = CacheEntries[i].Age;
+                        replacementIndex = i;
+                    }
+                }
+            }
+            else if (CacheConfig.ReplacementPolicy == ReplacementPolicy.MostRecentlyUsed)
+            {
+                index = GetIndex(binaryAddress, GetTagLength(binaryAddress)) * Associativity;
+
+                for (int i = index, lowestAge = 0; i < index + Associativity; ++i)
+                {
+                    if (CacheEntries[i].Age < lowestAge)
+                    {
+                        lowestAge = CacheEntries[i].Age;
                         replacementIndex = i;
                     }
                 }
@@ -761,7 +796,8 @@ namespace CacheSimulation
             }
 
             // Set age values.
-            if (CacheConfig.ReplacementPolicy == ReplacementPolicy.LeastRecentlyUsed)
+            if (CacheConfig.ReplacementPolicy is ReplacementPolicy.LeastRecentlyUsed
+                                       or ReplacementPolicy.MostRecentlyUsed)
             {
                 Aging(replacementIndex, CacheEntries[replacementIndex].Set);
             }
