@@ -270,8 +270,6 @@ namespace CacheSimulation
                         ++StatisticsInfo.CacheHits;
                         CacheEntries[i].TagLength = GetTagLength(binaryAddress);
 
-                        //if (CacheConfig.ReplacementPolicy == ReplacementPolicy.LeastRecentlyUsed)
-
                         // Write data to cache.
                         buffer = GetBytesFromString(data);
                         if (buffer.Length > size)
@@ -330,7 +328,36 @@ namespace CacheSimulation
 
             // After a cache miss look for available entry structure.
             ++StatisticsInfo.CacheMisses;
-            ++StatisticsInfo.MemoryReads;
+            //++StatisticsInfo.MemoryReads;
+
+            if (CacheConfig.WriteMissPolicy == WritePolicy.WriteAround)
+            {
+                try
+                {
+                    using var stream = File.Open(RamFileName, FileMode.Open);
+                    var bAddress = GetBytesFromString(address);
+
+                    if (BitConverter.IsLittleEndian)
+                    {
+                        Array.Reverse(bAddress);
+                    }
+
+                    var offset = BitConverter.ToInt32(bAddress, 0);
+                    buffer = new byte[size];
+
+                    stream.Seek(offset, SeekOrigin.Begin);
+                    stream.Write(buffer, 0, size);
+
+                    ++StatisticsInfo.MemoryWrites;
+                }
+                catch (Exception)
+                {
+                    sb.AppendLine($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] error=WRITE_TO_RAM_FAIL");
+                }
+
+                return false;
+            }
+
             index = GetIndex(binaryAddress, GetTagLength(binaryAddress)) * Associativity;
 
             for (var i = index; i < index + Associativity; ++i)
@@ -357,32 +384,32 @@ namespace CacheSimulation
                     {
                         CacheEntries[i].FlagBits.Dirty = true;
                     }
-                    else if (CacheConfig.WriteHitPolicy == WritePolicy.WriteThrough)
-                    {
-                        try
-                        {
-                            using var stream = File.Open(RamFileName, FileMode.Open);
-                            var bAddress = GetBytesFromString(address);
+                    //else if (CacheConfig.WriteHitPolicy == WritePolicy.WriteThrough)
+                    //{
+                    //    try
+                    //    {
+                    //        using var stream = File.Open(RamFileName, FileMode.Open);
+                    //        var bAddress = GetBytesFromString(address);
 
-                            if (BitConverter.IsLittleEndian)
-                            {
-                                Array.Reverse(bAddress);
-                            }
+                    //        if (BitConverter.IsLittleEndian)
+                    //        {
+                    //            Array.Reverse(bAddress);
+                    //        }
 
-                            var offset = BitConverter.ToInt32(bAddress, 0);
-                            buffer = new byte[size];
+                    //        var offset = BitConverter.ToInt32(bAddress, 0);
+                    //        buffer = new byte[size];
 
-                            stream.Seek(offset, SeekOrigin.Begin);
-                            stream.Write(buffer, 0, size);
-                            CacheEntries[i].DataBlock = buffer;
+                    //        stream.Seek(offset, SeekOrigin.Begin);
+                    //        stream.Write(buffer, 0, size);
+                    //        //CacheEntries[i].DataBlock = buffer;
 
-                            ++StatisticsInfo.MemoryWrites;
-                        }
-                        catch (Exception)
-                        {
-                            sb.AppendLine($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] error=WRITE_TO_RAM_FAIL");
-                        }
-                    }
+                    //        ++StatisticsInfo.MemoryWrites;
+                    //    }
+                    //    catch (Exception)
+                    //    {
+                    //        sb.AppendLine($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] error=WRITE_TO_RAM_FAIL");
+                    //    }
+                    //}
 
                     if (CacheConfig.ReplacementPolicy is ReplacementPolicy.LeastRecentlyUsed
                                                or ReplacementPolicy.MostRecentlyUsed)
@@ -500,32 +527,32 @@ namespace CacheSimulation
             {
                 CacheEntries[replacementIndex].FlagBits.Dirty = true;
             }
-            else if (CacheConfig.WriteHitPolicy == WritePolicy.WriteThrough)
-            {
-                try
-                {
-                    using var stream = File.Open(RamFileName, FileMode.Open);
-                    var bAddress = GetBytesFromString(address);
+            //else if (CacheConfig.WriteHitPolicy == WritePolicy.WriteThrough)
+            //{
+            //    try
+            //    {
+            //        using var stream = File.Open(RamFileName, FileMode.Open);
+            //        var bAddress = GetBytesFromString(address);
 
-                    if (BitConverter.IsLittleEndian)
-                    {
-                        Array.Reverse(bAddress);
-                    }
+            //        if (BitConverter.IsLittleEndian)
+            //        {
+            //            Array.Reverse(bAddress);
+            //        }
 
-                    var offset = BitConverter.ToInt32(bAddress, 0);
-                    buffer = new byte[size];
+            //        var offset = BitConverter.ToInt32(bAddress, 0);
+            //        buffer = new byte[size];
 
-                    stream.Seek(offset, SeekOrigin.Begin);
-                    stream.Write(buffer, 0, size);
-                    CacheEntries[replacementIndex].DataBlock = buffer;
+            //        stream.Seek(offset, SeekOrigin.Begin);
+            //        stream.Write(buffer, 0, size);
+            //        CacheEntries[replacementIndex].DataBlock = buffer;
 
-                    ++StatisticsInfo.MemoryWrites;
-                }
-                catch (Exception)
-                {
-                    sb.AppendLine($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] error=WRITE_TO_RAM_FAIL");
-                }
-            }
+            //        ++StatisticsInfo.MemoryWrites;
+            //    }
+            //    catch (Exception)
+            //    {
+            //        sb.AppendLine($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] error=WRITE_TO_RAM_FAIL");
+            //    }
+            //}
 
             if (CacheConfig.ReplacementPolicy is ReplacementPolicy.LeastRecentlyUsed
                                        or ReplacementPolicy.MostRecentlyUsed)
