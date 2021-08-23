@@ -141,6 +141,10 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
             <Grid Grid.Row="0">
                 <Grid.ColumnDefinitions>
@@ -192,21 +196,37 @@
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
-                <Label Grid.Column="0">Write policy:</Label>
-                <Separator Grid.Column="1" Width="56" Background="Transparent"/>
-                <ComboBox x:Name="cacheWritePolicyComboBox"
+                <Label Grid.Column="0">Write-hit policy:</Label>
+                <Separator Grid.Column="1" Width="35" Background="Transparent"/>
+                <ComboBox x:Name="cacheWriteHitPolicyComboBox"
                               VerticalAlignment="Center"
                               Margin="0,0,4,0"
                               Width="238"
                               Grid.Column="2">
                     <ComboBoxItem IsSelected="True">Write-back</ComboBoxItem>
                     <ComboBoxItem>Write-through</ComboBoxItem>
-                    <ComboBoxItem IsEnabled="False">Write allocate</ComboBoxItem>
-                    <ComboBoxItem IsEnabled="False">No-write allocate</ComboBoxItem>
                 </ComboBox>
             </Grid>
             <Separator Grid.Row="7" Height="1" Background="Transparent"/>
             <Grid Grid.Row="8">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Label Grid.Column="0">Write-miss policy:</Label>
+                <Separator Grid.Column="1" Width="25" Background="Transparent"/>
+                <ComboBox x:Name="cacheWriteMissPolicyComboBox"
+                              VerticalAlignment="Center"
+                              Margin="0,0,4,0"
+                              Width="238"
+                              Grid.Column="2">
+                    <ComboBoxItem IsSelected="True">Write allocate</ComboBoxItem>
+                    <ComboBoxItem>No-write allocate</ComboBoxItem>
+                </ComboBox>
+            </Grid>
+            <Separator Grid.Row="9" Height="1" Background="Transparent"/>
+            <Grid Grid.Row="10">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
@@ -230,8 +250,8 @@
                     <ComboBoxItem IsEnabled="False">LFU with dynamic aging (LFUDA)</ComboBoxItem>
                 </ComboBox>
             </Grid>
-            <Separator Grid.Row="9" Height="1" Background="Transparent"/>
-            <Grid Grid.Row="10">
+            <Separator Grid.Row="11" Height="1" Background="Transparent"/>
+            <Grid Grid.Row="12">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />

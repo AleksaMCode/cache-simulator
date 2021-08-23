@@ -10,7 +10,7 @@ namespace CacheSimulator
     {
         private Cache L1;
 
-        public CPU((string ramFileName, string traceFileName, int size, int associativity, int blockSize, WritePolicy writePolicy, ReplacementPolicy replacementPolicy) cacheInfo)
+        public CPU((string ramFileName, string traceFileName, int size, int associativity, int blockSize, WritePolicy writeHitPolicy, WritePolicy writeMissPolicy, ReplacementPolicy replacementPolicy) cacheInfo)
         {
             L1 = new Cache(cacheInfo);
         }
@@ -124,7 +124,8 @@ namespace CacheSimulator
             sb.AppendLine($"D-cache size: {string.Format(CultureInfo.InvariantCulture, "{0:0,0}", L1.Size)}");
             sb.AppendLine($"Associativity: {(L1.Associativity == 1 ? "Directly mapped" : L1.Associativity + "-way set associative")}");
             sb.AppendLine($"Block size: {L1.CacheConfig.BlockSize}");
-            sb.AppendLine($"Write policy: {(L1.CacheConfig.WritePolicy == WritePolicy.WriteBack ? "Write-back" : "Write-through")}");
+            sb.AppendLine($"Write-hit policy: {(L1.CacheConfig.WriteHitPolicy == WritePolicy.WriteBack ? "Write-back" : "Write-through")}");
+            sb.AppendLine($"Write-miss policy: {(L1.CacheConfig.WriteMissPolicy == WritePolicy.WriteAllocate ? "Write allocate" : "No-write allocate")}");
             sb.AppendLine("\nCACHE STATISTICS:");
             sb.AppendLine(L1.StatisticsInfo.GetStatistics());
 

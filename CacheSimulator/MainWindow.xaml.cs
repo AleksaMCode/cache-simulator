@@ -72,7 +72,7 @@ namespace CacheSimulator
                 };
 
                 cpu = new CPU((ramFileFullPath, traceFileFullPath, size, associativity, lineSize,
-                    GetWritePolicy(cacheWritePolicyComboBox.Text), GetReplacementPolicy(cacheReplacementPolicyComboBox.Text)));
+                    GetWritePolicy(cacheWriteHitPolicyComboBox.Text), GetWritePolicy(cacheWriteMissPolicyComboBox.Text), GetReplacementPolicy(cacheReplacementPolicyComboBox.Text)));
 
                 const int bufferSize = 4_096;
                 using var fileStream = File.OpenRead(cpu.GetTraceFileName());

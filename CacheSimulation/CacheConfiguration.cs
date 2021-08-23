@@ -3,22 +3,24 @@ namespace CacheSimulation
     public class CacheConfiguration
     {
         public int BlockSize { get; set; } = 0;
-        public WritePolicy WritePolicy { get; set; } = WritePolicy.WriteBack;
+        public WritePolicy WriteHitPolicy { get; set; } = WritePolicy.WriteBack;
+        public WritePolicy WriteMissPolicy { get; set; } = WritePolicy.WriteAllocate;
         public ReplacementPolicy ReplacementPolicy { get; set; } = ReplacementPolicy.LeastRecentlyUsed;
 
         public CacheConfiguration()
         {
         }
 
-        public CacheConfiguration(int blockSize, WritePolicy writePolicy, ReplacementPolicy replacementPolicy)
+        public CacheConfiguration(int blockSize, WritePolicy writeHitPolicy, WritePolicy writeMissPolicy, ReplacementPolicy replacementPolicy)
         {
-            SetCacheConfig(blockSize, writePolicy, replacementPolicy);
+            SetCacheConfig(blockSize, writeHitPolicy, writeMissPolicy, replacementPolicy);
         }
 
-        public void SetCacheConfig(int blockSize, WritePolicy writePolicy, ReplacementPolicy replacementPolicy)
+        public void SetCacheConfig(int blockSize, WritePolicy writeHitPolicy, WritePolicy writeMissPolicy, ReplacementPolicy replacementPolicy)
         {
             BlockSize = blockSize;
-            WritePolicy = writePolicy;
+            WriteHitPolicy = writeHitPolicy;
+            WriteMissPolicy = writeMissPolicy;
             ReplacementPolicy = replacementPolicy;
         }
     }

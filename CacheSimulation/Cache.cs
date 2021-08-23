@@ -12,8 +12,17 @@ namespace CacheSimulation
     public enum WritePolicy
     {
         WriteThrough = 0,
+        /// <summary>
+        /// Write-back also called write-behind
+        /// </summary>
         WriteBack = 1,
+        /// <summary>
+        /// Write allocate also called fetch on write
+        /// </summary>
         WriteAllocate = 2,
+        /// <summary>
+        /// No-write allocate also called write-no-allocate or write around
+        /// </summary>
         WriteAround = 3
     }
 
@@ -60,7 +69,7 @@ namespace CacheSimulation
         /// </summary>
         private int lifoIndex { get; set; }
 
-        public Cache((string ramFileName, string traceFileName, int size, int associativity, int blockSize, WritePolicy writePolicy, ReplacementPolicy replacementPolicy) cacheInfo)
+        public Cache((string ramFileName, string traceFileName, int size, int associativity, int blockSize, WritePolicy writeHitPolicy, WritePolicy writeMissPolicy, ReplacementPolicy replacementPolicy) cacheInfo)
         {
             if (cacheInfo.blockSize >= cacheInfo.size)
             {
@@ -84,7 +93,7 @@ namespace CacheSimulation
             }
 
             Size = cacheInfo.size;
-            CacheConfig.SetCacheConfig(cacheInfo.blockSize, cacheInfo.writePolicy, cacheInfo.replacementPolicy);
+            CacheConfig.SetCacheConfig(cacheInfo.blockSize, cacheInfo.writeHitPolicy, cacheInfo.writeMissPolicy, cacheInfo.replacementPolicy);
             NumberOfLines = Size / CacheConfig.BlockSize;
 
             if (cacheInfo.associativity > NumberOfLines)
@@ -275,11 +284,11 @@ namespace CacheSimulation
                             CacheEntries[i].DataBlock = buffer;
                         }
 
-                        if (CacheConfig.WritePolicy == WritePolicy.WriteBack)
+                        if (CacheConfig.WriteHitPolicy == WritePolicy.WriteBack)
                         {
                             CacheEntries[i].FlagBits.Dirty = true;
                         }
-                        else if (CacheConfig.WritePolicy == WritePolicy.WriteThrough)
+                        else if (CacheConfig.WriteHitPolicy == WritePolicy.WriteThrough)
                         {
                             try
                             {
@@ -344,11 +353,11 @@ namespace CacheSimulation
                         CacheEntries[i].DataBlock = buffer;
                     }
 
-                    if (CacheConfig.WritePolicy == WritePolicy.WriteBack)
+                    if (CacheConfig.WriteHitPolicy == WritePolicy.WriteBack)
                     {
                         CacheEntries[i].FlagBits.Dirty = true;
                     }
-                    else if (CacheConfig.WritePolicy == WritePolicy.WriteThrough)
+                    else if (CacheConfig.WriteHitPolicy == WritePolicy.WriteThrough)
                     {
                         try
                         {
@@ -442,7 +451,7 @@ namespace CacheSimulation
             }
 
             // If the write policy is write-back and the dirty flag is set, write the cache entry to RAM first.
-            if (CacheConfig.WritePolicy == WritePolicy.WriteBack && CacheEntries[replacementIndex].FlagBits.Dirty)
+            if (CacheConfig.WriteHitPolicy == WritePolicy.WriteBack && CacheEntries[replacementIndex].FlagBits.Dirty)
             {
                 try
                 {
@@ -487,11 +496,11 @@ namespace CacheSimulation
                 CacheEntries[replacementIndex].DataBlock = buffer;
             }
 
-            if (CacheConfig.WritePolicy == WritePolicy.WriteBack)
+            if (CacheConfig.WriteHitPolicy == WritePolicy.WriteBack)
             {
                 CacheEntries[replacementIndex].FlagBits.Dirty = true;
             }
-            else if (CacheConfig.WritePolicy == WritePolicy.WriteThrough)
+            else if (CacheConfig.WriteHitPolicy == WritePolicy.WriteThrough)
             {
                 try
                 {
@@ -778,7 +787,7 @@ namespace CacheSimulation
             }
 
             // If the write policy is write-back and the dirty flag is set, write the cache entry to RAM first.
-            if (CacheConfig.WritePolicy == WritePolicy.WriteBack && CacheEntries[replacementIndex].FlagBits.Dirty)
+            if (CacheConfig.WriteHitPolicy == WritePolicy.WriteBack && CacheEntries[replacementIndex].FlagBits.Dirty)
             {
                 try
                 {
@@ -810,7 +819,7 @@ namespace CacheSimulation
             CacheEntries[replacementIndex].TagLength = GetTagLength(binaryAddress);
             CacheEntries[replacementIndex].Tag = binaryAddress;
 
-            if (CacheConfig.WritePolicy == WritePolicy.WriteBack)
+            if (CacheConfig.WriteHitPolicy == WritePolicy.WriteBack)
             {
                 CacheEntries[replacementIndex].FlagBits.Dirty = false;
             }
