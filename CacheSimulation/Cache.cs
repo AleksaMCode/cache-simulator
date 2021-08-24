@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using Org.BouncyCastle.Crypto.Digests;
 using Org.BouncyCastle.Crypto.Prng;
 using Org.BouncyCastle.Security;
@@ -42,6 +43,8 @@ namespace CacheSimulation
     public class Cache
     {
         public List<CacheEntry> CacheEntries;
+
+        private static readonly ReaderWriterLockSlim readWriteLock = new ReaderWriterLockSlim();
 
         /// <summary>
         /// Data used for statistics.
@@ -269,51 +272,82 @@ namespace CacheSimulation
 
         private byte[] ReadFromRam(string address, int size)
         {
-            using var stream = File.Open(RamFileName, FileMode.Open);
-            var bAddress = GetBytesFromString(address);
+            readWriteLock.EnterWriteLock();
+            var hasExceptionHappened = true;
 
-            if (bAddress.Length != 4)
+            try
             {
-                bAddress = ConversionBugFixer(bAddress);
-            }
+                using var stream = File.Open(RamFileName, FileMode.Open);
+                var bAddress = GetBytesFromString(address);
 
-            if (BitConverter.IsLittleEndian)
+                if (bAddress.Length != 4)
+                {
+                    bAddress = ConversionBugFixer(bAddress);
+                }
+
+                if (BitConverter.IsLittleEndian)
+                {
+                    Array.Reverse(bAddress);
+                }
+
+                var offset = BitConverter.ToInt32(bAddress, 0);
+                var buffer = new byte[size];
+
+                stream.Seek(offset, SeekOrigin.Begin);
+                stream.Read(buffer, 0, size);
+
+                ++StatisticsInfo.MemoryReads;
+
+                return buffer;
+            }
+            finally
             {
-                Array.Reverse(bAddress);
+                readWriteLock.ExitWriteLock();
+
+                if (hasExceptionHappened)
+                {
+                    throw new Exception();
+                }
             }
-
-            var offset = BitConverter.ToInt32(bAddress, 0);
-            var buffer = new byte[size];
-
-            stream.Seek(offset, SeekOrigin.Begin);
-            stream.Read(buffer, 0, size);
-
-            ++StatisticsInfo.MemoryReads;
-
-            return buffer;
         }
 
         private void WriteToRam(string address, byte[] data, int size)
         {
-            using var stream = File.Open(RamFileName, FileMode.Open);
-            var bAddress = GetBytesFromString(address);
+            readWriteLock.EnterWriteLock();
+            var hasExceptionHappened = true;
 
-            if (bAddress.Length != 4)
+            try
             {
-                bAddress = ConversionBugFixer(bAddress);
-            }
+                using var stream = File.Open(RamFileName, FileMode.Open);
+                var bAddress = GetBytesFromString(address);
 
-            if (BitConverter.IsLittleEndian)
+                if (bAddress.Length != 4)
+                {
+                    bAddress = ConversionBugFixer(bAddress);
+                }
+
+                if (BitConverter.IsLittleEndian)
+                {
+                    Array.Reverse(bAddress);
+                }
+
+                var offset = BitConverter.ToInt32(bAddress, 0);
+
+                stream.Seek(offset, SeekOrigin.Begin);
+                stream.Write(data, 0, size);
+
+                ++StatisticsInfo.MemoryWrites;
+                hasExceptionHappened = false;
+            }
+            finally
             {
-                Array.Reverse(bAddress);
+                readWriteLock.ExitWriteLock();
+
+                if (hasExceptionHappened)
+                {
+                    throw new Exception();
+                }
             }
-
-            var offset = BitConverter.ToInt32(bAddress, 0);
-
-            stream.Seek(offset, SeekOrigin.Begin);
-            stream.Write(data, 0, size);
-
-            ++StatisticsInfo.MemoryWrites;
         }
 
         public bool WriteToCache(string address, int size, string data, out string additionalData, int traceIndex)
