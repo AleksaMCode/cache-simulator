@@ -110,11 +110,6 @@ namespace CacheSimulator
             }
         }
 
-        public string GetTraceFileName()
-        {
-            return L1.TraceFileName;
-        }
-
         public string GetCacheStatistics()
         {
             var sb = new StringBuilder();

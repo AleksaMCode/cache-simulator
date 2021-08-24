@@ -75,7 +75,7 @@ namespace CacheSimulator
                     GetWritePolicy(cacheWriteHitPolicyComboBox.Text), GetWritePolicy(cacheWriteMissPolicyComboBox.Text), GetReplacementPolicy(cacheReplacementPolicyComboBox.Text)));
 
                 const int bufferSize = 4_096;
-                using var fileStream = File.OpenRead(cpu.GetTraceFileName());
+                using var fileStream = File.OpenRead(traceFileFullPath);
                 using var streamReader = new StreamReader(fileStream, Encoding.UTF8, true, bufferSize);
 
                 string line;
