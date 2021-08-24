@@ -274,7 +274,7 @@ namespace CacheSimulation
 
             if (bAddress.Length != 4)
             {
-                ConversionBugFixer(bAddress);
+                bAddress = ConversionBugFixer(bAddress);
             }
 
             if (BitConverter.IsLittleEndian)
@@ -300,7 +300,7 @@ namespace CacheSimulation
 
             if (bAddress.Length != 4)
             {
-                ConversionBugFixer(bAddress);
+                bAddress = ConversionBugFixer(bAddress);
             }
 
             if (BitConverter.IsLittleEndian)
@@ -577,7 +577,7 @@ namespace CacheSimulation
                 ++currentLine;
 
                 // Go to the trace index line.
-                if (currentLine < traceIndex - 1)
+                if (currentLine < traceIndex + 1)
                 {
                     continue;
                 }
@@ -641,7 +641,7 @@ namespace CacheSimulation
                     }
                     catch (Exception)
                     {
-                        sb.Append($"\n[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] error=READ_FROM_RAM_FAIL");
+                        sb.Append($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] error=READ_FROM_RAM_FAIL");
                     }
 
                     if (CacheConfig.ReplacementPolicy is ReplacementPolicy.LeastRecentlyUsed or ReplacementPolicy.MostRecentlyUsed)
@@ -696,7 +696,7 @@ namespace CacheSimulation
             }
             catch (Exception)
             {
-                sb.Append($"\n[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] error=READ_FROM_RAM_FAIL");
+                sb.Append($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] error=READ_FROM_RAM_FAIL");
             }
 
             // Set age values.
