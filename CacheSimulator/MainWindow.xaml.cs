@@ -91,7 +91,12 @@ namespace CacheSimulator
                         var cacheLogInfo = cpu.ExecuteTraceLine(line, ++traceIndex);
                         if (cacheLogInfo != null)
                         {
-                            Application.Current.Dispatcher.Invoke(() => cacheStatsTextBox.AppendText(cacheLogInfo));
+                            Application.Current.Dispatcher.Invoke(() =>
+                            {
+                                cacheStatsTextBox.AppendText(cacheLogInfo);
+                                cacheStatsTextBox.ScrollToEnd();
+                            }
+                            );
                         }
                     });
 
