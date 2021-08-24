@@ -219,7 +219,17 @@ namespace CacheSimulator
                 try
                 {
                     var trace = new TraceGenerator.TraceGenerator(traceFileSizeComboBox.Text);
-                    trace.GenerateTraceFile((int)ramSizeNumericUpDown.Value.Value, Int32.Parse(cacheLineSize.Text));
+
+                    traceFileProgressRing.IsActive = true;
+                    traceFileProgressRing.Visibility = Visibility.Visible;
+                    EnableWindowComponents(false);
+
+                    var task = Task.Run(() => trace.GenerateTraceFile((int)ramSizeNumericUpDown.Value.Value, Int32.Parse(cacheLineSize.Text)));
+
+                    traceFileProgressRing.IsActive = false;
+                    traceFileProgressRing.Visibility = Visibility.Collapsed;
+                    EnableWindowComponents(true);
+
                     MessageBox.Show($"Trace file {trace.FileName} has been successfully created.", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 catch (Exception ex)
