@@ -85,14 +85,11 @@ namespace CacheSimulation
             TraceFileName = cacheInfo.traceFileName;
 
             // Explanation for this check implementation https://stackoverflow.com/questions/2751593/how-to-determine-if-a-decimal-double-is-an-integer .
-            var logBlockSize = Math.Log(cacheInfo.blockSize, 2);
-            var logAssociativity = Math.Log(cacheInfo.associativity, 2);
-
-            if (Math.Ceiling(logBlockSize) != Math.Floor(logBlockSize))
+            if (!CheckNumberForPowerOfTwo(cacheInfo.blockSize))
             {
                 throw new Exception("Block size is not a power of 2.");
             }
-            else if (Math.Ceiling(logAssociativity) != Math.Floor(logAssociativity))
+            else if (!CheckNumberForPowerOfTwo(cacheInfo.associativity))
             {
                 throw new Exception("Associativity is not a power of 2.");
             }
@@ -124,6 +121,13 @@ namespace CacheSimulation
             }
 
             CreateColdCache();
+        }
+
+        public static bool CheckNumberForPowerOfTwo(int number)
+        {
+            var logValue = Math.Log(number, 2);
+
+            return Math.Ceiling(logValue) == Math.Floor(logValue);
         }
 
         public Instruction TraceLineParser(string line)

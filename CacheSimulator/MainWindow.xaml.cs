@@ -211,30 +211,42 @@ namespace CacheSimulator
             return true;
         }
 
-        private void GenerateTraceFile(object sender, RoutedEventArgs e)
+        private async void GenerateTraceFile(object sender, RoutedEventArgs e)
         {
-            var msgReply = MessageBox.Show($"Trace file will use {(int)ramSizeNumericUpDown.Value.Value} MB RAM size for generating address range and cache line size {cacheLineSize.Text} B for generating random data.", "Warning", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
-            if (msgReply == MessageBoxResult.OK)
+            if (cacheLineSize.Text == "")
             {
-                try
+                MessageBox.Show("Please enter the cache line size first.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+            else if (!Cache.CheckNumberForPowerOfTwo(Int32.Parse(cacheLineSize.Text)))
+            {
+                MessageBox.Show("Cache line is not a power of 2.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+            else
+            {
+                var msgReply = MessageBox.Show($"Trace file will use {(int)ramSizeNumericUpDown.Value.Value} MB RAM size for generating address range and cache line size {cacheLineSize.Text} B for generating random data.", "Warning", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
+                if (msgReply == MessageBoxResult.OK)
                 {
-                    var trace = new TraceGenerator.TraceGenerator(traceFileSizeComboBox.Text);
+                    try
+                    {
+                        var trace = new TraceGenerator.TraceGenerator(traceFileSizeComboBox.Text);
 
-                    traceFileProgressRing.IsActive = true;
-                    traceFileProgressRing.Visibility = Visibility.Visible;
-                    EnableWindowComponents(false);
+                        traceFileProgressRing.IsActive = true;
+                        traceFileProgressRing.Visibility = Visibility.Visible;
+                        EnableWindowComponents(false);
 
-                    var task = Task.Run(() => trace.GenerateTraceFile((int)ramSizeNumericUpDown.Value.Value, Int32.Parse(cacheLineSize.Text)));
+                        var task = Task.Run(() => trace.GenerateTraceFile((int)ramSizeNumericUpDown.Value.Value, Int32.Parse(cacheLineSize.Text)));
+                        await task;
 
-                    traceFileProgressRing.IsActive = false;
-                    traceFileProgressRing.Visibility = Visibility.Collapsed;
-                    EnableWindowComponents(true);
+                        traceFileProgressRing.IsActive = false;
+                        traceFileProgressRing.Visibility = Visibility.Collapsed;
+                        EnableWindowComponents(true);
 
-                    MessageBox.Show($"Trace file {trace.FileName} has been successfully created.", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(ex.Message, "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        MessageBox.Show($"Trace file {trace.FileName} has been successfully created.", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(ex.Message, "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    }
                 }
             }
         }
