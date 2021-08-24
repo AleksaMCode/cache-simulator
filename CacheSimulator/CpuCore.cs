@@ -71,10 +71,11 @@ namespace CacheSimulator
             }
         }
 
-        public string GetCacheStatistics()
+        public string GetCacheStatistics(int coreNumber)
         {
             var sb = new StringBuilder();
 
+            sb.AppendLine($"Core {coreNumber}");
             sb.AppendLine("CACHE SETTINGS:");
             sb.AppendLine("Only D-cache");
             sb.AppendLine($"D-cache size: {string.Format(CultureInfo.InvariantCulture, "{0:0,0}", L1d.Size)}");

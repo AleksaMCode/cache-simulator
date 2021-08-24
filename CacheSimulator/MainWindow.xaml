@@ -1,15 +1,16 @@
-<Window x:Class="CacheSimulator.MainWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:MetroControls="http://metro.mahapps.com/winfx/xaml/controls"
-        xmlns:controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
-        xmlns:local="clr-namespace:CacheSimulator"
-        Topmost="False"
-        Title="CPU Cache Simulator"
-        MinHeight="500"
-        MinWidth="1000">
+<Window
+    x:Class="CacheSimulator.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:MetroControls="http://metro.mahapps.com/winfx/xaml/controls"
+    xmlns:controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:CacheSimulator"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Title="CPU Cache Simulator"
+    MinWidth="1000"
+    MinHeight="500"
+    Topmost="False">
     <Grid Margin="5">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -24,7 +25,10 @@
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
-        <Grid x:Name="memoryGeneratorsGrid" Grid.Row="0" Grid.Column="0">
+        <Grid
+            x:Name="memoryGeneratorsGrid"
+            Grid.Row="0"
+            Grid.Column="0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
@@ -47,20 +51,43 @@
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                     <Label Grid.Column="0" VerticalAlignment="Center">Size:</Label>
-                    <Separator Grid.Column="1" Width="23" Background="Transparent"/>
-                    <ComboBox x:Name="traceFileSizeComboBox"
-                              VerticalAlignment="Center"
-                              ToolTip="large is 10,000, medium 1,000 and small is 100 instructions."
-                              Width="130"
-                              HorizontalAlignment="Left"
-                              Grid.Column="2">
+                    <Separator
+                        Grid.Column="1"
+                        Width="23"
+                        Background="Transparent" />
+                    <ComboBox
+                        x:Name="traceFileSizeComboBox"
+                        Grid.Column="2"
+                        Width="130"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Center"
+                        ToolTip="large is 10,000, medium 1,000 and small is 100 instructions.">
                         <ComboBoxItem IsSelected="True">small</ComboBoxItem>
                         <ComboBoxItem>medium</ComboBoxItem>
                         <ComboBoxItem>large</ComboBoxItem>
                     </ComboBox>
-                    <Separator Grid.Column="3" Width="1" Background="Transparent"/>
-                    <Button x:Name="generateTraceFileButton" HorizontalAlignment="Left" Width="100" Margin="5,2,5,2" Grid.Column="4" Click="GenerateTraceFile">Generate</Button>
-                    <MetroControls:ProgressRing Grid.Column="5" HorizontalAlignment="Left" Width="30" Height="30" Visibility="Hidden" IsActive="False" Foreground="Black" Name="traceFileProgressRing" />
+                    <Separator
+                        Grid.Column="3"
+                        Width="1"
+                        Background="Transparent" />
+                    <Button
+                        x:Name="generateTraceFileButton"
+                        Grid.Column="4"
+                        Width="100"
+                        Margin="5,2,5,2"
+                        HorizontalAlignment="Left"
+                        Click="GenerateTraceFile">
+                        Generate
+                    </Button>
+                    <MetroControls:ProgressRing
+                        Name="traceFileProgressRing"
+                        Grid.Column="5"
+                        Width="30"
+                        Height="30"
+                        HorizontalAlignment="Left"
+                        Foreground="Black"
+                        IsActive="False"
+                        Visibility="Hidden" />
                 </Grid>
             </Grid>
             <Grid Grid.Row="1">
@@ -79,23 +106,46 @@
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
                     <Label Grid.Column="0" VerticalAlignment="Center">
-                        <TextBlock>Size<LineBreak/>(in MB):</TextBlock>
+                        <TextBlock>
+                            Size<LineBreak />
+                            (in MB):</TextBlock>
                     </Label>
-                    <MetroControls:NumericUpDown x:Name="ramSizeNumericUpDown"
-                                                 Grid.Column="1"
-                                                 Interval="500"
-                                                 Value="500"
-                                                 Minimum="500"
-                                                 Maximum="4000"
-                                                 Width="130"
-                                                 HorizontalAlignment="Left"
-                                                 PreviewTextInput="TextBoxNumberValidator"
-                                                 Margin="7,5,0,5"/>
-                    <Button x:Name="generateRamFileButton" HorizontalAlignment="Left" Width="100" Margin="5,5,5,5" Grid.Column="2" Click="GenerateRamFile">Generate</Button>
-                    <MetroControls:ProgressRing Grid.Column="3" HorizontalAlignment="Left" Width="30" Height="30" Visibility="Collapsed" IsActive="False" Foreground="Black" Name="ramFileProgressRing" />
+                    <MetroControls:NumericUpDown
+                        x:Name="ramSizeNumericUpDown"
+                        Grid.Column="1"
+                        Width="130"
+                        Margin="7,5,0,5"
+                        HorizontalAlignment="Left"
+                        Interval="500"
+                        Maximum="2000"
+                        Minimum="500"
+                        PreviewTextInput="TextBoxNumberValidator"
+                        ToolTip="Current maximum RAM value is 2 GB."
+                        Value="500" />
+                    <Button
+                        x:Name="generateRamFileButton"
+                        Grid.Column="2"
+                        Width="100"
+                        Margin="5,5,5,5"
+                        HorizontalAlignment="Left"
+                        Click="GenerateRamFile">
+                        Generate
+                    </Button>
+                    <MetroControls:ProgressRing
+                        Name="ramFileProgressRing"
+                        Grid.Column="3"
+                        Width="30"
+                        Height="30"
+                        HorizontalAlignment="Left"
+                        Foreground="Black"
+                        IsActive="False"
+                        Visibility="Collapsed" />
                 </Grid>
             </Grid>
-            <Separator Grid.Row="2" Height="10" Background="Transparent"/>
+            <Separator
+                Grid.Row="2"
+                Height="10"
+                Background="Transparent" />
             <Grid Grid.Row="3">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*" />
@@ -114,10 +164,21 @@
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                     <Label Grid.Column="0">Load trace file:</Label>
-                    <TextBox x:Name="traceFileNameTextBox" Grid.Column="1" IsReadOnly="True"/>
-                    <Button Grid.Column="2" Margin="5,0,0,0" Click="TraceFilePicker">Choose</Button>
+                    <TextBox
+                        x:Name="traceFileNameTextBox"
+                        Grid.Column="1"
+                        IsReadOnly="True" />
+                    <Button
+                        Grid.Column="2"
+                        Margin="5,0,0,0"
+                        Click="TraceFilePicker">
+                        Choose
+                    </Button>
                 </Grid>
-                <Separator Grid.Row="2" Width="20" Background="Transparent"/>
+                <Separator
+                    Grid.Row="2"
+                    Width="20"
+                    Background="Transparent" />
                 <Grid Grid.Row="3">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
@@ -126,13 +187,31 @@
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                     <Label Grid.Column="0" VerticalAlignment="Center">Load RAM file:</Label>
-                    <TextBox x:Name="ramFileNameTextBox" Grid.Column="1" IsReadOnly="True"/>
-                    <Button Grid.Column="2" Margin="5,0,0,0" Click="RamFilePicker">Choose</Button>
+                    <TextBox
+                        x:Name="ramFileNameTextBox"
+                        Grid.Column="1"
+                        IsReadOnly="True" />
+                    <Button
+                        Grid.Column="2"
+                        Margin="5,0,0,0"
+                        Click="RamFilePicker">
+                        Choose
+                    </Button>
                 </Grid>
             </Grid>
         </Grid>
-        <Rectangle Grid.Row="0" Grid.Column="1" VerticalAlignment="Stretch" Width="0.8" Margin="2" Stroke="Black" />
-        <Grid x:Name="cacheParametersGrid" Grid.Row="0" Grid.Column="2" VerticalAlignment="Center">
+        <Rectangle
+            Grid.Row="0"
+            Grid.Column="1"
+            Width="0.8"
+            Margin="2"
+            VerticalAlignment="Stretch"
+            Stroke="Black" />
+        <Grid
+            x:Name="cacheParametersGrid"
+            Grid.Row="0"
+            Grid.Column="2"
+            VerticalAlignment="Center">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
@@ -157,10 +236,21 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <Label Grid.Column="0">Cache size:</Label>
-                <Separator Grid.Column="1" Width="63" Background="Transparent"/>
-                <TextBox x:Name="cacheSize" Grid.Column="2" Width="50" VerticalContentAlignment="Center" PreviewTextInput="TextBoxNumberValidator"/>
+                <Separator
+                    Grid.Column="1"
+                    Width="63"
+                    Background="Transparent" />
+                <TextBox
+                    x:Name="cacheSize"
+                    Grid.Column="2"
+                    Width="50"
+                    VerticalContentAlignment="Center"
+                    PreviewTextInput="TextBoxNumberValidator" />
             </Grid>
-            <Separator Grid.Row="1" Height="1" Background="Transparent"/>
+            <Separator
+                Grid.Row="1"
+                Height="1"
+                Background="Transparent" />
             <Grid Grid.Row="2">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
@@ -168,10 +258,21 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <Label Grid.Column="0">Cache line size:</Label>
-                <Separator Grid.Column="1" Width="41" Background="Transparent"/>
-                <TextBox x:Name="cacheLineSize" Grid.Column="2" Width="50" VerticalContentAlignment="Center" PreviewTextInput="TextBoxNumberValidator"/>
+                <Separator
+                    Grid.Column="1"
+                    Width="41"
+                    Background="Transparent" />
+                <TextBox
+                    x:Name="cacheLineSize"
+                    Grid.Column="2"
+                    Width="50"
+                    VerticalContentAlignment="Center"
+                    PreviewTextInput="TextBoxNumberValidator" />
             </Grid>
-            <Separator Grid.Row="3" Height="1" Background="Transparent"/>
+            <Separator
+                Grid.Row="3"
+                Height="1"
+                Background="Transparent" />
             <Grid Grid.Row="4">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
@@ -180,20 +281,33 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <Label Grid.Column="0">Cache associativity:</Label>
-                <Separator Grid.Column="1" Width="20" Background="Transparent"/>
-                <ComboBox x:Name="cacheAssociativityComboBox"
-                          SelectionChanged="CacheAssociativityChanged"
-                          VerticalAlignment="Center"
-                          Margin="0,0,4,0"
-                          Width="238"
-                          Grid.Column="2">
+                <Separator
+                    Grid.Column="1"
+                    Width="20"
+                    Background="Transparent" />
+                <ComboBox
+                    x:Name="cacheAssociativityComboBox"
+                    Grid.Column="2"
+                    Width="238"
+                    Margin="0,0,4,0"
+                    VerticalAlignment="Center"
+                    SelectionChanged="CacheAssociativityChanged">
                     <ComboBoxItem IsSelected="True">Directly mapped</ComboBoxItem>
                     <ComboBoxItem>N-way set associative</ComboBoxItem>
                     <ComboBoxItem>Fully associative</ComboBoxItem>
                 </ComboBox>
-                <TextBox x:Name="cacheAssociativity" Visibility="Collapsed" Grid.Column="3" Width="50" VerticalContentAlignment="Center" PreviewTextInput="TextBoxNumberValidator"/>
+                <TextBox
+                    x:Name="cacheAssociativity"
+                    Grid.Column="3"
+                    Width="50"
+                    VerticalContentAlignment="Center"
+                    PreviewTextInput="TextBoxNumberValidator"
+                    Visibility="Collapsed" />
             </Grid>
-            <Separator Grid.Row="5" Height="1" Background="Transparent"/>
+            <Separator
+                Grid.Row="5"
+                Height="1"
+                Background="Transparent" />
             <Grid Grid.Row="6">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
@@ -201,17 +315,24 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <Label Grid.Column="0">Write-hit policy:</Label>
-                <Separator Grid.Column="1" Width="38" Background="Transparent"/>
-                <ComboBox x:Name="cacheWriteHitPolicyComboBox"
-                              VerticalAlignment="Center"
-                              Margin="0,0,4,0"
-                              Width="238"
-                              Grid.Column="2">
+                <Separator
+                    Grid.Column="1"
+                    Width="38"
+                    Background="Transparent" />
+                <ComboBox
+                    x:Name="cacheWriteHitPolicyComboBox"
+                    Grid.Column="2"
+                    Width="238"
+                    Margin="0,0,4,0"
+                    VerticalAlignment="Center">
                     <ComboBoxItem IsSelected="True">Write-back</ComboBoxItem>
                     <ComboBoxItem>Write-through</ComboBoxItem>
                 </ComboBox>
             </Grid>
-            <Separator Grid.Row="7" Height="1" Background="Transparent"/>
+            <Separator
+                Grid.Row="7"
+                Height="1"
+                Background="Transparent" />
             <Grid Grid.Row="8">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
@@ -219,17 +340,24 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <Label Grid.Column="0">Write-miss policy:</Label>
-                <Separator Grid.Column="1" Width="28" Background="Transparent"/>
-                <ComboBox x:Name="cacheWriteMissPolicyComboBox"
-                              VerticalAlignment="Center"
-                              Margin="0,0,4,0"
-                              Width="238"
-                              Grid.Column="2">
+                <Separator
+                    Grid.Column="1"
+                    Width="28"
+                    Background="Transparent" />
+                <ComboBox
+                    x:Name="cacheWriteMissPolicyComboBox"
+                    Grid.Column="2"
+                    Width="238"
+                    Margin="0,0,4,0"
+                    VerticalAlignment="Center">
                     <ComboBoxItem IsSelected="True">Write allocate</ComboBoxItem>
                     <ComboBoxItem>No-write allocate</ComboBoxItem>
                 </ComboBox>
             </Grid>
-            <Separator Grid.Row="9" Height="1" Background="Transparent"/>
+            <Separator
+                Grid.Row="9"
+                Height="1"
+                Background="Transparent" />
             <Grid Grid.Row="10">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
@@ -237,12 +365,16 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <Label Grid.Column="0">Replacement policy:</Label>
-                <Separator Grid.Column="1" Width="17" Background="Transparent"/>
-                <ComboBox x:Name="cacheReplacementPolicyComboBox"
-                              VerticalAlignment="Center"
-                              Margin="0,0,4,0"
-                              Width="238"
-                              Grid.Column="2">
+                <Separator
+                    Grid.Column="1"
+                    Width="17"
+                    Background="Transparent" />
+                <ComboBox
+                    x:Name="cacheReplacementPolicyComboBox"
+                    Grid.Column="2"
+                    Width="238"
+                    Margin="0,0,4,0"
+                    VerticalAlignment="Center">
                     <ComboBoxItem IsSelected="True">Least recently used (LRU)</ComboBoxItem>
                     <ComboBoxItem>Most recently used (MRU)</ComboBoxItem>
                     <ComboBoxItem>First in first out (FIFO)</ComboBoxItem>
@@ -254,7 +386,10 @@
                     <ComboBoxItem IsEnabled="False">LFU with dynamic aging (LFUDA)</ComboBoxItem>
                 </ComboBox>
             </Grid>
-            <Separator Grid.Row="11" Height="1" Background="Transparent"/>
+            <Separator
+                Grid.Row="11"
+                Height="1"
+                Background="Transparent" />
             <Grid Grid.Row="12">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
@@ -262,18 +397,25 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <Label Grid.Column="0">Cache level(s):</Label>
-                <Separator Grid.Column="1" Width="48" Background="Transparent"/>
-                <ComboBox x:Name="cacheTypeComboBox"
-                              VerticalAlignment="Center"
-                              Margin="0,0,4,0"
-                              Width="238"
-                              Grid.Column="2">
+                <Separator
+                    Grid.Column="1"
+                    Width="48"
+                    Background="Transparent" />
+                <ComboBox
+                    x:Name="cacheTypeComboBox"
+                    Grid.Column="2"
+                    Width="238"
+                    Margin="0,0,4,0"
+                    VerticalAlignment="Center">
                     <ComboBoxItem IsSelected="True">L1 (data)</ComboBoxItem>
                     <ComboBoxItem IsEnabled="False">L1 (instruction and data)</ComboBoxItem>
                     <ComboBoxItem IsEnabled="False">L1 and L2</ComboBoxItem>
                 </ComboBox>
             </Grid>
-            <Separator Grid.Row="13" Height="1" Background="Transparent"/>
+            <Separator
+                Grid.Row="13"
+                Height="1"
+                Background="Transparent" />
             <Grid Grid.Row="14">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
@@ -281,21 +423,40 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <Label Grid.Column="0">Type of CPU:</Label>
-                <Separator Grid.Column="1" Width="55" Background="Transparent"/>
-                <ComboBox x:Name="numberOfCoresComboBox"
-                              VerticalAlignment="Center"
-                              Margin="0,0,4,0"
-                              Width="238"
-                              Grid.Column="2">
+                <Separator
+                    Grid.Column="1"
+                    Width="55"
+                    Background="Transparent" />
+                <ComboBox
+                    x:Name="numberOfCoresComboBox"
+                    Grid.Column="2"
+                    Width="238"
+                    Margin="0,0,4,0"
+                    VerticalAlignment="Center">
                     <ComboBoxItem IsSelected="True">Single-core</ComboBoxItem>
-                    <ComboBoxItem >Dual-cores</ComboBoxItem>
+                    <ComboBoxItem>Dual-core</ComboBoxItem>
                     <ComboBoxItem IsEnabled="False">Multi-cores</ComboBoxItem>
                 </ComboBox>
             </Grid>
         </Grid>
-        <Separator Grid.Row="1" Grid.ColumnSpan="3" Height="4" Margin="0,5,0,0" Background="Black"/>
-        <Separator Grid.Row="2" Grid.ColumnSpan="3" Height="1" Margin="0,5,0,0" Background="Transparent"/>
-        <Grid x:Name="simulationContolsGrid" Grid.Row="3" Height="30" Grid.ColumnSpan="3" HorizontalAlignment="Center">
+        <Separator
+            Grid.Row="1"
+            Grid.ColumnSpan="3"
+            Height="4"
+            Margin="0,5,0,0"
+            Background="Black" />
+        <Separator
+            Grid.Row="2"
+            Grid.ColumnSpan="3"
+            Height="1"
+            Margin="0,5,0,0"
+            Background="Transparent" />
+        <Grid
+            x:Name="simulationContolsGrid"
+            Grid.Row="3"
+            Grid.ColumnSpan="3"
+            Height="30"
+            HorizontalAlignment="Center">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
@@ -303,20 +464,55 @@
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            <MetroControls:ProgressRing Grid.Column="0" Width="30" Height="30" Visibility="Hidden" IsActive="False" Foreground="Black" Name="cacheLogProgressRing" />
-            <Separator Grid.Column="1" Width="10" Margin="0,5,0,0" Background="Transparent"/>
-            <Button Grid.Column="2" x:Name="startSimulationButton" Width="120" Click="StartSimulation">Start Simulation</Button>
-            <Separator Grid.Column="3" Width="10" Margin="0,5,0,0" Background="Transparent"/>
-            <Button Grid.Column="4" x:Name="stopSimulationButton" Width="120" IsEnabled="False">Stop Simulation</Button>
+            <MetroControls:ProgressRing
+                Name="cacheLogProgressRing"
+                Grid.Column="0"
+                Width="30"
+                Height="30"
+                Foreground="Black"
+                IsActive="False"
+                Visibility="Hidden" />
+            <Separator
+                Grid.Column="1"
+                Width="10"
+                Margin="0,5,0,0"
+                Background="Transparent" />
+            <Button
+                x:Name="startSimulationButton"
+                Grid.Column="2"
+                Width="120"
+                Click="StartSimulation">
+                Start Simulation
+            </Button>
+            <Separator
+                Grid.Column="3"
+                Width="10"
+                Margin="0,5,0,0"
+                Background="Transparent" />
+            <Button
+                x:Name="stopSimulationButton"
+                Grid.Column="4"
+                Width="120"
+                IsEnabled="False">
+                Stop Simulation
+            </Button>
         </Grid>
-        <Separator Grid.Row="4" Width="10" Margin="0,5,0,0" Background="Transparent"/>
-        <Grid x:Name="cacheStatsGrid" Grid.Row="5" Grid.ColumnSpan="3">
-            <TextBox x:Name="cacheStatsTextBox"
-                     TextWrapping="Wrap"
-                     AcceptsReturn="True"
-                     IsReadOnly="True"
-                     HorizontalScrollBarVisibility="Disabled"
-                     VerticalScrollBarVisibility="Visible" />
+        <Separator
+            Grid.Row="4"
+            Width="10"
+            Margin="0,5,0,0"
+            Background="Transparent" />
+        <Grid
+            x:Name="cacheStatsGrid"
+            Grid.Row="5"
+            Grid.ColumnSpan="3">
+            <TextBox
+                x:Name="cacheStatsTextBox"
+                AcceptsReturn="True"
+                HorizontalScrollBarVisibility="Disabled"
+                IsReadOnly="True"
+                TextWrapping="Wrap"
+                VerticalScrollBarVisibility="Visible" />
         </Grid>
     </Grid>
 </Window>

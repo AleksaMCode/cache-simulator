@@ -71,8 +71,15 @@ namespace CacheSimulator
                     _ => Int32.Parse(cacheAssociativity.Text)
                 };
 
+                var numberOfCores = numberOfCoresComboBox.Text switch
+                {
+                    "Single-core" => 1,
+                    //"Dual-core" => 2,
+                    _ => 2
+                };
+
                 cpu = new CPU((ramFileFullPath, traceFileFullPath, size, associativity, lineSize,
-                    GetWritePolicy(cacheWriteHitPolicyComboBox.Text), GetWritePolicy(cacheWriteMissPolicyComboBox.Text), GetReplacementPolicy(cacheReplacementPolicyComboBox.Text)));
+                    GetWritePolicy(cacheWriteHitPolicyComboBox.Text), GetWritePolicy(cacheWriteMissPolicyComboBox.Text), GetReplacementPolicy(cacheReplacementPolicyComboBox.Text)), numberOfCores);
 
                 const int bufferSize = 4_096;
                 using var fileStream = File.OpenRead(traceFileFullPath);
@@ -88,7 +95,7 @@ namespace CacheSimulator
                 {
                     var task = Task.Run(() =>
                     {
-                        var cacheLogInfo = cpu.ExecuteTraceLine(line, ++traceIndex);
+                        var cacheLogInfo = cpu.ExecuteTraceLine(line, ++traceIndex, 0);
                         if (cacheLogInfo != null)
                         {
                             Application.Current.Dispatcher.Invoke(() =>
@@ -113,7 +120,7 @@ namespace CacheSimulator
 
                 cacheLogProgressRing.Visibility = Visibility.Hidden;
 
-                MessageBox.Show(cpu.GetCacheStatistics(), "Cache Statistics", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show(cpu.GetCacheStatistics(0), "Cache Statistics", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
@@ -218,11 +225,13 @@ namespace CacheSimulator
 
         private async void GenerateTraceFile(object sender, RoutedEventArgs e)
         {
+            var cacheBlockize = Int32.Parse(cacheLineSize.Text);
+
             if (cacheLineSize.Text == "")
             {
                 MessageBox.Show("Please enter the cache line size first.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
-            else if (!Cache.CheckNumberForPowerOfTwo(Int32.Parse(cacheLineSize.Text)))
+            else if (!Cache.CheckNumberForPowerOfTwo(cacheBlockize))
             {
                 MessageBox.Show("Cache line is not a power of 2.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
@@ -239,7 +248,9 @@ namespace CacheSimulator
                         traceFileProgressRing.Visibility = Visibility.Visible;
                         EnableWindowComponents(false);
 
-                        var task = Task.Run(() => trace.GenerateTraceFile((int)ramSizeNumericUpDown.Value.Value, Int32.Parse(cacheLineSize.Text)));
+                        var ramSize = (int)ramSizeNumericUpDown.Value.Value;
+
+                        var task = Task.Run(() => trace.GenerateTraceFile(ramSize, cacheBlockize));
                         await task;
 
                         traceFileProgressRing.IsActive = false;
