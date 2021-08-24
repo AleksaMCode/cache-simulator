@@ -104,7 +104,7 @@ namespace CacheSimulator
                     {
                         await task;
                     }
-                    catch (OperationCanceledException)
+                    catch (Exception/*OperationCanceledException*/)
                     {
                         cacheLogProgressRing.Visibility = Visibility.Hidden;
                         cacheLogProgressRing.IsActive = false;
