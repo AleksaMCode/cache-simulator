@@ -43,6 +43,7 @@
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                     <Label Grid.Column="0" VerticalAlignment="Center">Size:</Label>
@@ -59,6 +60,7 @@
                     </ComboBox>
                     <Separator Grid.Column="3" Width="1" Background="Transparent"/>
                     <Button x:Name="generateTraceFileButton" HorizontalAlignment="Left" Width="100" Margin="5,2,5,2" Grid.Column="4" Click="GenerateTraceFile">Generate</Button>
+                    <MetroControls:ProgressRing Grid.Column="5" HorizontalAlignment="Left" Width="30" Height="30" Visibility="Hidden" IsActive="False" Foreground="Black" Name="traceFileProgressRing" />
                 </Grid>
             </Grid>
             <Grid Grid.Row="1">
@@ -73,6 +75,7 @@
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
                     <Label Grid.Column="0" VerticalAlignment="Center">
@@ -89,6 +92,7 @@
                                                  PreviewTextInput="TextBoxNumberValidator"
                                                  Margin="7,5,0,5"/>
                     <Button x:Name="generateRamFileButton" HorizontalAlignment="Left" Width="100" Margin="5,5,5,5" Grid.Column="2" Click="GenerateRamFile">Generate</Button>
+                    <MetroControls:ProgressRing Grid.Column="3" HorizontalAlignment="Left" Width="30" Height="30" Visibility="Collapsed" IsActive="False" Foreground="Black" Name="ramFileProgressRing" />
                 </Grid>
             </Grid>
             <Separator Grid.Row="2" Height="10" Background="Transparent"/>

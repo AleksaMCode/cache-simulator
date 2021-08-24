@@ -55,7 +55,7 @@ namespace CacheSimulator
                 return;
             }
 
-            startSimulationButton.IsEnabled = cacheParametersGrid.IsEnabled = memoryGeneratorsGrid.IsEnabled = false;
+            EnableWindowComponents(false);
             cacheStatsTextBox.Text = "";
 
             try
@@ -82,6 +82,7 @@ namespace CacheSimulator
                 var traceIndex = 0;
 
                 cacheLogProgressRing.Visibility = Visibility.Visible;
+                cacheLogProgressRing.IsActive = true;
 
                 while ((line = streamReader.ReadLine()) != null)
                 {
@@ -101,6 +102,7 @@ namespace CacheSimulator
                     catch (OperationCanceledException)
                     {
                         cacheLogProgressRing.Visibility = Visibility.Hidden;
+                        cacheLogProgressRing.IsActive = false;
                     }
                 }
 
@@ -113,7 +115,12 @@ namespace CacheSimulator
                 MessageBox.Show(ex.Message, "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
 
-            startSimulationButton.IsEnabled = cacheParametersGrid.IsEnabled = memoryGeneratorsGrid.IsEnabled = true;
+            EnableWindowComponents(true);
+        }
+
+        private void EnableWindowComponents(bool value)
+        {
+            simulationContolsGrid.IsEnabled = cacheParametersGrid.IsEnabled = memoryGeneratorsGrid.IsEnabled = value;
         }
 
         private WritePolicy GetWritePolicy(string policy)
@@ -222,12 +229,23 @@ namespace CacheSimulator
             }
         }
 
-        private void GenerateRamFile(object sender, RoutedEventArgs e)
+        private async void GenerateRamFile(object sender, RoutedEventArgs e)
         {
             try
             {
                 var ram = new RamGenerator.RamGenerator((int)ramSizeNumericUpDown.Value.Value);
-                ram.GenerateRam();
+
+                ramFileProgressRing.IsActive = true;
+                ramFileProgressRing.Visibility = Visibility.Visible;
+                EnableWindowComponents(false);
+
+                var task = Task.Run(() => ram.GenerateRam());
+                await task;
+
+                ramFileProgressRing.IsActive = false;
+                ramFileProgressRing.Visibility = Visibility.Collapsed;
+                EnableWindowComponents(true);
+
                 MessageBox.Show($"RAM file {ram.FileName} has been successfully created.", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
