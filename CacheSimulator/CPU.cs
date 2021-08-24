@@ -58,7 +58,7 @@ namespace CacheSimulator
 
         public string ExecuteTraceLine(string traceLine, int traceIndex, int coreNumber)
         {
-            return cores[coreNumber].ExecuteTraceLine(traceLine, traceIndex);
+            return cores[coreNumber].ExecuteTraceLine(traceLine, traceIndex, coreNumber);
         }
 
         public string GetCacheStatistics(int coreNumber)

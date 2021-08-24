@@ -100,7 +100,7 @@ namespace CacheSimulator
                         {
                             Application.Current.Dispatcher.Invoke(() =>
                             {
-                                cacheStatsTextBox.AppendText(cacheLogInfo);
+                                cacheStatsTextBox.AppendText(cacheLogInfo.Replace("\n\n", "\n"));
                                 cacheStatsTextBox.ScrollToEnd();
                             }
                             );

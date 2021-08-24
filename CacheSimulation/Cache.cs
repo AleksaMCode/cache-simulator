@@ -274,6 +274,7 @@ namespace CacheSimulation
         {
             readWriteLock.EnterWriteLock();
             var hasExceptionHappened = true;
+            var buffer = new byte[size];
 
             try
             {
@@ -291,14 +292,12 @@ namespace CacheSimulation
                 }
 
                 var offset = BitConverter.ToInt32(bAddress, 0);
-                var buffer = new byte[size];
 
                 stream.Seek(offset, SeekOrigin.Begin);
                 stream.Read(buffer, 0, size);
 
                 ++StatisticsInfo.MemoryReads;
-
-                return buffer;
+                hasExceptionHappened = false;
             }
             finally
             {
@@ -309,6 +308,8 @@ namespace CacheSimulation
                     throw new Exception();
                 }
             }
+
+            return buffer;
         }
 
         private void WriteToRam(string address, byte[] data, int size)
@@ -350,7 +351,7 @@ namespace CacheSimulation
             }
         }
 
-        public bool WriteToCache(string address, int size, string data, out string additionalData, int traceIndex)
+        public bool WriteToCache(string address, int size, string data, out string additionalData, int traceIndex, int coreNumber)
         {
             additionalData = "";
             var sb = new StringBuilder();
@@ -394,7 +395,7 @@ namespace CacheSimulation
                             }
                             catch (Exception)
                             {
-                                sb.Append($"\n[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] error=WRITE_TO_RAM_FAIL");
+                                sb.Append($"\n[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] core={coreNumber} error=WRITE_TO_RAM_FAIL");
                             }
                         }
 
@@ -422,7 +423,7 @@ namespace CacheSimulation
                 }
                 catch (Exception)
                 {
-                    sb.Append($"\n[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] error=WRITE_TO_RAM_FAIL");
+                    sb.Append($"\n[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] core={coreNumber} error=WRITE_TO_RAM_FAIL");
                 }
 
                 return false;
@@ -482,13 +483,13 @@ namespace CacheSimulation
             {
                 try
                 {
-                    sb.Append($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] operation=EVICTION cache_entry_tag={CacheEntries[replacementIndex].Tag}b");
+                    sb.Append($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] core={coreNumber} operation=EVICTION cache_entry_tag={CacheEntries[replacementIndex].Tag}b");
                     // Write data from cache entry to RAM because the dirty flag has been set.
                     WriteToRam(address, CacheEntries[replacementIndex].DataBlock, CacheEntries[replacementIndex].DataBlock.Length);
                 }
                 catch (Exception)
                 {
-                    sb.Append($"\n[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] error=WRITE_TO_RAM_FAIL");
+                    sb.Append($"\n[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] core={coreNumber} error=WRITE_TO_RAM_FAIL");
                 }
             }
 
@@ -627,7 +628,7 @@ namespace CacheSimulation
             return output;
         }
 
-        public bool ReadFromCache(string address, int size, out string additionalData, int traceIndex)
+        public bool ReadFromCache(string address, int size, out string additionalData, int traceIndex, int coreNumber)
         {
             additionalData = "";
             var sb = new StringBuilder();
@@ -675,7 +676,7 @@ namespace CacheSimulation
                     }
                     catch (Exception)
                     {
-                        sb.Append($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] error=READ_FROM_RAM_FAIL");
+                        sb.Append($"\n[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] core={coreNumber} error=READ_FROM_RAM_FAIL");
                     }
 
                     if (CacheConfig.ReplacementPolicy is ReplacementPolicy.LeastRecentlyUsed or ReplacementPolicy.MostRecentlyUsed)
@@ -706,12 +707,12 @@ namespace CacheSimulation
                 try
                 {
                     // Write data from cache entry to RAM because the dirty flag has been set.
-                    sb.Append($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] operation=EVICTION cache_entry_tag={CacheEntries[replacementIndex].Tag}b");
+                    sb.Append($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] core={coreNumber} operation=EVICTION cache_entry_tag={CacheEntries[replacementIndex].Tag}b");
                     WriteToRam(address, CacheEntries[replacementIndex].DataBlock, CacheEntries[replacementIndex].DataBlock.Length);
                 }
                 catch (Exception)
                 {
-                    sb.Append($"\n[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] error=WRITE_TO_RAM_FAIL");
+                    sb.Append($"\n[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] core={coreNumber} error=WRITE_TO_RAM_FAIL");
                 }
             }
 
@@ -730,7 +731,7 @@ namespace CacheSimulation
             }
             catch (Exception)
             {
-                sb.Append($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] error=READ_FROM_RAM_FAIL");
+                sb.Append($"\n[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] core={coreNumber} error=READ_FROM_RAM_FAIL");
             }
 
             // Set age values.

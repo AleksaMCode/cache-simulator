@@ -14,7 +14,7 @@ namespace CacheSimulator
             L1d = new Cache(cacheInfo);
         }
 
-        public string ExecuteTraceLine(string traceLine, int traceIndex)
+        public string ExecuteTraceLine(string traceLine, int traceIndex, int coreNumber)
         {
             Instruction instruction;
             var sb = new StringBuilder();
@@ -29,14 +29,14 @@ namespace CacheSimulator
 
                 var dataSizeString = $"data_size={instruction.DataSize}B";
                 var tmp = new StringBuilder();
-                tmp.Append($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] operation={(instruction.InstructionType == MemoryRelatedInstructions.Load ? $"LOAD {dataSizeString}" : $"STORE {dataSizeString} data=0x{instruction.Data}")} ");
+                tmp.Append($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] core={coreNumber} operation={(instruction.InstructionType == MemoryRelatedInstructions.Load ? $"LOAD {dataSizeString}" : $"STORE {dataSizeString} data=0x{instruction.Data}")} ");
 
                 if (instruction != null)
                 {
                     if (instruction.InstructionType == MemoryRelatedInstructions.Store)
                     {
                         var size = instruction.DataSize < L1d.CacheConfig.BlockSize ? instruction.DataSize : L1d.CacheConfig.BlockSize;
-                        var hitCheck = L1d.WriteToCache(instruction.MemoryAddress, size, instruction.Data, out var additionalData, traceIndex);
+                        var hitCheck = L1d.WriteToCache(instruction.MemoryAddress, size, instruction.Data, out var additionalData, traceIndex, coreNumber);
 
                         tmp.Append($"status={(hitCheck ? "hit" : "miss")}");
                         sb.AppendLine(tmp.ToString());
@@ -49,7 +49,7 @@ namespace CacheSimulator
                     else
                     {
                         var size = instruction.DataSize < L1d.CacheConfig.BlockSize ? instruction.DataSize : L1d.CacheConfig.BlockSize;
-                        var hitCheck = L1d.ReadFromCache(instruction.MemoryAddress, size, out var additionalData, traceIndex);
+                        var hitCheck = L1d.ReadFromCache(instruction.MemoryAddress, size, out var additionalData, traceIndex, coreNumber);
 
                         tmp.Append($"status={(hitCheck ? "hit" : "miss")}");
                         sb.AppendLine(tmp.ToString());
