@@ -431,10 +431,10 @@ namespace CacheSimulation
                 try
                 {
                     // Write data from cache entry to RAM because the dirty flag has been set.
-                    WriteToRam(address, CacheEntries[replacementIndex].DataBlock, size);
+                    WriteToRam(address, CacheEntries[replacementIndex].DataBlock, CacheEntries[replacementIndex].DataBlock.Length);
                     sb.Append($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] operation=EVICTION cache_entry_tag={CacheEntries[replacementIndex].Tag}b");
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
                     sb.AppendLine($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] error=WRITE_TO_RAM_FAIL");
                 }
