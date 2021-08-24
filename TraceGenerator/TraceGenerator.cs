@@ -24,7 +24,7 @@ namespace TraceGenerator
         private readonly int traceSize;
 
         /// <summary>
-        /// Map for trace size that links size label with integer size.s
+        /// Map for trace size that links size label with integer size.
         /// </summary>
         private readonly Dictionary<string, int> traceSizes = new()
         {
