@@ -259,6 +259,45 @@ namespace CacheSimulation
         //    }
         //}
 
+        public byte[] ReadFromRam(string address, int size)
+        {
+            using var stream = File.Open(RamFileName, FileMode.Open);
+            var bAddress = GetBytesFromString(address);
+
+            if (BitConverter.IsLittleEndian)
+            {
+                Array.Reverse(bAddress);
+            }
+
+            var offset = BitConverter.ToInt32(bAddress, 0);
+            var buffer = new byte[size];
+
+            stream.Seek(offset, SeekOrigin.Begin);
+            stream.Read(buffer, 0, size);
+
+            ++StatisticsInfo.MemoryReads;
+
+            return buffer;
+        }
+
+        public void WriteToRam(string address, byte[] data, int size)
+        {
+            using var stream = File.Open(RamFileName, FileMode.Open);
+            var bAddress = GetBytesFromString(address);
+
+            if (BitConverter.IsLittleEndian)
+            {
+                Array.Reverse(bAddress);
+            }
+
+            var offset = BitConverter.ToInt32(bAddress, 0);
+
+            stream.Seek(offset, SeekOrigin.Begin);
+            stream.Write(data, 0, size);
+
+            ++StatisticsInfo.MemoryWrites;
+        }
+
         public bool WriteToCache(string address, int size, string data, out string additionalData, int traceIndex)
         {
             additionalData = "";
@@ -299,22 +338,7 @@ namespace CacheSimulation
                         {
                             try
                             {
-                                using var stream = File.Open(RamFileName, FileMode.Open);
-                                var bAddress = GetBytesFromString(address);
-
-                                if (BitConverter.IsLittleEndian)
-                                {
-                                    Array.Reverse(bAddress);
-                                }
-
-                                var offset = BitConverter.ToInt32(bAddress, 0);
-                                buffer = new byte[size];
-
-                                stream.Seek(offset, SeekOrigin.Begin);
-                                stream.Write(buffer, 0, size);
-                                CacheEntries[i].DataBlock = buffer;
-
-                                ++StatisticsInfo.MemoryWrites;
+                                WriteToRam(address, buffer, size);
                             }
                             catch (Exception)
                             {
@@ -329,7 +353,6 @@ namespace CacheSimulation
                             Aging(i, CacheEntries[i].Set);
                         }
 
-
                         return true;
                     }
                 }
@@ -337,27 +360,13 @@ namespace CacheSimulation
 
             // After a cache miss look for available entry structure.
             ++StatisticsInfo.CacheMisses;
-            //++StatisticsInfo.MemoryReads;
 
             if (CacheConfig.WriteMissPolicy == WritePolicy.WriteAround)
             {
                 try
                 {
-                    using var stream = File.Open(RamFileName, FileMode.Open);
-                    var bAddress = GetBytesFromString(address);
-
-                    if (BitConverter.IsLittleEndian)
-                    {
-                        Array.Reverse(bAddress);
-                    }
-
-                    var offset = BitConverter.ToInt32(bAddress, 0);
-                    buffer = new byte[size];
-
-                    stream.Seek(offset, SeekOrigin.Begin);
-                    stream.Write(buffer, 0, size);
-
-                    ++StatisticsInfo.MemoryWrites;
+                    buffer = GetBytesFromString(data);
+                    WriteToRam(address, buffer, size);
                 }
                 catch (Exception)
                 {
@@ -393,35 +402,8 @@ namespace CacheSimulation
                     {
                         CacheEntries[i].FlagBits.Dirty = true;
                     }
-                    //else if (CacheConfig.WriteHitPolicy == WritePolicy.WriteThrough)
-                    //{
-                    //    try
-                    //    {
-                    //        using var stream = File.Open(RamFileName, FileMode.Open);
-                    //        var bAddress = GetBytesFromString(address);
 
-                    //        if (BitConverter.IsLittleEndian)
-                    //        {
-                    //            Array.Reverse(bAddress);
-                    //        }
-
-                    //        var offset = BitConverter.ToInt32(bAddress, 0);
-                    //        buffer = new byte[size];
-
-                    //        stream.Seek(offset, SeekOrigin.Begin);
-                    //        stream.Write(buffer, 0, size);
-                    //        //CacheEntries[i].DataBlock = buffer;
-
-                    //        ++StatisticsInfo.MemoryWrites;
-                    //    }
-                    //    catch (Exception)
-                    //    {
-                    //        sb.AppendLine($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] error=WRITE_TO_RAM_FAIL");
-                    //    }
-                    //}
-
-                    if (CacheConfig.ReplacementPolicy is ReplacementPolicy.LeastRecentlyUsed
-                                               or ReplacementPolicy.MostRecentlyUsed)
+                    if (CacheConfig.ReplacementPolicy is ReplacementPolicy.LeastRecentlyUsed or ReplacementPolicy.MostRecentlyUsed)
                     {
                         // Set age values.
                         Aging(i, CacheEntries[i].Set);
@@ -440,51 +422,8 @@ namespace CacheSimulation
             }
 
             ++StatisticsInfo.CacheEviction;
-            if (CacheConfig.ReplacementPolicy == ReplacementPolicy.LeastRecentlyUsed)
-            {
-                // Check for entry structure in cache that can be removed and replaced with new data.
-                index = GetIndex(binaryAddress, GetTagLength(binaryAddress)) * Associativity;
-
-                for (int i = index, highestAge = 0; i < index + Associativity; ++i)
-                {
-                    if (CacheEntries[i].Age > highestAge)
-                    {
-                        highestAge = CacheEntries[i].Age;
-                        replacementIndex = i;
-                    }
-                }
-            }
-            else if (CacheConfig.ReplacementPolicy == ReplacementPolicy.MostRecentlyUsed)
-            {
-                index = GetIndex(binaryAddress, GetTagLength(binaryAddress)) * Associativity;
-
-                for (int i = index, lowestAge = 0; i < index + Associativity; ++i)
-                {
-                    if (CacheEntries[i].Age < lowestAge)
-                    {
-                        lowestAge = CacheEntries[i].Age;
-                        replacementIndex = i;
-                    }
-                }
-            }
-            else if (CacheConfig.ReplacementPolicy == ReplacementPolicy.FirstInFirstOut)
-            {
-                replacementIndex = fifoIndexQueue.First();
-                fifoIndexQueue.RemoveAt(0);
-                fifoIndexQueue.Add(replacementIndex);
-            }
-            else if (CacheConfig.ReplacementPolicy == ReplacementPolicy.LastInFirstOut)
-            {
-                replacementIndex = lifoIndex;
-            }
-            else if (CacheConfig.ReplacementPolicy == ReplacementPolicy.Belady)
-            {
-                replacementIndex = BeladyGetIndex(LoadFutureCacheEntries(traceIndex));
-            }
-            else if (CacheConfig.ReplacementPolicy == ReplacementPolicy.RandomReplacement)
-            {
-                replacementIndex = csprng.Next(0, NumberOfLines - 1);
-            }
+            replacementIndex = GetReplacementIndex(CacheConfig.ReplacementPolicy is ReplacementPolicy.LeastRecentlyUsed
+               or ReplacementPolicy.MostRecentlyUsed ? GetIndex(binaryAddress, GetTagLength(binaryAddress)) * Associativity : traceIndex);
 
             // If the write policy is write-back and the dirty flag is set, write the cache entry to RAM first.
             if (CacheConfig.WriteHitPolicy == WritePolicy.WriteBack && CacheEntries[replacementIndex].FlagBits.Dirty)
@@ -492,23 +431,8 @@ namespace CacheSimulation
                 try
                 {
                     // Write data from cache entry to RAM because the dirty flag has been set.
-                    using var stream = File.Open(RamFileName, FileMode.Open);
-                    var bAddress = GetBytesFromString(address);
-
-                    if (BitConverter.IsLittleEndian)
-                    {
-                        Array.Reverse(bAddress);
-                    }
-
-                    var offset = BitConverter.ToInt32(bAddress, 0);
-                    buffer = new byte[size];
-
-                    stream.Seek(offset, SeekOrigin.Begin);
-                    stream.Write(buffer, 0, size);
-                    CacheEntries[replacementIndex].DataBlock = buffer;
-
-                    ++StatisticsInfo.MemoryWrites;
-                    sb.Append($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] operation=EVICTION cache_entry_tag={CacheEntries[replacementIndex].Tag}");
+                    WriteToRam(address, CacheEntries[replacementIndex].DataBlock, size);
+                    sb.Append($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] operation=EVICTION cache_entry_tag={CacheEntries[replacementIndex].Tag}b");
                 }
                 catch (Exception)
                 {
@@ -536,35 +460,8 @@ namespace CacheSimulation
             {
                 CacheEntries[replacementIndex].FlagBits.Dirty = true;
             }
-            //else if (CacheConfig.WriteHitPolicy == WritePolicy.WriteThrough)
-            //{
-            //    try
-            //    {
-            //        using var stream = File.Open(RamFileName, FileMode.Open);
-            //        var bAddress = GetBytesFromString(address);
 
-            //        if (BitConverter.IsLittleEndian)
-            //        {
-            //            Array.Reverse(bAddress);
-            //        }
-
-            //        var offset = BitConverter.ToInt32(bAddress, 0);
-            //        buffer = new byte[size];
-
-            //        stream.Seek(offset, SeekOrigin.Begin);
-            //        stream.Write(buffer, 0, size);
-            //        CacheEntries[replacementIndex].DataBlock = buffer;
-
-            //        ++StatisticsInfo.MemoryWrites;
-            //    }
-            //    catch (Exception)
-            //    {
-            //        sb.AppendLine($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] error=WRITE_TO_RAM_FAIL");
-            //    }
-            //}
-
-            if (CacheConfig.ReplacementPolicy is ReplacementPolicy.LeastRecentlyUsed
-                                       or ReplacementPolicy.MostRecentlyUsed)
+            if (CacheConfig.ReplacementPolicy is ReplacementPolicy.LeastRecentlyUsed or ReplacementPolicy.MostRecentlyUsed)
             {
                 // Set age values.
                 Aging(replacementIndex, CacheEntries[replacementIndex].Set);
@@ -678,14 +575,6 @@ namespace CacheSimulation
             return output;
         }
 
-        //public void ReadFromCache(string binaryAddress, int size)
-        //{
-        //    if (CacheConfig.WritePolicy == WritePolicy.WriteBack)
-        //    {
-        //        WriteBackReadFromCache(binaryAddress, size);
-        //    }
-        //}
-
         public bool ReadFromCache(string address, int size, out string additionalData, int traceIndex)
         {
             additionalData = "";
@@ -704,8 +593,7 @@ namespace CacheSimulation
                     {
                         ++StatisticsInfo.CacheHits;
 
-                        if (CacheConfig.ReplacementPolicy is ReplacementPolicy.LeastRecentlyUsed
-                                                   or ReplacementPolicy.MostRecentlyUsed)
+                        if (CacheConfig.ReplacementPolicy is ReplacementPolicy.LeastRecentlyUsed or ReplacementPolicy.MostRecentlyUsed)
                         {
                             // Set age values.
                             Aging(i, CacheEntries[i].Set);
@@ -718,7 +606,6 @@ namespace CacheSimulation
 
             // After a cache miss look for available entry structure.
             ++StatisticsInfo.CacheMisses;
-            ++StatisticsInfo.MemoryReads;
             index = GetIndex(binaryAddress, GetTagLength(binaryAddress)) * Associativity;
 
             for (var i = index; i < index + Associativity; ++i)
@@ -732,33 +619,14 @@ namespace CacheSimulation
                     try
                     {
                         // Read the data from the RAM.
-                        using var stream = new FileStream(RamFileName, FileMode.Open, FileAccess.Read);
-                        var bAddress = GetBytesFromString(address);
-
-                        if (BitConverter.IsLittleEndian)
-                        {
-                            Array.Reverse(bAddress);
-                        }
-
-                        var offset = BitConverter.ToInt32(bAddress, 0);
-                        var buffer = new byte[size];
-
-                        stream.Seek(offset, SeekOrigin.Begin);
-                        stream.Read(buffer, 0, size);
-                        CacheEntries[i].DataBlock = buffer;
+                        CacheEntries[i].DataBlock = ReadFromRam(address, size);
                     }
                     catch (Exception)
                     {
                         sb.AppendLine($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] error=READ_FROM_RAM_FAIL");
                     }
 
-                    //if (CacheConfig.WritePolicy == WritePolicy.WriteBack)
-                    //{
-                    //    CacheEntries[i].FlagBits.Dirty = false;
-                    //}
-
-                    if (CacheConfig.ReplacementPolicy is ReplacementPolicy.LeastRecentlyUsed
-                                               or ReplacementPolicy.MostRecentlyUsed)
+                    if (CacheConfig.ReplacementPolicy is ReplacementPolicy.LeastRecentlyUsed or ReplacementPolicy.MostRecentlyUsed)
                     {
                         // Set age values.
                         Aging(i, CacheEntries[i].Set);
@@ -777,10 +645,58 @@ namespace CacheSimulation
             }
 
             ++StatisticsInfo.CacheEviction;
+            replacementIndex = GetReplacementIndex(CacheConfig.ReplacementPolicy is ReplacementPolicy.LeastRecentlyUsed
+                or ReplacementPolicy.MostRecentlyUsed ? GetIndex(binaryAddress, GetTagLength(binaryAddress)) * Associativity : traceIndex);
+
+            // If the write policy is write-back and the dirty flag is set, write the cache entry to RAM first.
+            if (CacheConfig.WriteHitPolicy == WritePolicy.WriteBack && CacheEntries[replacementIndex].FlagBits.Dirty)
+            {
+                try
+                {
+                    // Write data from cache entry to RAM because the dirty flag has been set.
+                    sb.Append($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] operation=EVICTION cache_entry_tag={CacheEntries[replacementIndex].Tag}b");
+                    WriteToRam(address, CacheEntries[replacementIndex].DataBlock, CacheEntries[replacementIndex].DataBlock.Length);
+                }
+                catch (Exception)
+                {
+                    sb.AppendLine($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] error=WRITE_TO_RAM_FAIL");
+                }
+            }
+
+            CacheEntries[replacementIndex].TagLength = GetTagLength(binaryAddress);
+            CacheEntries[replacementIndex].Tag = binaryAddress;
+
+            if (CacheConfig.WriteHitPolicy == WritePolicy.WriteBack)
+            {
+                CacheEntries[replacementIndex].FlagBits.Dirty = false;
+            }
+
+            try
+            {
+                // Read the data from the RAM.
+                CacheEntries[replacementIndex].DataBlock = ReadFromRam(address, size);
+            }
+            catch (Exception)
+            {
+                sb.AppendLine($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] error=READ_FROM_RAM_FAIL");
+            }
+
+            // Set age values.
+            if (CacheConfig.ReplacementPolicy is ReplacementPolicy.LeastRecentlyUsed or ReplacementPolicy.MostRecentlyUsed)
+            {
+                Aging(replacementIndex, CacheEntries[replacementIndex].Set);
+            }
+
+            additionalData = sb.ToString();
+            return false;
+        }
+
+        private int GetReplacementIndex(int index)
+        {
+            var replacementIndex = index;
+
             if (CacheConfig.ReplacementPolicy == ReplacementPolicy.LeastRecentlyUsed)
             {
-                index = GetIndex(binaryAddress, GetTagLength(binaryAddress)) * Associativity;
-
                 for (int i = index, highestAge = 0; i < index + Associativity; ++i)
                 {
                     if (CacheEntries[i].Age > highestAge)
@@ -792,8 +708,6 @@ namespace CacheSimulation
             }
             else if (CacheConfig.ReplacementPolicy == ReplacementPolicy.MostRecentlyUsed)
             {
-                index = GetIndex(binaryAddress, GetTagLength(binaryAddress)) * Associativity;
-
                 for (int i = index, lowestAge = 0; i < index + Associativity; ++i)
                 {
                     if (CacheEntries[i].Age < lowestAge)
@@ -815,83 +729,14 @@ namespace CacheSimulation
             }
             else if (CacheConfig.ReplacementPolicy == ReplacementPolicy.Belady)
             {
-                replacementIndex = BeladyGetIndex(LoadFutureCacheEntries(traceIndex));
+                return BeladyGetIndex(LoadFutureCacheEntries(index));
             }
             else if (CacheConfig.ReplacementPolicy == ReplacementPolicy.RandomReplacement)
             {
-                replacementIndex = csprng.Next(0, NumberOfLines - 1);
+                return csprng.Next(0, NumberOfLines - 1);
             }
 
-            // If the write policy is write-back and the dirty flag is set, write the cache entry to RAM first.
-            if (CacheConfig.WriteHitPolicy == WritePolicy.WriteBack && CacheEntries[replacementIndex].FlagBits.Dirty)
-            {
-                try
-                {
-                    // Write data from cache entry to RAM because the dirty flag has been set.
-                    using var stream = File.Open(RamFileName, FileMode.Open);
-                    var bAddress = GetBytesFromString(address);
-
-                    if (BitConverter.IsLittleEndian)
-                    {
-                        Array.Reverse(bAddress);
-                    }
-
-                    var offset = BitConverter.ToInt32(bAddress, 0);
-                    var buffer = new byte[size];
-
-                    stream.Seek(offset, SeekOrigin.Begin);
-                    stream.Write(buffer, 0, size);
-                    CacheEntries[replacementIndex].DataBlock = buffer;
-
-                    ++StatisticsInfo.MemoryWrites;
-                    sb.Append($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] operation=EVICTION cache_entry_tag={CacheEntries[replacementIndex].Tag}");
-                }
-                catch (Exception)
-                {
-                    sb.AppendLine($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] error=WRITE_TO_RAM_FAIL");
-                }
-            }
-
-            CacheEntries[replacementIndex].TagLength = GetTagLength(binaryAddress);
-            CacheEntries[replacementIndex].Tag = binaryAddress;
-
-            if (CacheConfig.WriteHitPolicy == WritePolicy.WriteBack)
-            {
-                CacheEntries[replacementIndex].FlagBits.Dirty = false;
-            }
-
-            try
-            {
-                // Read the data from the RAM.
-                using var stream = new FileStream(RamFileName, FileMode.Open, FileAccess.Read);
-                var bAddress = GetBytesFromString(address);
-
-                if (BitConverter.IsLittleEndian)
-                {
-                    Array.Reverse(bAddress);
-                }
-
-                var offset = BitConverter.ToInt32(bAddress, 0);
-                var buffer = new byte[size];
-
-                stream.Seek(offset, SeekOrigin.Begin);
-                stream.Read(buffer, 0, size);
-                CacheEntries[replacementIndex].DataBlock = buffer;
-            }
-            catch (Exception)
-            {
-                sb.AppendLine($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] error=READ_FROM_RAM_FAIL");
-            }
-
-            // Set age values.
-            if (CacheConfig.ReplacementPolicy is ReplacementPolicy.LeastRecentlyUsed
-                                       or ReplacementPolicy.MostRecentlyUsed)
-            {
-                Aging(replacementIndex, CacheEntries[replacementIndex].Set);
-            }
-
-            additionalData = sb.ToString();
-            return false;
+            return replacementIndex;
         }
     }
 }
