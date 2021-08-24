@@ -52,6 +52,7 @@ namespace TraceGenerator
         {
             FileName = $"{fileName}-{DateTime.Now:yyyyMMddHHmmss}.trace";
             this.traceSize = traceSizes[traceSize.ToLower()];
+            csprng.SetSeed(DateTime.Now.Ticks);
         }
 
         /// <summary>
