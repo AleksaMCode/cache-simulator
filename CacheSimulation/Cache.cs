@@ -251,18 +251,31 @@ namespace CacheSimulation
             CacheEntries[newestEntryIndex].Age = tmpAge;
         }
 
-        //public void WriteToCache(string binaryAddress, int size, string data)
-        //{
-        //    if (CacheConfig.WritePolicy == WritePolicy.WriteBack)
-        //    {
-        //        WriteBackWriteToCache(binaryAddress, size, data);
-        //    }
-        //}
+        private byte[] ConversionBugFixer(byte[] binaryAddress)
+        {
+            var zeroArray = new byte[4 - binaryAddress.Length];
 
-        public byte[] ReadFromRam(string address, int size)
+            for (var i = 0; i < zeroArray.Length; ++i)
+            {
+                zeroArray[i] = 0;
+            }
+
+            var tmpBinAddr = new byte[4];
+            Buffer.BlockCopy(zeroArray, 0, tmpBinAddr, 0, zeroArray.Length);
+            Buffer.BlockCopy(binaryAddress, 0, tmpBinAddr, zeroArray.Length, binaryAddress.Length);
+
+            return tmpBinAddr;
+        }
+
+        private byte[] ReadFromRam(string address, int size)
         {
             using var stream = File.Open(RamFileName, FileMode.Open);
             var bAddress = GetBytesFromString(address);
+
+            if (bAddress.Length != 4)
+            {
+                ConversionBugFixer(bAddress);
+            }
 
             if (BitConverter.IsLittleEndian)
             {
@@ -280,10 +293,15 @@ namespace CacheSimulation
             return buffer;
         }
 
-        public void WriteToRam(string address, byte[] data, int size)
+        private void WriteToRam(string address, byte[] data, int size)
         {
             using var stream = File.Open(RamFileName, FileMode.Open);
             var bAddress = GetBytesFromString(address);
+
+            if (bAddress.Length != 4)
+            {
+                ConversionBugFixer(bAddress);
+            }
 
             if (BitConverter.IsLittleEndian)
             {
@@ -342,7 +360,7 @@ namespace CacheSimulation
                             }
                             catch (Exception)
                             {
-                                sb.AppendLine($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] error=WRITE_TO_RAM_FAIL");
+                                sb.Append($"\n[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] error=WRITE_TO_RAM_FAIL");
                             }
                         }
 
@@ -370,7 +388,7 @@ namespace CacheSimulation
                 }
                 catch (Exception)
                 {
-                    sb.AppendLine($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] error=WRITE_TO_RAM_FAIL");
+                    sb.Append($"\n[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] error=WRITE_TO_RAM_FAIL");
                 }
 
                 return false;
@@ -430,13 +448,13 @@ namespace CacheSimulation
             {
                 try
                 {
+                    sb.Append($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] operation=EVICTION cache_entry_tag={CacheEntries[replacementIndex].Tag}b");
                     // Write data from cache entry to RAM because the dirty flag has been set.
                     WriteToRam(address, CacheEntries[replacementIndex].DataBlock, CacheEntries[replacementIndex].DataBlock.Length);
-                    sb.Append($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] operation=EVICTION cache_entry_tag={CacheEntries[replacementIndex].Tag}b");
                 }
                 catch (Exception ex)
                 {
-                    sb.AppendLine($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] error=WRITE_TO_RAM_FAIL");
+                    sb.Append($"\n[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] error=WRITE_TO_RAM_FAIL");
                 }
             }
 
@@ -623,7 +641,7 @@ namespace CacheSimulation
                     }
                     catch (Exception)
                     {
-                        sb.AppendLine($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] error=READ_FROM_RAM_FAIL");
+                        sb.Append($"\n[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] error=READ_FROM_RAM_FAIL");
                     }
 
                     if (CacheConfig.ReplacementPolicy is ReplacementPolicy.LeastRecentlyUsed or ReplacementPolicy.MostRecentlyUsed)
@@ -659,7 +677,7 @@ namespace CacheSimulation
                 }
                 catch (Exception)
                 {
-                    sb.AppendLine($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] error=WRITE_TO_RAM_FAIL");
+                    sb.Append($"\n[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] error=WRITE_TO_RAM_FAIL");
                 }
             }
 
@@ -678,7 +696,7 @@ namespace CacheSimulation
             }
             catch (Exception)
             {
-                sb.AppendLine($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] error=READ_FROM_RAM_FAIL");
+                sb.Append($"\n[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] error=READ_FROM_RAM_FAIL");
             }
 
             // Set age values.
