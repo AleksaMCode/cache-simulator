@@ -126,7 +126,12 @@ namespace CacheSimulator
                     sb.AppendLine(cpu.GetCacheStatistics(i));
                 }
 
-                MessageBox.Show(sb.ToString(), "Cache Statistics", MessageBoxButton.OK, MessageBoxImage.Information);
+                // Output cache statistics for each core in to a file.
+                var filename = $"cache_statistics-{DateTime.Now:yyyyMMddHHmmss}.txt";
+                File.WriteAllText(filename, sb.ToString());
+                Process.Start(filename);
+
+                //MessageBox.Show(sb.ToString(), "Cache Statistics", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
