@@ -72,7 +72,6 @@ namespace CacheSimulator
                 cpu = new CPU((ramFileFullPath, size, associativity, lineSize,
                     GetWritePolicy(cacheWriteHitPolicyComboBox.Text), GetWritePolicy(cacheWriteMissPolicyComboBox.Text), GetReplacementPolicy(cacheReplacementPolicyComboBox.Text)), numberOfCores);
 
-
                 // Set trace files for every core.
                 for (var i = 0; i < numberOfCores; ++i)
                 {
