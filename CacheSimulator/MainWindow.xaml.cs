@@ -69,6 +69,11 @@ namespace CacheSimulator
                 var associativity = GetCacheAssociativity(size, lineSize);
                 var numberOfCores = GetNumberOfCores();
 
+                if (numberOfCores > 128)
+                {
+                    numberOfCores = 128;
+                }
+
                 cpu = new CPU((ramFileFullPath, size, associativity, lineSize,
                     GetWritePolicy(cacheWriteHitPolicyComboBox.Text), GetWritePolicy(cacheWriteMissPolicyComboBox.Text), GetReplacementPolicy(cacheReplacementPolicyComboBox.Text)), numberOfCores);
 
@@ -93,11 +98,11 @@ namespace CacheSimulator
                             var cacheLogInfo = cpu.ExecuteTraceLine(line, ++traceIndex, indx);
                             if (cacheLogInfo != null)
                             {
-                                Application.Current.Dispatcher.Invoke(() =>
+                                Application.Current.Dispatcher.Invoke(new Action(delegate
                                 {
                                     cacheStatsTextBox.AppendText(cacheLogInfo.Replace("\n\n", "\n"));
                                     cacheStatsTextBox.ScrollToEnd();
-                                });
+                                }));
                             }
                         }
                     });
@@ -148,7 +153,7 @@ namespace CacheSimulator
                 "Directly mapped" => 1,
                 "Fully associative" => cacheSize / lineSize,
                 /*"N-way set associative" */
-                _ => Int32.Parse(cacheAssociativity.Text)
+                _ => Int32.Parse(cacheAssociativityTxtBox.Text)
             };
         }
 
@@ -157,8 +162,8 @@ namespace CacheSimulator
             return numberOfCoresComboBox.Text switch
             {
                 "Single-core" => 1,
-                //"Dual-core" => 2,
-                _ => 2
+                "Dual-core" => 2,
+                _ => Int32.Parse(cpuCoreNumberTxtBox.Text)
             };
         }
 
@@ -206,13 +211,26 @@ namespace CacheSimulator
         {
             if ((((sender as ComboBox).SelectedItem as ComboBoxItem).Content as string) == "N-way set associative")
             {
-                cacheAssociativity.Visibility = Visibility.Visible;
+                cacheAssociativityTxtBox.Visibility = Visibility.Visible;
             }
-            else if (cacheAssociativity != null)
+            else if (cacheAssociativityTxtBox != null)
             {
-                cacheAssociativity.Visibility = Visibility.Collapsed;
+                cacheAssociativityTxtBox.Visibility = Visibility.Collapsed;
             }
         }
+
+        private void CpuTypeChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if ((((sender as ComboBox).SelectedItem as ComboBoxItem).Content as string) == "Multi-cores")
+            {
+                cpuCoreNumberTxtBox.Visibility = Visibility.Visible;
+            }
+            else if (cpuCoreNumberTxtBox != null)
+            {
+                cpuCoreNumberTxtBox.Visibility = Visibility.Collapsed;
+            }
+        }
+
 
         private void TraceFilePicker(object sender, RoutedEventArgs e)
         {
@@ -243,9 +261,10 @@ namespace CacheSimulator
             {
                 if (isItTraceFile)
                 {
-                    if (fileChooseDialog.FileNames.Length != GetNumberOfCores())
+                    var numberOfCores = GetNumberOfCores();
+                    if (fileChooseDialog.FileNames.Length != (numberOfCores > 128 ? 128 : numberOfCores))
                     {
-                        MessageBox.Show($"Every core has to have unique trace file.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        MessageBox.Show($"Every core has to have a unique trace file.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
                         return false;
                     }
 
