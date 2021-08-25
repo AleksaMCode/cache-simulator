@@ -16,6 +16,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using CacheSimulation;
+using ControlzEx.Standard;
 using Microsoft.Win32;
 using RamGenerator;
 using TraceGenerator;
@@ -65,14 +66,7 @@ namespace CacheSimulator
                 var size = Int32.Parse(cacheSize.Text);
                 var lineSize = Int32.Parse(cacheLineSize.Text);
 
-                var associativity = cacheAssociativityComboBox.Text switch
-                {
-                    "Directly mapped" => 1,
-                    "Fully associative" => size / lineSize,
-                    /*"N-way set associative" */
-                    _ => Int32.Parse(cacheAssociativity.Text)
-                };
-
+                var associativity = GetCacheAssociativity(size, lineSize);
                 var numberOfCores = GetNumberOfCores();
 
                 cpu = new CPU((ramFileFullPath, size, associativity, lineSize,
@@ -104,8 +98,7 @@ namespace CacheSimulator
                                 {
                                     cacheStatsTextBox.AppendText(cacheLogInfo.Replace("\n\n", "\n"));
                                     cacheStatsTextBox.ScrollToEnd();
-                                }
-                                );
+                                });
                             }
                         }
                     });
@@ -142,6 +135,17 @@ namespace CacheSimulator
             }
 
             EnableWindowComponents(true);
+        }
+
+        private int GetCacheAssociativity(int cacheSize, int lineSize)
+        {
+            return cacheAssociativityComboBox.Text switch
+            {
+                "Directly mapped" => 1,
+                "Fully associative" => cacheSize / lineSize,
+                /*"N-way set associative" */
+                _ => Int32.Parse(cacheAssociativity.Text)
+            };
         }
 
         private int GetNumberOfCores()
