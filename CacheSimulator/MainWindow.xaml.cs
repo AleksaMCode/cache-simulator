@@ -27,8 +27,10 @@ namespace CacheSimulator
     /// </summary>
     public partial class MainWindow : Window
     {
-        private string traceFileFullPath = null;
+        private List<string> traceFileFullPaths = null;
         private string ramFileFullPath = null;
+
+        public static List<Task> CoreTaskList = new List<Task>();
 
         private CPU cpu = null;
 
@@ -39,7 +41,7 @@ namespace CacheSimulator
 
         private async void StartSimulation(object sender, RoutedEventArgs e)
         {
-            if (traceFileFullPath == null)
+            if (traceFileFullPaths == null)
             {
                 MessageBox.Show("Please insert the trace file first.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
@@ -71,56 +73,68 @@ namespace CacheSimulator
                     _ => Int32.Parse(cacheAssociativity.Text)
                 };
 
-                var numberOfCores = numberOfCoresComboBox.Text switch
-                {
-                    "Single-core" => 1,
-                    //"Dual-core" => 2,
-                    _ => 2
-                };
+                var numberOfCores = GetNumberOfCores();
 
-                cpu = new CPU((ramFileFullPath, traceFileFullPath, size, associativity, lineSize,
+                cpu = new CPU((ramFileFullPath, size, associativity, lineSize,
                     GetWritePolicy(cacheWriteHitPolicyComboBox.Text), GetWritePolicy(cacheWriteMissPolicyComboBox.Text), GetReplacementPolicy(cacheReplacementPolicyComboBox.Text)), numberOfCores);
 
-                const int bufferSize = 4_096;
-                using var fileStream = File.OpenRead(traceFileFullPath);
-                using var streamReader = new StreamReader(fileStream, Encoding.UTF8, true, bufferSize);
 
-                string line;
-                var traceIndex = 0;
+                // Set trace files for every core.
+                for (var i = 0; i < numberOfCores; ++i)
+                {
+                    cpu.SetCoreTraceFile(i, traceFileFullPaths[i]);
+
+                    var indx = i;
+
+                    var task = Task.Run(() =>
+                    {
+                        const int bufferSize = 4_096;
+                        using var fileStream = File.OpenRead(traceFileFullPaths[indx]);
+                        using var streamReader = new StreamReader(fileStream, Encoding.UTF8, true, bufferSize);
+
+                        string line;
+                        var traceIndex = 0;
+
+                        while ((line = streamReader.ReadLine()) != null)
+                        {
+                            var cacheLogInfo = cpu.ExecuteTraceLine(line, ++traceIndex, indx);
+                            if (cacheLogInfo != null)
+                            {
+                                Application.Current.Dispatcher.Invoke(() =>
+                                {
+                                    cacheStatsTextBox.AppendText(cacheLogInfo.Replace("\n\n", "\n"));
+                                    cacheStatsTextBox.ScrollToEnd();
+                                }
+                                );
+                            }
+                        }
+                    });
+
+                    CoreTaskList.Add(task);
+                }
 
                 cacheLogProgressRing.Visibility = Visibility.Visible;
                 cacheLogProgressRing.IsActive = true;
 
-                while ((line = streamReader.ReadLine()) != null)
+                try
                 {
-                    var task = Task.Run(() =>
-                    {
-                        var cacheLogInfo = cpu.ExecuteTraceLine(line, ++traceIndex, 0);
-                        if (cacheLogInfo != null)
-                        {
-                            Application.Current.Dispatcher.Invoke(() =>
-                            {
-                                cacheStatsTextBox.AppendText(cacheLogInfo.Replace("\n\n", "\n"));
-                                cacheStatsTextBox.ScrollToEnd();
-                            }
-                            );
-                        }
-                    });
-
-                    try
-                    {
-                        await task;
-                    }
-                    catch (Exception/*OperationCanceledException*/)
-                    {
-                        cacheLogProgressRing.Visibility = Visibility.Hidden;
-                        cacheLogProgressRing.IsActive = false;
-                    }
+                    await Task.WhenAll(CoreTaskList.ToArray());
+                }
+                catch (Exception/*OperationCanceledException*/)
+                {
+                    cacheLogProgressRing.Visibility = Visibility.Hidden;
+                    cacheLogProgressRing.IsActive = false;
                 }
 
                 cacheLogProgressRing.Visibility = Visibility.Hidden;
+                var sb = new StringBuilder();
 
-                MessageBox.Show(cpu.GetCacheStatistics(0), "Cache Statistics", MessageBoxButton.OK, MessageBoxImage.Information);
+                for (var i = 0; i < numberOfCores; ++i)
+                {
+                    sb.AppendLine(cpu.GetCacheStatistics(i));
+                }
+
+                MessageBox.Show(sb.ToString(), "Cache Statistics", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
@@ -128,6 +142,16 @@ namespace CacheSimulator
             }
 
             EnableWindowComponents(true);
+        }
+
+        private int GetNumberOfCores()
+        {
+            return numberOfCoresComboBox.Text switch
+            {
+                "Single-core" => 1,
+                //"Dual-core" => 2,
+                _ => 2
+            };
         }
 
         private void EnableWindowComponents(bool value)
@@ -186,7 +210,7 @@ namespace CacheSimulator
         {
             if (FilePicker())
             {
-                traceFileNameTextBox.Text = traceFileFullPath.Substring(traceFileFullPath.LastIndexOf('\\') + 1);
+                traceFileNameTextBox.Text = traceFileFullPaths.Aggregate((i, j) => i + "; " + j);
             }
         }
 
@@ -200,14 +224,29 @@ namespace CacheSimulator
 
         private bool FilePicker(bool isItTraceFile = true)
         {
-            var fileChooseDialog = new OpenFileDialog();
+            var fileChooseDialog = new OpenFileDialog()
+            {
+                Multiselect = isItTraceFile
+            };
+
             var dialog = fileChooseDialog.ShowDialog();
 
             if (dialog.HasValue && dialog.Value)
             {
                 if (isItTraceFile)
                 {
-                    traceFileFullPath = fileChooseDialog.FileName;
+                    if (fileChooseDialog.FileNames.Length != GetNumberOfCores())
+                    {
+                        MessageBox.Show($"Every core has to have unique trace file.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        return false;
+                    }
+
+                    traceFileFullPaths = new List<string>(fileChooseDialog.FileNames.Length);
+
+                    foreach (var traceFile in fileChooseDialog.FileNames)
+                    {
+                        traceFileFullPaths.Add(traceFile);
+                    }
                 }
                 else
                 {
@@ -216,7 +255,7 @@ namespace CacheSimulator
             }
             else
             {
-                MessageBox.Show($"There was an error while getting your {(isItTraceFile ? "trace" : "ram")} file", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show($"There was an error while getting your {(isItTraceFile ? "trace file(s)." : "ram file.")}", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return false;
             }
 

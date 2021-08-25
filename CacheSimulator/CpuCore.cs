@@ -9,7 +9,7 @@ namespace CacheSimulator
     {
         private Cache L1d;
 
-        public CpuCore((string ramFileName, string traceFileName, int size, int associativity, int blockSize, WritePolicy writeHitPolicy, WritePolicy writeMissPolicy, ReplacementPolicy replacementPolicy) cacheInfo)
+        public CpuCore((string ramFileName, int size, int associativity, int blockSize, WritePolicy writeHitPolicy, WritePolicy writeMissPolicy, ReplacementPolicy replacementPolicy) cacheInfo)
         {
             L1d = new Cache(cacheInfo);
         }
@@ -69,6 +69,11 @@ namespace CacheSimulator
             {
                 return null;
             }
+        }
+
+        public void SetTraceFileForL1(string traceFileName)
+        {
+            L1d.TraceFileName = traceFileName;
         }
 
         public string GetCacheStatistics(int coreNumber)

@@ -7,7 +7,7 @@ namespace CacheSimulator
     {
         private List<CpuCore> cores { get; set; }
 
-        public CPU((string ramFileName, string traceFileName, int size, int associativity, int blockSize, WritePolicy writeHitPolicy, WritePolicy writeMissPolicy, ReplacementPolicy replacementPolicy) cacheInfo, int numberOfCores)
+        public CPU((string ramFileName, int size, int associativity, int blockSize, WritePolicy writeHitPolicy, WritePolicy writeMissPolicy, ReplacementPolicy replacementPolicy) cacheInfo, int numberOfCores)
         {
             cores = new List<CpuCore>(numberOfCores);
 
@@ -16,6 +16,11 @@ namespace CacheSimulator
             {
                 cores.Add(new CpuCore(cacheInfo));
             }
+        }
+
+        public void SetCoreTraceFile(int coreNumber, string traceFileName)
+        {
+            cores[coreNumber].SetTraceFileForL1(traceFileName);
         }
 
         //public void Start()

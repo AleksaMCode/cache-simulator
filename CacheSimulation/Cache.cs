@@ -72,7 +72,7 @@ namespace CacheSimulation
         /// </summary>
         private int lifoIndex { get; set; }
 
-        public Cache((string ramFileName, string traceFileName, int size, int associativity, int blockSize, WritePolicy writeHitPolicy, WritePolicy writeMissPolicy, ReplacementPolicy replacementPolicy) cacheInfo)
+        public Cache((string ramFileName, int size, int associativity, int blockSize, WritePolicy writeHitPolicy, WritePolicy writeMissPolicy, ReplacementPolicy replacementPolicy) cacheInfo)
         {
             if (cacheInfo.blockSize >= cacheInfo.size)
             {
@@ -85,7 +85,6 @@ namespace CacheSimulation
             }
 
             RamFileName = cacheInfo.ramFileName;
-            TraceFileName = cacheInfo.traceFileName;
 
             // Explanation for this check implementation https://stackoverflow.com/questions/2751593/how-to-determine-if-a-decimal-double-is-an-integer .
             if (!CheckNumberForPowerOfTwo(cacheInfo.blockSize))
