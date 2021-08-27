@@ -377,8 +377,8 @@
                     VerticalAlignment="Center">
                     <ComboBoxItem IsSelected="True">Least recently used (LRU)</ComboBoxItem>
                     <ComboBoxItem>Most recently used (MRU)</ComboBoxItem>
-                    <ComboBoxItem>First in first out (FIFO)</ComboBoxItem>
-                    <ComboBoxItem>Last in first out (LIFO)</ComboBoxItem>
+                    <ComboBoxItem IsEnabled="False">First in first out (FIFO)</ComboBoxItem>
+                    <ComboBoxItem IsEnabled="False">Last in first out (LIFO)</ComboBoxItem>
                     <ComboBoxItem>Bélády's algorithm</ComboBoxItem>
                     <ComboBoxItem>Random replacement (RR)</ComboBoxItem>
                     <ComboBoxItem IsEnabled="False">Time aware least recently used (TLRU)</ComboBoxItem>
@@ -433,8 +433,8 @@
                     Grid.Column="2"
                     Width="238"
                     Margin="0,0,4,0"
-                    SelectionChanged="CpuTypeChanged"
-                    VerticalAlignment="Center">
+                    VerticalAlignment="Center"
+                    SelectionChanged="CpuTypeChanged">
                     <ComboBoxItem IsSelected="True">Single-core</ComboBoxItem>
                     <ComboBoxItem>Dual-core</ComboBoxItem>
                     <ComboBoxItem>Multi-cores</ComboBoxItem>
