@@ -474,8 +474,7 @@ namespace CacheSimulation
             }
 
             ++StatisticsInfo.CacheEviction;
-            replacementIndex = GetReplacementIndex(CacheConfig.ReplacementPolicy is ReplacementPolicy.LeastRecentlyUsed
-               or ReplacementPolicy.MostRecentlyUsed ? GetIndex(binaryAddress, GetTagLength(binaryAddress)) * Associativity : traceIndex);
+            replacementIndex = GetReplacementIndex(GetIndex(binaryAddress, GetTagLength(binaryAddress)) * Associativity, traceIndex);
 
             // If the write policy is write-back and the dirty flag is set, write the cache entry to RAM first.
             if (CacheConfig.WriteHitPolicy == WritePolicy.WriteBack && CacheEntries[replacementIndex].FlagBits.Dirty)
@@ -563,12 +562,12 @@ namespace CacheSimulation
         /// </summary>
         /// <param name="addressList">List of all of the memory addresses that will be used in the future.</param>
         /// <returns>Index of the cache entry that needs to be replaced.</returns>
-        private int BeladyGetIndex(List<string> addressList)
+        private int BeladyGetIndex(List<string> addressList, int startingIndex)
         {
             //TODO: test this!
             int farthestElement = 0, index = 0;
 
-            for (var i = 0; i < CacheEntries.Count; ++i)
+            for (var i = startingIndex; i < startingIndex + Associativity; ++i)
             {
                 if (CacheEntries[i].Tag == null)
                 {
@@ -697,8 +696,7 @@ namespace CacheSimulation
             }
 
             ++StatisticsInfo.CacheEviction;
-            replacementIndex = GetReplacementIndex(CacheConfig.ReplacementPolicy is ReplacementPolicy.LeastRecentlyUsed
-                or ReplacementPolicy.MostRecentlyUsed ? GetIndex(binaryAddress, GetTagLength(binaryAddress)) * Associativity : traceIndex);
+            replacementIndex = GetReplacementIndex(GetIndex(binaryAddress, GetTagLength(binaryAddress)) * Associativity, traceIndex);
 
             // If the write policy is write-back and the dirty flag is set, write the cache entry to RAM first.
             if (CacheConfig.WriteHitPolicy == WritePolicy.WriteBack && CacheEntries[replacementIndex].FlagBits.Dirty)
@@ -743,7 +741,7 @@ namespace CacheSimulation
             return false;
         }
 
-        private int GetReplacementIndex(int index)
+        private int GetReplacementIndex(int index, int traceIndex)
         {
             var replacementIndex = index;
 
@@ -781,7 +779,7 @@ namespace CacheSimulation
             }
             else if (CacheConfig.ReplacementPolicy == ReplacementPolicy.Belady)
             {
-                return BeladyGetIndex(LoadFutureCacheEntries(index));
+                return BeladyGetIndex(LoadFutureCacheEntries(traceIndex), index);
             }
             else if (CacheConfig.ReplacementPolicy == ReplacementPolicy.RandomReplacement)
             {
