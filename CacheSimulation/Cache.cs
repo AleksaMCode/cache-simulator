@@ -785,7 +785,7 @@ namespace CacheSimulation
             }
             else if (CacheConfig.ReplacementPolicy == ReplacementPolicy.RandomReplacement)
             {
-                return csprng.Next(0, NumberOfLines - 1);
+                return csprng.Next(index, index + Associativity);
             }
 
             return replacementIndex;
