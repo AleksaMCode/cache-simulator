@@ -410,7 +410,6 @@ namespace CacheSimulation
                 }
             }
 
-            // After a cache miss look for available entry structure.
             ++StatisticsInfo.CacheMisses;
 
             if (CacheConfig.WriteMissPolicy == WritePolicy.WriteAround)
@@ -428,6 +427,7 @@ namespace CacheSimulation
                 return false;
             }
 
+            // After a cache miss look for available entry structure.
             index = GetIndex(binaryAddress, GetTagLength(binaryAddress)) * Associativity;
 
             for (var i = index; i < index + Associativity; ++i)
