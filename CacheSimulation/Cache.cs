@@ -564,7 +564,6 @@ namespace CacheSimulation
         /// <returns>Index of the cache entry that needs to be replaced.</returns>
         private int BeladyGetIndex(List<string> addressList, int startingIndex)
         {
-            //TODO: test this!
             int farthestElement = 0, index = 0;
 
             for (var i = startingIndex; i < startingIndex + Associativity; ++i)

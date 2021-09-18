@@ -31,6 +31,10 @@ namespace CacheSimulator
         private List<string> traceFileFullPaths = null;
         private string ramFileFullPath = null;
 
+        object _lock = new object();
+        StringBuilder logLines = new StringBuilder();
+        private static int logNumberOfWrites = 0;
+
         public static List<Task> CoreTaskList = new List<Task>();
 
         private CPU cpu = null;
@@ -98,11 +102,23 @@ namespace CacheSimulator
                             var cacheLogInfo = cpu.ExecuteTraceLine(line, ++traceIndex, indx);
                             if (cacheLogInfo != null)
                             {
-                                Application.Current.Dispatcher.Invoke(new Action(delegate
+                                lock (_lock)
                                 {
-                                    cacheStatsTextBox.AppendText(cacheLogInfo.Replace("\n\n", "\n"));
-                                    cacheStatsTextBox.ScrollToEnd();
-                                }));
+                                    logLines.Append(cacheLogInfo.Replace("\n\n", "\n"));
+
+                                    if (++logNumberOfWrites >= 50)
+                                    {
+                                        var lines = logLines.ToString();
+
+                                        Application.Current.Dispatcher.Invoke(() =>
+                                        {
+                                            cacheStatsTextBox.Text = lines;
+                                            cacheStatsTextBox.ScrollToEnd();
+                                        });
+
+                                        logNumberOfWrites = 0;
+                                    }
+                                }
                             }
                         }
                     });
