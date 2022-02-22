@@ -60,7 +60,8 @@ If the contents of a block in the cache are altered, then it is necessary to wri
   </tr>
 </table>
 <p align="justify">The data block (cache line/block) contains the actual data fetched from the main memory. The tag contains (part of) the address of the actual data fetched from the main memory. The "size" of the cache is the amount of main memory data it can hold. This size can be calculated as the number of bytes stored in each data block times the number of blocks stored in the cache : 
-<code>size(data_block) x count(cache_lines)</code> .<br>
+<code>size(data_block) x count(cache_lines)</code> .<br><br>
+An instruction cache requires only one flag bit per cache row entry, a valid bit. The valid bit indicates whether or not a cache block has been loaded with valid data. A data cache typically requires two flag bits per cache line – a valid bit and a dirty bit. Having a dirty bit set indicates that the associated cache line has been changed since it was read from main memory ("dirty"), meaning that the processor has written data to that line and the new value has not propagated all the way to main memory.  When simulation is first started all the valid bits in all the caches are set to "invalid".
 
 </p>
 
@@ -81,9 +82,10 @@ for (var i = limit; i < limit + Associativity; ++i)
     ++CacheEntries[i].Age;
 }
 ```
+<p align="justify">The algorithm allows for the least recently used items first to be discarded. In LRU strategy, when the cache is full, the item that hasn't been used for the longest time (least recently used item) will be eliminated or evicted from cache. It also provides a quick constant time access to items in cache.</p>
 
 ### Bélády's algorithm
-<p align="justify">The most efficient caching algorithm would be to always discard the information that will not be needed for the longest time in the future. This optimal result is referred to as Bélády's optimal algorithm. Since it is generally impossible to predict how far in the future information will be needed, this is generally not implementable in practice. The practical minimum can be calculated only after experimentation, and one can compare the effectiveness of the actually chosen cache algorithm. For this program we have we know all of the instructions that will take place in the simulation beacause we have a finite set of instructions in stored in the trace file.</p>
+<p align="justify">The most efficient caching algorithm would be to always discard the information that will not be needed for the longest time in the future. This optimal result is referred to as Bélády's optimal algorithm. Since it is generally impossible to predict how far in the future information will be needed, this is generally not implementable in practice. The practical minimum can be calculated only after experimentation, and one can compare the effectiveness of the actually chosen cache algorithm. For this program we have we know all of the instructions that will take place in the simulation because we have a finite set of instructions stored in the trace file.</p>
 
 ## Associativity (placment policy)
 <p align="justify">The placment policy decides where in the cache a copy of a particular entry of main memory will go. If the placment policy is free to choose any entry in the cache to hold the copy, the cache is <i>fully associattive</i>. At the other extreme, if each entry in main memory can go in just one place in the cache, the cache is <i>directly mapped</i>. The comprimise between the two extreems, in which each entry in main memory can go to any of N places in the cache are described as <i>N-way set associative</i>. Choosing the right value of associativity involves a trade-off. If there is eight palces to which the placment policy have mapped memory location, then to check if that location is in the cache, eight cache entries must be searched.</p>
@@ -92,7 +94,7 @@ for (var i = limit; i < limit + Associativity; ++i)
 <p align="justify">It doesn't have a placment policy as such, since there is no choice of which cache entry's content to evict. This means that if two locatios map to the same entry, they continually knock each outher out.</p>
 
 ## Ram memory
-<p align="justify">Ram is represented with a large binary file stored on the file system. The binary file contains randomly written data. Ram files have the following name structure <i><code>file_name-DateTime.Now:yyyyMMddHHmmss.dat</code></i>, e.q. <i>ram-20210824183840.dat</i>. Below you can find example how to create a Ram file:<br></p>
+<p align="justify">Ram is represented with a large binary file stored on the file system. The binary file contains randomly written data. Ram files have the following name structure <i><code>file_name-DateTime.Now:yyyyMMddHHmmss.dat</code></i>, e.q. <i>ram-20210824183840.dat</i>. Below you can find an  example how to create a Ram file:<br></p>
 
 ```C#
 var ramSize = 5_000_000;
@@ -110,13 +112,17 @@ ram.GenerateRam();
     <td>data</td>
   </tr>
 </table>
-The instruction type can be L (load) for when data is loaded or M (modify) when data is loaded and stored. Trace file is created similray as the Ram file and the also have the same name structure, <i><code>file_name-DateTime.Now:yyyyMMddHHmmss.dat</code></i>, e.q. <i>instructions-20210824203302</i>. Below you can find example how to create a trace file:<br></p>
+The instruction type can be L (load) for when data is loaded or M (modify) when data is loaded and stored. Trace file is created similarly as the Ram file and the also have the same name structure, <i><code>file_name-DateTime.Now:yyyyMMddHHmmss.dat</code></i>, e.q. <i>instructions-20210824203302</i>. Below you can find an example how to create a trace file:<br></p>
 
 ```C#
 var numberOfInstructions = 1_000;
 var trace = new TraceGenerator.TraceGenerator(numberOfInstructions);
 trace.GenerateTraceFile(ramSize, cacheBlockize)
 ```
+
+> **_NOTE:_**
+> 
+> Every CPU core needs to have a unique trace file.
 
 ## Statistics (cache performance)
 
