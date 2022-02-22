@@ -1,7 +1,7 @@
 <img width="150" align="right" title="cpu icon" src="./resources/cpu.png" alt_text="[Cpu icons created by Freepik - Flaticon](https://www.flaticon.com/premium-icon/cpu_707374?related_id=707576)"></img>
 
 # Cache Simulator
-<p align="justify"><b>Cache Simulator</b> was created for a <i>Computer Architecture</i> course project, as taught at the Faculty of Electrical Engineering Banja Luka. The project has been sence expanded and updated. The motivation behind this project was a better understanding of the inner working of the cache memory and its policies.</p>
+<p align="justify"><b>Cache Simulator</b> was created for a <i>Computer Architecture</i> course project, as taught at the Faculty of Electrical Engineering Banja Luka. The project has been sence expanded and updated. This simulator is known as a <i>trace-driven</i> simulator because it takes as input a trace of events.  The memory reference events speciefied in the trace(s) will be used by the simulator to drive the movement of data in and out of cache, thus simulating its behavior. The motivation behind this project was a better understanding of the inner working of the cache memory and its policies. </p>
 
 ## Table of contents
 - [Cache Simulator](#cache-simulator)
@@ -35,20 +35,20 @@ Currently there is only one cache memory level L1, or L1-D to be exact. The plan
 
 <p align="center"><img src="./resources/single-cache.jpg" title="single cache from Operating Systems: Internals and Design Principles by William Stallings"></p>
 
-<p align="justify">For mapping purposes, this memory is considered to consist of n number of fixed-length blocks of K words each. That is, there are M = 2n/K blocks. Cache consists of C slots (also referred to as lines) of K words each, and the number of slots is considerably less than the number of main memory blocks (C << M).
+<p align="justify">For mapping purposes, this memory is considered to consist of n number of fixed-length blocks of K words each. That is, there are M = 2n/K blocks. Cache consists of C slots (also referred to as lines) of K words each, and the number of slots is considerably less than the number of main memory blocks (<code>C << M</code>).
 <br><br>
 If a word in a block of memory that is not in the cache is read, that block is transferred to one of the slots of the cache. Because there are more blocks than slots, an individual slot cannot be uniquely and permanently dedicated to a particular block. Therefore, each slot includes a tag that identifies which particular block is currently being stored.</p>
 
 ## Cache design
-<p align="justify">Some of the key elements are briefly summarized here. Some of the important elements of cache are:
+<p align="justify">Some of the key elements are briefly summarized here. Some of the important elements of cache that should are configurable based on the arguments given as input are:
 <ul>
-  <li>cache size</li>
-  <li>block size (or line size)</li>
-  <li>number of ways of set-associativity (1, N, ∞)</li>
-  <li>eviction policy</li>
-  <li>write policy</li>
-  <li>number of levels of cache</li>
-  <li>separate I-cache from D-cache, or unified cache</li>
+  <li>Cache size</li>
+  <li>Block size (or line size)</li>
+  <li>Number of ways of set-associativity (1, N, ∞)</li>
+  <li>Eviction policy</li>
+  <li>Write policy</li>
+  <li>Number of levels of cache</li>
+  <li>Separate I-cache from D-cache, or unified cache (Von Neumann. or Harvard)</li>
 </ul>
 Block size is the unit of data exchanged between cache and main memory. As the block size increases from very small to larger sizes, the hit ratio will at first
 increase because of the principle of locality: the high probability that data in the
@@ -153,7 +153,7 @@ ram.GenerateRam();
 ```
 
 ## Trace file
-<p align="justify">Trace file is the name of the text file which contains memory access traces. Each line contains the following data:
+<p align="justify">Trace file is the name of the text file which contains memory access traces. The trace files are in ASCII format, so they are human-readable form.  Each line in the trace file represents a single memory reference and contains the following data:
 <table align="center">
   <tr>
     <td>instruction_type</td>
@@ -162,7 +162,7 @@ ram.GenerateRam();
     <td>data</td>
   </tr>
 </table>
-The instruction type can be L (load) for when data is loaded or M (modify) when data is loaded and stored. Trace file is created similarly as the Ram file and the also have the same name structure, <i><code>file_name-DateTime.Now:yyyyMMddHHmmss.dat</code></i>, e.q. <i>instructions-20210824203302</i>. Below you can find an example how to create a trace file:<br></p>
+The instruction type can be L (load) for when data is loaded or M (modify) when data is loaded and stored. The number following the intruction type is the byte address of the memory reference itself. This number is in hexadecimal format and it specifies a 64-bit byte address in the range <code>[0, Ram_size - dataBlockSize]</code>. Trace file is created similarly as the Ram file and they also have the same name structure, <i><code>file_name-DateTime.Now:yyyyMMddHHmmss.dat</code></i>, e.q. <i>instructions-20210824203302</i>. Below you can find an example how to create a trace file:<br></p>
 
 ```C#
 var numberOfInstructions = 1_000;
@@ -175,9 +175,49 @@ trace.GenerateTraceFile(ramSize, cacheBlockize)
 > Every CPU core needs to have a unique trace file.
 
 ## Statistics (cache performance)
+<p align="justify">In addition to all of the implemented functionalities, this simulator also collects and reports several statistics that are used to verify the correctness of the simulator and are also used to evaluate the perforance of LRU vs Bélády algorithm. This simulator keeps track of:
+<ul>
+  <li>Number of cache evictions</li>
+  <li>Number of data references</li>
+  <li>Number of data misses</li>
+  <li>Number of data hits</li>
+  <li>Number of words fetched from data</li>
+  <li>Number of words copied back to memory</li>
+</ul>
+Below you can find an example output after a successfully run simulation.</p>
+
+<details>
+  <summary>
+    cache_statistics-20210914092724.txt
+  </summary>
+  <code>
+Core 0<br>
+CACHE SETTINGS:<br>
+Only D-cache<br>
+D-cache size: 32,768<br>
+Associativity: Directly mapped<br>
+Block size: 32<br>
+Write-hit policy: Write-back<br>
+Write-miss policy: Write allocate<br><br>
+
+CACHE STATISTICS:<br>
+Number of accesses: 970<br>
+Number of hits: 812<br>
+ (hit rate: 0.837)<br>
+Number of misses: 158<br>
+ (miss rate: 0.163)<br>
+Number of cache evictions: 64<br>
+Number of memory writes: 38<br>
+Number of memory reads: 79<br>
+</code>
+</details>
 
 ### LRU vs Bélády
-<p align="justify">After creating the program I did a small analysis of the two algorithms and their performance. You can read the whole analysis in the <a href="./resources/algo_analysis.pdf">pdf file</a>.</p> 
+<p align="justify">After creating the program I did a small analysis of the two algorithms and their performance. You can read the whole analysis in the <a href="./resources/algo_analysis.pdf">pdf file</a>. Please keep in mind that this analysis has been conducted on a relatively small sample size (trace file with less than a 1,000 instructions).</p>
+
+> **_NOTE:_**
+> 
+> <p align="justify">Initially I had a bug in a program that I was only able to discover due to the faulty statistics data I was given as an output of the simulation. After continuously getting that the performance of the cache was better with LRU over the Bélády algorithm I knew that the simulator wasn't operating correctly.</p>
 
 ## References
 ### Books
@@ -193,14 +233,11 @@ trace.GenerateTraceFile(ramSize, cacheBlockize)
   <li><p align="justify"><a href="https://www.cs.cornell.edu/courses/cs3410/2013sp/lecture/18-caches3-w.pdf">Hakim Weatherspoon lecture @ Cornell - <i>Caches (Writing)</i></a></p></li>
 </ul>
 
-
-
-
 ### Github projects
 Some of the projects that helped me create my project.
 
 ## To-Do List
-- [ ] Add L1-I cache memory.
+- [ ] Add L1-I cache memory (implement Harvard architecture).
   - [ ] Add type '<b>I</b>' instruction to trace file.
 - [ ] Add L2 cache memory (shared cache for all cores).
 - [ ] Implement FIFO replacement policy.
