@@ -1,7 +1,7 @@
 <img width="150" align="right" title="cpu icon" src="./resources/cpu.png" alt_text="[Cpu icons created by Freepik - Flaticon](https://www.flaticon.com/premium-icon/cpu_707374?related_id=707576)"></img>
 
 # Cache Simulator
-<p align="justify"><b>Cache Simulator</b> was created for a <i>Computer Architecture</i> course project, as taught at the Faculty of Electrical Engineering Banja Luka. The project has been sence expanded and updated. The motivation behind this project was a better understanding of the inner working of the cache memory and its replacement algorithms.</p>
+<p align="justify"><b>Cache Simulator</b> was created for a <i>Computer Architecture</i> course project, as taught at the Faculty of Electrical Engineering Banja Luka. The project has been sence expanded and updated. The motivation behind this project was a better understanding of the inner working of the cache memory and its policies.</p>
 
 ## Table of contents
 - [Cache Simulator](#cache-simulator)
@@ -9,9 +9,12 @@
   - [Introduction](#introduction)
   - [Cache design](#cache-design)
     - [Cache entry](#cache-entry)
-  - [Replacement policy](#replacement-policy)
+  - [Replacement policies](#replacement-policies)
     - [LRU (Least-recently used)](#lru-least-recently-used)
     - [Bélády's algorithm](#béládys-algorithm)
+  - [Write policies](#write-policies)
+    - [Write-hit policies](#write-hit-policies)
+    - [Write-miss policies (allocation policies)](#write-miss-policies-allocation-policies)
   - [Associativity (placment policy)](#associativity-placment-policy)
     - [Direct-mapped cache](#direct-mapped-cache)
   - [Ram memory](#ram-memory)
@@ -25,7 +28,9 @@
   - [To-Do List](#to-do-list)
 
 ## Introduction
-<p align="justify"><b>Cache Simulator</b> is a simulator implemented in C#. It supports directly mapped, N-way set associative or fully associative cache memory. It also allows LRU (Least Recently Used), Bélády's or Random replacement policy. The cache is simulated inside of the computer's RAM memory and the simulated RAM is stored on the computer's NTFS file system. The cache simulator first checks the users inputs.<br><br>
+<p align="justify"><b>Cache Simulator</b> is a simulator implemented in C#. It supports directly mapped, N-way set associative or fully associative cache memory. It also allows LRU (Least Recently Used), Bélády's or Random replacement policy. The cache is simulated inside of the computer's RAM memory and the simulated RAM is stored on the computer's NTFS file system. Data is transfered between memory and cache in blocks of fixed sizes, called cache lines. When a cache line is copied from memory into the cache, cache entry is created. It will create entry that contains copied data as well as the requested memory location (tag).
+
+The cache simulator first checks the users inputs.<br><br>
 Currently there is only one cache memory level L1, or L1-D to be exact. The plan is to expand project to support both, L1-I (for instructions) and L1-D (for data), aswell as the L2 shared cache memory for CPU cores. For the simulation purposes L2 should be made slower when reading/fetching data and it should be smaller than L1.
 
 <p><img src="./resources/single-cache.jpg" title="single cache from Operating Systems: Internals and Design Principles by William Stallings" align="center">
@@ -65,7 +70,7 @@ An instruction cache requires only one flag bit per cache row entry, a valid bit
 
 </p>
 
-## Replacement policy
+## Replacement policies
 <p align="justify">To make room for the new entry on a cache miss, the cache may have to evict one of the existing entries. Cache algorithms are algorithms that simulator uses to manage a cache of information. When the cache is full, the algorithm must choose which items to discard to make room for the new ones. The fundamental problem with any replacement policy is that it must predict which existing cache entry is least likely to be used in the future. Predicting the future is difficult, so there is no perfect method to choose among the variety of replacement policies available.</p>
 
 ### LRU (Least-recently used)
@@ -87,11 +92,28 @@ for (var i = limit; i < limit + Associativity; ++i)
 ### Bélády's algorithm
 <p align="justify">The most efficient caching algorithm would be to always discard the information that will not be needed for the longest time in the future. This optimal result is referred to as Bélády's optimal algorithm. Since it is generally impossible to predict how far in the future information will be needed, this is generally not implementable in practice. The practical minimum can be calculated only after experimentation, and one can compare the effectiveness of the actually chosen cache algorithm. For this program we have we know all of the instructions that will take place in the simulation because we have a finite set of instructions stored in the trace file.</p>
 
+## Write policies
+<p align="justify">If data is written to the cache, at some point it must also be written to main memory. The timing of this write is known as the write policy. Both write-through and write-back policies can use either of these write-miss policies.</p>
+
+### Write-hit policies
+<p align="justify">When a system writes data to cache, it must at some point write that data to the backing store as well. The timing of this write is controlled by what is known as the write policy. There are two basic writing approaches:</p>
+<ul>
+  <li><p align="justify"><u>Write-through</u>: write is done synchronously both to the cache and to the backing store.</p></li>
+  <li><p align="justify"><u>Write-back</u>: initially, writing is done only to the cache and isnt't immediately mirrored to the main memory, and the cache instead tracks which locations have been written over, marking them as dirty. The write to the backing store is postponed until the modified content is about to be replaced by another cache block, an effect referred to as a <i>lazy write</i>. For this reason, a read miss in a <u>write-back</u> cache may sometimes require two memory accesses to service: one to first write the dirty location to main memory, and then another to read the new location from memory. Also, a write to a main memory location that is not yet mapped in a <u>write-back</u> cache may evict an already dirty location, thereby freeing that cache space for the new memory location.</p></li>
+</ul>
+
+### Write-miss policies (allocation policies)
+<p align="justify">Since no data is returned to the requester on write operations, a decision needs to be made on write misses, whether or not data would be loaded into the cache. This is defined by these two approaches:
+<ul>
+  <li><p align="justify"><u>Write allocate</u> (fetch on write): data at the missed-write location is loaded to cache, followed by a write-hit operation. In this approach, write misses are similar to read misses.</p></li>
+  <li><p align="justify"><u>No-write allocate</u> (no-write allocate or write around): data at the missed-write location is not loaded to cache, and is written directly to the backing store. In this approach, data is loaded into the cache on read misses only.</p></li>
+</ul>
+
 ## Associativity (placment policy)
 <p align="justify">The placment policy decides where in the cache a copy of a particular entry of main memory will go. If the placment policy is free to choose any entry in the cache to hold the copy, the cache is <i>fully associattive</i>. At the other extreme, if each entry in main memory can go in just one place in the cache, the cache is <i>directly mapped</i>. The comprimise between the two extreems, in which each entry in main memory can go to any of N places in the cache are described as <i>N-way set associative</i>. Choosing the right value of associativity involves a trade-off. If there is eight palces to which the placment policy have mapped memory location, then to check if that location is in the cache, eight cache entries must be searched.</p>
 
 ### Direct-mapped cache
-<p align="justify">It doesn't have a placment policy as such, since there is no choice of which cache entry's content to evict. This means that if two locatios map to the same entry, they continually knock each outher out.</p>
+<p align="justify">It doesn't have a placment policy as such, since there is no choice of which cache entry's content to evict. This means that if two locatios map to the same entry, they continually knock each outher out. Although simpler, a direct-mapped cache needs to be much larger than an associative one to give comparable performance, and it is more unpredictable. It has a good best-case time but is unpredictable in worst case.</p>
 
 ## Ram memory
 <p align="justify">Ram is represented with a large binary file stored on the file system. The binary file contains randomly written data. Ram files have the following name structure <i><code>file_name-DateTime.Now:yyyyMMddHHmmss.dat</code></i>, e.q. <i>ram-20210824183840.dat</i>. Below you can find an  example how to create a Ram file:<br></p>
