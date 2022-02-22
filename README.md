@@ -43,9 +43,12 @@ If a word in a block of memory that is not in the cache is read, that block is t
 <p align="justify">Some of the key elements are briefly summarized here. Some of the important elements of cache are:
 <ul>
   <li>cache size</li>
-  <li>block size</li>
-  <li>replacement algorithm</li>
+  <li>block size (or line size)</li>
+  <li>Number of ways of set-associativity (1, N, ∞)</li>
+  <li>eviction policy</li>
   <li>write policy</li>
+  <li>number of levels of cache</li>
+  <li>separate I-cache from D-cache, or unified cache</li>
 </ul>
 Block size is the unit of data exchanged between cache and main memory. As the block size increases from very small to larger sizes, the hit ratio will at first
 increase because of the principle of locality: the high probability that data in the
@@ -98,9 +101,34 @@ for (var i = limit; i < limit + Associativity; ++i)
 ### Write-hit policies
 <p align="justify">When a system writes data to cache, it must at some point write that data to the backing store as well. The timing of this write is controlled by what is known as the write policy. There are two basic writing approaches:</p>
 <ul>
-  <li><p align="justify"><u>Write-through</u>: write is done synchronously both to the cache and to the backing store.</p></li>
-  <li><p align="justify"><u>Write-back</u>: initially, writing is done only to the cache and isnt't immediately mirrored to the main memory, and the cache instead tracks which locations have been written over, marking them as dirty. The write to the backing store is postponed until the modified content is about to be replaced by another cache block, an effect referred to as a <i>lazy write</i>. For this reason, a read miss in a <u>write-back</u> cache may sometimes require two memory accesses to service: one to first write the dirty location to main memory, and then another to read the new location from memory. Also, a write to a main memory location that is not yet mapped in a <u>write-back</u> cache may evict an already dirty location, thereby freeing that cache space for the new memory location.</p></li>
+  <li><p align="justify"><u>Write-through</u> (store through): write is done synchronously both to the cache and to the backing store.</p></li>
+  <li><p align="justify"><u>Write-back</u> (copy-back or store-in): initially, writing is done only to the cache and isn't immediately mirrored to the main memory, and the cache instead tracks which locations have been written over, marking them as dirty. The write to the backing store is postponed until the modified content is about to be replaced by another cache block, an effect referred to as a <i>lazy write</i>. The process of writing data back to main memory when it is being replaced in the cache is called <i>eviction</i>. For this reason, a read miss in a <u>write-back</u> cache may sometimes require two memory accesses to service: one to first write the dirty location to main memory, and then another to read the new location from memory. Also, a write to a main memory location that is not yet mapped in a <u>write-back</u> cache may evict an already dirty location, thereby freeing that cache space for the new memory location.</p></li>
 </ul>
+
+<p align="justify">Below you can take a look at three possible states in a typical copy-back cache design.</p>
+
+<table align="center">
+  <tr>
+    <th>Valid Bit</th>
+    <th>Dirty Bit</th>
+    <th>Status</th>
+  </tr>
+  <tr>
+    <td><p align="center">0</p></td>
+    <td><p align="center">X</p></td>
+    <td><p align="left">Invalid Line</p></td>
+  </tr>
+  <tr>
+    <td><p align="center">1</p></td>
+    <td><p align="center">0</p></td>
+    <td><p align="left">Valid Clean line that matches main memory</p></td>
+  </tr>
+  <tr>
+    <td><p align="center">1</p></td>
+    <td><p align="center">1</p></td>
+    <td><p align="left">Valid Dirty line that is more current than main memory</p></td>
+  </tr>
+</table> 
 
 ### Write-miss policies (allocation policies)
 <p align="justify">Since no data is returned to the requester on write operations, a decision needs to be made on write misses, whether or not data would be loaded into the cache. This is defined by these two approaches:
@@ -155,6 +183,7 @@ trace.GenerateTraceFile(ramSize, cacheBlockize)
 ### Books
 <ul>
   <li><p align="justify"><a href="https://www.amazon.com/Operating-Systems-Internals-Principles-International/dp/9332518807">William Stalling - <i>Operating Systems: Internals and Design Principles</i></p></a></li>
+  <li><p align="justify"><a href="https://www.amazon.com/Cache-Memory-Book-Jim-Handy/dp/0123911125">Jim Handy - <i>The Cache Memory Book</i></p></a></li>
 </ul>
 
 ### Links
