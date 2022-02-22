@@ -31,11 +31,11 @@
 <p align="justify"><b>Cache Simulator</b> is a simulator implemented in C#. It supports directly mapped, N-way set associative or fully associative cache memory. It also allows LRU (Least Recently Used), Bélády's or Random replacement policy. The cache is simulated inside of the computer's RAM memory and the simulated RAM is stored on the computer's NTFS file system. Data is transfered between memory and cache in blocks of fixed sizes, called cache lines. When a cache line is copied from memory into the cache, cache entry is created. It will create entry that contains copied data as well as the requested memory location (tag).
 
 The cache simulator first checks the users inputs.<br><br>
-Currently there is only one cache memory level L1, or L1-D to be exact. The plan is to expand project to support both, L1-I (for instructions) and L1-D (for data), aswell as the L2 shared cache memory for CPU cores. For the simulation purposes L2 should be made slower when reading/fetching data and it should be smaller than L1.
+Currently there is only one cache memory level L1, or L1-D to be exact. The plan is to expand project to support both, L1-I (for instructions) and L1-D (for data), aswell as the L2 shared cache memory for CPU cores. For the simulation purposes L2 should be made slower when reading/fetching data and it should be smaller than L1.</p>
 
-<p><img src="./resources/single-cache.jpg" title="single cache from Operating Systems: Internals and Design Principles by William Stallings" align="center">
+<p align="center"><img src="./resources/single-cache.jpg" title="single cache from Operating Systems: Internals and Design Principles by William Stallings"></p>
 
-<p align="justify">For mapping purposes, this memory is considered to consist of a number of fixed-length blocks of K words each. That is, there are M = 2n/K blocks. Cache consists of C slots (also referred to as lines) of K words each, and the number of slots is considerably less than the number of main memory blocks (C << M).
+<p align="justify">For mapping purposes, this memory is considered to consist of n number of fixed-length blocks of K words each. That is, there are M = 2n/K blocks. Cache consists of C slots (also referred to as lines) of K words each, and the number of slots is considerably less than the number of main memory blocks (C << M).
 <br><br>
 If a word in a block of memory that is not in the cache is read, that block is transferred to one of the slots of the cache. Because there are more blocks than slots, an individual slot cannot be uniquely and permanently dedicated to a particular block. Therefore, each slot includes a tag that identifies which particular block is currently being stored.</p>
 
@@ -44,7 +44,7 @@ If a word in a block of memory that is not in the cache is read, that block is t
 <ul>
   <li>cache size</li>
   <li>block size (or line size)</li>
-  <li>Number of ways of set-associativity (1, N, ∞)</li>
+  <li>number of ways of set-associativity (1, N, ∞)</li>
   <li>eviction policy</li>
   <li>write policy</li>
   <li>number of levels of cache</li>
@@ -182,11 +182,19 @@ trace.GenerateTraceFile(ramSize, cacheBlockize)
 ## References
 ### Books
 <ul>
-  <li><p align="justify"><a href="https://www.amazon.com/Operating-Systems-Internals-Principles-International/dp/9332518807">William Stalling - <i>Operating Systems: Internals and Design Principles</i></p></a></li>
   <li><p align="justify"><a href="https://www.amazon.com/Cache-Memory-Book-Jim-Handy/dp/0123911125">Jim Handy - <i>The Cache Memory Book</i></p></a></li>
+  <li><p align="justify"><a href="https://www.amazon.com/Operating-Systems-Internals-Principles-International/dp/9332518807">William Stalling - <i>Operating Systems: Internals and Design Principles</i></p></a></li>
 </ul>
 
 ### Links
+<ul>
+  <li><p align="justify"><a href="https://en.wikipedia.org/wiki/CPU_cache">CPU cache</a></p></li>
+  <li><p align="justify"><a href="https://courses.cs.washington.edu/courses/cse378/09wi/lectures/lec15.pdf">Cache introduction @ washington.edu</a></p></li>
+  <li><p align="justify"><a href="https://www.cs.cornell.edu/courses/cs3410/2013sp/lecture/18-caches3-w.pdf">Hakim Weatherspoon lecture @ Cornell - <i>Caches (Writing)</i></a></p></li>
+</ul>
+
+
+
 
 ### Github projects
 Some of the projects that helped me create my project.
