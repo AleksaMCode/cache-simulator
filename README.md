@@ -191,24 +191,24 @@ Below you can find an example output after a successfully run simulation.</p>
     cache_statistics-20210914092724.txt
   </summary>
   <code>
-Core 0<br>
-CACHE SETTINGS:<br>
-Only D-cache<br>
-D-cache size: 32,768<br>
-Associativity: Directly mapped<br>
-Block size: 32<br>
-Write-hit policy: Write-back<br>
-Write-miss policy: Write allocate<br><br>
+Core 0<br><br>
+CACHE SETTINGS:<br><br>
+Only D-cache<br><br>
+D-cache size: 32,768<br><br>
+Associativity: Directly mapped<br><br>
+Block size: 32<br><br>
+Write-hit policy: Write-back<br><br>
+Write-miss policy: Write allocate<br><br><br>
 
-CACHE STATISTICS:<br>
-Number of accesses: 970<br>
-Number of hits: 812<br>
- (hit rate: 0.837)<br>
-Number of misses: 158<br>
- (miss rate: 0.163)<br>
-Number of cache evictions: 64<br>
-Number of memory writes: 38<br>
-Number of memory reads: 79<br>
+CACHE STATISTICS:<br><br>
+Number of accesses: 970<br><br>
+Number of hits: 812<br><br>
+ (hit rate: 0.837)<br><br>
+Number of misses: 158<br><br>
+ (miss rate: 0.163)<br><br>
+Number of cache evictions: 64<br><br>
+Number of memory writes: 38<br><br>
+Number of memory reads: 79<br><br>
 </code>
 </details>
 
