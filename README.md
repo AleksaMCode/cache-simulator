@@ -234,8 +234,14 @@ Number of memory reads: 79<br>
 
 ### Github projects
 Some of the projects that helped me create my project.
+<ul>
+  <li><p align="justify"><a href="https://github.com/bilgehangecici/Cachelab">Cachelab</a></p></li>
+  <li><p align="justify"><a href="https://github.com/radinshayanfar/ca_cache_simulator">Cache simulator</a></p></li>
+  <li><p align="justify"><a href="https://github.com/Zomma2/optimal-page-replacement-algorithm-">Optimal page replacement algorithm</a></p></li>
+</ul>
 
 ## To-Do List
+- [ ] Implement <u>Stop Simulation</u> functionality.
 - [ ] Add L1-I cache memory (implement Harvard architecture).
   - [ ] Add type '<b>I</b>' instruction to trace file.
 - [ ] Add L2 cache memory (shared cache for all cores).
