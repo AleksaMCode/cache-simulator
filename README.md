@@ -28,9 +28,8 @@
   - [To-Do List](#to-do-list)
 
 ## Introduction
-<p align="justify"><b>Cache Simulator</b> is a simulator implemented in C#. It supports directly mapped, N-way set associative or fully associative cache memory. It also allows LRU (Least Recently Used), Bélády's or Random replacement policy. The cache is simulated inside of the computer's RAM memory and the simulated RAM is stored on the computer's NTFS file system. Data is transfered between memory and cache in blocks of fixed sizes, called cache lines. When a cache line is copied from memory into the cache, cache entry is created. It will create entry that contains copied data as well as the requested memory location (tag).
-
-The cache simulator first checks the users inputs.<br><br>
+<p align="justify"><b>Cache Simulator</b> is a simulator implemented in C#. It supports directly mapped, N-way set associative or fully associative cache memory. It also allows LRU (Least Recently Used), Bélády's or Random replacement policy. The cache is simulated inside of the computer's RAM memory and the simulated RAM is stored on the computer's NTFS file system. Data is transfered between memory and cache in blocks of fixed sizes, called cache lines. When a cache line is copied from memory into the cache, cache entry is created. It will create entry that contains copied data as well as the requested memory location (tag).<br><br>
+The cache simulator first checks the users inputs. After it checks the validity of input parameters, program starts reading lines from trace file. After checking the input values, the simulator calculates number of lines, set size, number of sets, block offset length and set index length. After that, since we need to a cache in order to read and write to, <a href="https://stackoverflow.com/questions/22756092/what-does-it-mean-by-cold-cache-and-warm-cache-concept"><b>cold cache</b></a> is created. Simulator does that by calling a method <code>CreateColdCache()</code>.<br><br>
 Currently there is only one cache memory level L1, or L1-D to be exact. The plan is to expand project to support both, L1-I (for instructions) and L1-D (for data), aswell as the L2 shared cache memory for CPU cores. For the simulation purposes L2 should be made slower when reading/fetching data and it should be smaller than L1.</p>
 
 <p align="center"><img src="./resources/single-cache.jpg" title="single cache from Operating Systems: Internals and Design Principles by William Stallings"></p>
@@ -191,24 +190,24 @@ Below you can find an example output after a successfully run simulation.</p>
     cache_statistics-20210914092724.txt
   </summary>
   <code>
-Core 0<br><br>
-CACHE SETTINGS:<br><br>
-Only D-cache<br><br>
-D-cache size: 32,768<br><br>
-Associativity: Directly mapped<br><br>
-Block size: 32<br><br>
-Write-hit policy: Write-back<br><br>
-Write-miss policy: Write allocate<br><br><br>
+Core 0<br>
+CACHE SETTINGS:<br>
+Only D-cache<br>
+D-cache size: 32,768<br>
+Associativity: Directly mapped<br>
+Block size: 32<br>
+Write-hit policy: Write-back<br>
+Write-miss policy: Write allocate<br><br>
 
-CACHE STATISTICS:<br><br>
-Number of accesses: 970<br><br>
-Number of hits: 812<br><br>
- (hit rate: 0.837)<br><br>
-Number of misses: 158<br><br>
- (miss rate: 0.163)<br><br>
-Number of cache evictions: 64<br><br>
-Number of memory writes: 38<br><br>
-Number of memory reads: 79<br><br>
+CACHE STATISTICS:<br>
+Number of accesses: 970<br>
+Number of hits: 812<br>
+ (hit rate: 0.837)<br>
+Number of misses: 158<br>
+ (miss rate: 0.163)<br>
+Number of cache evictions: 64<br>
+Number of memory writes: 38<br>
+Number of memory reads: 79<br>
 </code>
 </details>
 
