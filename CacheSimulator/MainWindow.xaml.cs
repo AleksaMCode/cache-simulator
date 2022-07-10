@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -31,6 +32,11 @@ namespace CacheSimulator
         private List<string> traceFileFullPaths = null;
         private string ramFileFullPath = null;
 
+        private int numberOfSimulation = 1;
+        static CancellationTokenSource source = new CancellationTokenSource();
+        private bool isRunning;
+        private bool isCancelRequested;
+
         object _lock = new object();
         StringBuilder logLines = new StringBuilder();
         private static int logNumberOfWrites = 0;
@@ -46,6 +52,8 @@ namespace CacheSimulator
 
         private async void StartSimulation(object sender, RoutedEventArgs e)
         {
+            logNumberOfWrites = 0;
+
             if (traceFileFullPaths == null)
             {
                 MessageBox.Show("Please insert the trace file first.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -81,12 +89,17 @@ namespace CacheSimulator
                 cpu = new CPU((ramFileFullPath, size, associativity, lineSize,
                     GetWritePolicy(cacheWriteHitPolicyComboBox.Text), GetWritePolicy(cacheWriteMissPolicyComboBox.Text), GetReplacementPolicy(cacheReplacementPolicyComboBox.Text)), numberOfCores);
 
+                logLines.Append($"Simulation {numberOfSimulation++}\n");
+
                 // Set trace files for every core.
                 for (var i = 0; i < numberOfCores; ++i)
                 {
                     cpu.SetCoreTraceFile(i, traceFileFullPaths[i]);
 
                     var indx = i;
+
+                    CancellationToken token = source.Token;
+                    isRunning = true;
 
                     var task = Task.Run(() =>
                     {
@@ -99,6 +112,11 @@ namespace CacheSimulator
 
                         while ((line = streamReader.ReadLine()) != null)
                         {
+                            if (token.IsCancellationRequested)
+                            {
+                                token.ThrowIfCancellationRequested();
+                            }
+
                             var cacheLogInfo = cpu.ExecuteTraceLine(line, ++traceIndex, indx);
                             if (cacheLogInfo != null)
                             {
@@ -121,7 +139,8 @@ namespace CacheSimulator
                                 }
                             }
                         }
-                    });
+                    },
+                    token);
 
                     CoreTaskList.Add(task);
                 }
@@ -132,34 +151,71 @@ namespace CacheSimulator
                 try
                 {
                     await Task.WhenAll(CoreTaskList.ToArray());
+
+                    var sb = new StringBuilder();
+
+                    for (var i = 0; i < numberOfCores; ++i)
+                    {
+                        sb.AppendLine(cpu.GetCacheStatistics(i));
+                    }
+
+                    // Output cache statistics for each core in to a file.
+                    var filename = $"cache_statistics-{DateTime.Now:yyyyMMddHHmmss}.txt";
+                    File.WriteAllText(filename, sb.ToString());
+                    Process.Start(filename);
                 }
-                catch (Exception/*OperationCanceledException*/)
+                catch (AggregateException ae)
                 {
                     cacheLogProgressRing.Visibility = Visibility.Hidden;
                     cacheLogProgressRing.IsActive = false;
+
+                    foreach (Exception inner in ae.InnerExceptions)
+                    {
+                        var innerCanc = inner as TaskCanceledException;
+
+                        if (innerCanc != null)
+                        {
+                            logLines.Append($"Core {innerCanc.Task.Id} stopped.");
+                        }
+                        else
+                        {
+                            logLines.Append($"Exception: {inner.GetType().Name}");
+                        }
+                    }
+
+                    cacheStatsTextBox.Text = logLines.ToString();
+                    cacheStatsTextBox.ScrollToEnd();
                 }
-
-                cacheLogProgressRing.Visibility = Visibility.Hidden;
-                var sb = new StringBuilder();
-
-                for (var i = 0; i < numberOfCores; ++i)
+                finally
                 {
-                    sb.AppendLine(cpu.GetCacheStatistics(i));
+                    source.Dispose();
+                    source = new CancellationTokenSource();
+                    isCancelRequested = false;
                 }
 
-                // Output cache statistics for each core in to a file.
-                var filename = $"cache_statistics-{DateTime.Now:yyyyMMddHHmmss}.txt";
-                File.WriteAllText(filename, sb.ToString());
-                Process.Start(filename);
-
-                //MessageBox.Show(sb.ToString(), "Cache Statistics", MessageBoxButton.OK, MessageBoxImage.Information);
+                isRunning = false;
+                cacheLogProgressRing.Visibility = Visibility.Hidden;
+                cacheLogProgressRing.IsActive = false;
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message, "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                cacheLogProgressRing.Visibility = Visibility.Hidden;
+                cacheLogProgressRing.IsActive = false;
             }
 
             EnableWindowComponents(true);
+        }
+
+        private void StopSimulation(object sender, RoutedEventArgs e)
+        {
+            if (!isRunning || isCancelRequested)
+            {
+                return;
+            }
+
+            isCancelRequested = true;
+            source.Cancel();
         }
 
         private int GetCacheAssociativity(int cacheSize, int lineSize)
@@ -185,7 +241,8 @@ namespace CacheSimulator
 
         private void EnableWindowComponents(bool value)
         {
-            simulationContolsGrid.IsEnabled = cacheParametersGrid.IsEnabled = memoryGeneratorsGrid.IsEnabled = value;
+            /*simulationContolsGrid*/
+            startSimulationButton.IsEnabled = cacheParametersGrid.IsEnabled = memoryGeneratorsGrid.IsEnabled = value;
         }
 
         private WritePolicy GetWritePolicy(string policy)

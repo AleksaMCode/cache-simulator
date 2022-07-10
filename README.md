@@ -241,7 +241,7 @@ Some of the projects that helped me create my project.
 </ul>
 
 ## To-Do List
-- [ ] Implement <u>Stop Simulation</u> functionality.
+- [x] Implement <u>Stop Simulation</u> functionality.
 - [ ] Add L1-I cache memory (implement Harvard architecture).
   - [ ] Add type '<b>I</b>' instruction to trace file.
 - [ ] Add L2 cache memory (shared cache for all cores).

@@ -502,7 +502,8 @@
                 x:Name="stopSimulationButton"
                 Grid.Column="4"
                 Width="120"
-                IsEnabled="False">
+                Click="StopSimulation"
+                IsEnabled="True">
                 Stop Simulation
             </Button>
         </Grid>
