@@ -364,13 +364,15 @@ namespace CacheSimulator
 
         private async void GenerateTraceFile(object sender, RoutedEventArgs e)
         {
-            var cacheBlockize = Int32.Parse(cacheLineSize.Text);
-
             if (cacheLineSize.Text == "")
             {
                 MessageBox.Show("Please enter the cache line size first.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
             }
-            else if (!Cache.CheckNumberForPowerOfTwo(cacheBlockize))
+
+            var cacheBlockize = Int32.Parse(cacheLineSize.Text);
+
+            if (!Cache.CheckNumberForPowerOfTwo(cacheBlockize))
             {
                 MessageBox.Show("Cache line is not a power of 2.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
