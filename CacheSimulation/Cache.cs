@@ -55,7 +55,7 @@ namespace CacheSimulation
         public int Associativity { get; set; } = 0;
         public int BlockOffsetLength { get; set; } = 0;
         public int SetIndexLength { get; set; } = 0;
-        public CacheConfiguration CacheConfig { get; set; } = new CacheConfiguration();
+        public CacheConfiguration CacheConfig { get; set; }
 
         public readonly int NumberOfSets;
         public readonly int SetSize;
@@ -97,7 +97,15 @@ namespace CacheSimulation
             }
 
             Size = cacheInfo.size;
-            CacheConfig.SetCacheConfig(cacheInfo.blockSize, cacheInfo.writeHitPolicy, cacheInfo.writeMissPolicy, cacheInfo.replacementPolicy);
+
+            // Build cache config information.
+            var cacheConfigBuilder = new CacheConfigurationBuilder();
+            cacheConfigBuilder.Size(cacheInfo.blockSize);
+            cacheConfigBuilder.WriteHitPolicy(cacheInfo.writeHitPolicy);
+            cacheConfigBuilder.WriteMissPolicy(cacheInfo.writeMissPolicy);
+            cacheConfigBuilder.ReplacementPolicy(cacheInfo.replacementPolicy);
+            CacheConfig = cacheConfigBuilder.Build();
+
             NumberOfLines = Size / CacheConfig.BlockSize;
 
             if (cacheInfo.associativity > NumberOfLines)

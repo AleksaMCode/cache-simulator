@@ -1,3 +1,5 @@
+using System;
+
 namespace CacheSimulation
 {
     public class CacheConfiguration
@@ -11,12 +13,13 @@ namespace CacheSimulation
         {
         }
 
+        [Obsolete("This constructor is depricated", true)]
         public CacheConfiguration(int blockSize, WritePolicy writeHitPolicy, WritePolicy writeMissPolicy, ReplacementPolicy replacementPolicy)
         {
             SetCacheConfig(blockSize, writeHitPolicy, writeMissPolicy, replacementPolicy);
         }
 
-        public void SetCacheConfig(int blockSize, WritePolicy writeHitPolicy, WritePolicy writeMissPolicy, ReplacementPolicy replacementPolicy)
+        private void SetCacheConfig(int blockSize, WritePolicy writeHitPolicy, WritePolicy writeMissPolicy, ReplacementPolicy replacementPolicy)
         {
             BlockSize = blockSize;
             WriteHitPolicy = writeHitPolicy;
