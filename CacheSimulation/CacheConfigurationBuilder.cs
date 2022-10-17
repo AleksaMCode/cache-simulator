@@ -19,7 +19,6 @@ namespace CacheSimulation
             _config.WriteMissPolicy = policy;
         }
 
-
         public void ReplacementPolicy(ReplacementPolicy policy)
         {
             _config.ReplacementPolicy = policy;
