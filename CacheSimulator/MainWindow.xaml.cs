@@ -54,19 +54,8 @@ namespace CacheSimulator
         {
             logNumberOfWrites = 0;
 
-            if (traceFileFullPaths == null)
+            if (!SimulationStartCheck())
             {
-                MessageBox.Show("Please insert the trace file first.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-            else if (ramFileFullPath == null)
-            {
-                MessageBox.Show("Please insert the RAM file first.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-            else if (cacheSize.Text == "" || cacheLineSize.Text == "")
-            {
-                MessageBox.Show("Please fill out all of the cache parameters with values.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
@@ -205,6 +194,27 @@ namespace CacheSimulator
             EnableWindowComponents(true);
         }
 
+
+        private bool SimulationStartCheck()
+        {
+            if (traceFileFullPaths == null)
+            {
+                MessageBox.Show("Please insert the trace file first.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
+            }
+            else if (ramFileFullPath == null)
+            {
+                MessageBox.Show("Please insert the RAM file first.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
+            }
+            else if (cacheSize.Text == "" || cacheLineSize.Text == "")
+            {
+                MessageBox.Show("Please fill out all of the cache parameters with values.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
+            }
+
+            return true;
+        }
 
         private CacheConfigurationBuilder GetCacheConfigBuilder()
         {
