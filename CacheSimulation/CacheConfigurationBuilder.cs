@@ -1,3 +1,5 @@
+using System;
+
 namespace CacheSimulation
 {
     public class CacheConfigurationBuilder : ICacheBuilder
@@ -26,7 +28,9 @@ namespace CacheSimulation
 
         public CacheConfiguration Build()
         {
-            return _config;
+            return _config.WriteHitPolicy == WritePolicy.WriteThrough && _config.WriteMissPolicy == WritePolicy.WriteAllocate
+                ? throw new Exception("A write-through cache uses no-write allocate (write around). Here, subsequent writes have no advantage, since they still need to be written directly to the backing store.")
+                : _config;
         }
     }
 }
