@@ -46,6 +46,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Cache.cs" />
+    <Compile Include="CacheBuilder.cs" />
     <Compile Include="CacheConfiguration.cs" />
     <Compile Include="CacheConfigurationBuilder.cs" />
     <Compile Include="CacheEntry.cs" />

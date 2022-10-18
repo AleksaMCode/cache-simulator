@@ -7,14 +7,14 @@ namespace CacheSimulator
     {
         private List<CpuCore> cores { get; set; }
 
-        public CPU((string ramFileName, int size, int associativity) cacheInfo, CacheConfiguration config, int numberOfCores)
+        public CPU(CacheBuilder cacheBuilder, int numberOfCores)
         {
             cores = new List<CpuCore>(numberOfCores);
 
             //CPU cores initialization.
             for (var i = 0; i < numberOfCores; ++i)
             {
-                cores.Add(new CpuCore(cacheInfo, config));
+                cores.Add(new CpuCore(cacheBuilder));
             }
         }
 

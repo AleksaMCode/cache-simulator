@@ -9,9 +9,9 @@ namespace CacheSimulator
     {
         private Cache L1d;
 
-        public CpuCore((string ramFileName, int size, int associativity) cacheInfo, CacheConfiguration config)
+        public CpuCore(CacheBuilder cacheBuilder)
         {
-            L1d = new Cache(cacheInfo, config);
+            L1d = cacheBuilder.Build();
         }
 
         public string ExecuteTraceLine(string traceLine, int traceIndex, int coreNumber)

@@ -75,9 +75,6 @@ namespace CacheSimulator
 
             try
             {
-                var size = Int32.Parse(cacheSize.Text);
-
-                var associativity = GetCacheAssociativity(size, GetCacheLineSize());
                 var numberOfCores = GetNumberOfCores();
 
                 if (numberOfCores > 128)
@@ -85,10 +82,10 @@ namespace CacheSimulator
                     numberOfCores = 128;
                 }
 
-                // Build cache config information.
-                var cacheConfigBuilder = GetCacheConfigBuilder();
+                // Get cache builder.
+                var cacheBuilder = GetCacheBuilder();
 
-                cpu = new CPU((ramFileFullPath, size, associativity), cacheConfigBuilder.Build(), numberOfCores);
+                cpu = new CPU(cacheBuilder, numberOfCores);
 
                 logLines.Append($"Simulation {numberOfSimulation++}\n");
 
@@ -218,6 +215,20 @@ namespace CacheSimulator
             cacheConfigBuilder.ReplacementPolicy(GetReplacementPolicy(cacheReplacementPolicyComboBox.Text));
 
             return cacheConfigBuilder;
+        }
+
+        private CacheBuilder GetCacheBuilder()
+        {
+            var cacheConfigBuilder = GetCacheConfigBuilder();
+            var cacheBuilder = new CacheBuilder(ramFileFullPath, cacheConfigBuilder.Build());
+
+            var size = Int32.Parse(cacheSize.Text);
+            var associativity = GetCacheAssociativity(size, GetCacheLineSize());
+
+            cacheBuilder.Size(size);
+            cacheBuilder.Associativity(associativity);
+
+            return cacheBuilder;
         }
 
         private void StopSimulation(object sender, RoutedEventArgs e)

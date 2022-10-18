@@ -57,64 +57,63 @@ namespace CacheSimulation
         public int SetIndexLength { get; set; } = 0;
         public CacheConfiguration CacheConfig { get; set; }
 
-        public readonly int NumberOfSets;
-        public readonly int SetSize;
+        public int NumberOfSets;
+        public int SetSize;
 
         public string RamFileName { get; set; }
         public string TraceFileName { get; set; }
 
         private List<int> fifoIndexQueue { get; set; }
 
-        private readonly SecureRandom csprng;
+        private SecureRandom csprng;
 
         /// <summary>
         /// Index of the latest cache entry.
         /// </summary>
         private int lifoIndex { get; set; }
 
-        public Cache((string ramFileName, int size, int associativity) cacheInfo, CacheConfiguration config)
+        public Cache(string ramFileName, CacheConfiguration config)
         {
-            if (config.BlockSize >= cacheInfo.size)
+            RamFileName = ramFileName;
+            CacheConfig = config;
+        }
+
+        public void CreateCache()
+        {
+            if (CacheConfig.BlockSize >= Size)
             {
-                throw new Exception($"Size of the cache line ({config.BlockSize} B) can't be larger than the total cache size ({cacheInfo.size} B).");
+                throw new Exception($"Size of the cache line ({CacheConfig.BlockSize} B) can't be larger than the total cache size ({Size} B).");
             }
 
-            RamFileName = cacheInfo.ramFileName;
-
             // Explanation for this check implementation https://stackoverflow.com/questions/2751593/how-to-determine-if-a-decimal-double-is-an-integer .
-            if (!CheckNumberForPowerOfTwo(config.BlockSize))
+            if (!CheckNumberForPowerOfTwo(CacheConfig.BlockSize))
             {
                 throw new Exception("Block size is not a power of 2.");
             }
-            else if (!CheckNumberForPowerOfTwo(cacheInfo.associativity))
+            else if (!CheckNumberForPowerOfTwo(Associativity))
             {
                 throw new Exception("Associativity is not a power of 2.");
             }
 
-            Size = cacheInfo.size;
-
-            // Add cache config information.
-            CacheConfig = config;
-
             NumberOfLines = Size / CacheConfig.BlockSize;
 
-            if (cacheInfo.associativity > NumberOfLines)
+            if (Associativity > NumberOfLines)
             {
-                throw new Exception($"The cache with {NumberOfLines}-lines can't be {cacheInfo.associativity}-way set-associative.");
+                throw new Exception($"The cache with {NumberOfLines}-lines can't be {Associativity}-way set-associative.");
             }
 
-            SetSize = Associativity = cacheInfo.associativity;
+            SetSize = Associativity;
 
             NumberOfSets = Size / (SetSize * CacheConfig.BlockSize);
             BlockOffsetLength = (int)Math.Ceiling(Math.Log(CacheConfig.BlockSize, 2));
             SetIndexLength = (int)Math.Ceiling(Math.Log(Size / (SetSize * CacheConfig.BlockSize), 2));
 
 
-            if (config.ReplacementPolicy == ReplacementPolicy.FirstInFirstOut)
+            if (CacheConfig.ReplacementPolicy == ReplacementPolicy.FirstInFirstOut)
             {
                 fifoIndexQueue = new List<int>();
             }
-            else if (config.ReplacementPolicy == ReplacementPolicy.RandomReplacement)
+            else if (CacheConfig.ReplacementPolicy == ReplacementPolicy.RandomReplacement)
             {
                 csprng = new(new DigestRandomGenerator(new Sha256Digest()));
                 csprng.SetSeed(DateTime.Now.Ticks);
@@ -153,7 +152,7 @@ namespace CacheSimulation
             }
         }
 
-        public void CreateColdCache()
+        private void CreateColdCache()
         {
             CacheEntries = new List<CacheEntry>();
             for (var i = 0; i < NumberOfLines; ++i)
