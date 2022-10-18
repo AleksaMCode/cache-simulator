@@ -72,22 +72,17 @@ namespace CacheSimulation
         /// </summary>
         private int lifoIndex { get; set; }
 
-        public Cache((string ramFileName, int size, int associativity, int blockSize, WritePolicy writeHitPolicy, WritePolicy writeMissPolicy, ReplacementPolicy replacementPolicy) cacheInfo)
+        public Cache((string ramFileName, int size, int associativity) cacheInfo, CacheConfiguration config)
         {
-            if (cacheInfo.blockSize >= cacheInfo.size)
+            if (config.BlockSize >= cacheInfo.size)
             {
-                throw new Exception($"Size of the cache line ({cacheInfo.blockSize} B) can't be larger than the total cache size ({cacheInfo.size} B).");
-            }
-
-            if (cacheInfo.writeHitPolicy == WritePolicy.WriteThrough && cacheInfo.writeMissPolicy == WritePolicy.WriteAllocate)
-            {
-                throw new Exception("A write-through cache uses no-write allocate (write around). Here, subsequent writes have no advantage, since they still need to be written directly to the backing store.");
+                throw new Exception($"Size of the cache line ({config.BlockSize} B) can't be larger than the total cache size ({cacheInfo.size} B).");
             }
 
             RamFileName = cacheInfo.ramFileName;
 
             // Explanation for this check implementation https://stackoverflow.com/questions/2751593/how-to-determine-if-a-decimal-double-is-an-integer .
-            if (!CheckNumberForPowerOfTwo(cacheInfo.blockSize))
+            if (!CheckNumberForPowerOfTwo(config.BlockSize))
             {
                 throw new Exception("Block size is not a power of 2.");
             }
@@ -98,13 +93,8 @@ namespace CacheSimulation
 
             Size = cacheInfo.size;
 
-            // Build cache config information.
-            var cacheConfigBuilder = new CacheConfigurationBuilder();
-            cacheConfigBuilder.Size(cacheInfo.blockSize);
-            cacheConfigBuilder.WriteHitPolicy(cacheInfo.writeHitPolicy);
-            cacheConfigBuilder.WriteMissPolicy(cacheInfo.writeMissPolicy);
-            cacheConfigBuilder.ReplacementPolicy(cacheInfo.replacementPolicy);
-            CacheConfig = cacheConfigBuilder.Build();
+            // Add cache config information.
+            CacheConfig = config;
 
             NumberOfLines = Size / CacheConfig.BlockSize;
 
@@ -120,11 +110,11 @@ namespace CacheSimulation
             SetIndexLength = (int)Math.Ceiling(Math.Log(Size / (SetSize * CacheConfig.BlockSize), 2));
 
 
-            if (cacheInfo.replacementPolicy == ReplacementPolicy.FirstInFirstOut)
+            if (config.ReplacementPolicy == ReplacementPolicy.FirstInFirstOut)
             {
                 fifoIndexQueue = new List<int>();
             }
-            else if (cacheInfo.replacementPolicy == ReplacementPolicy.RandomReplacement)
+            else if (config.ReplacementPolicy == ReplacementPolicy.RandomReplacement)
             {
                 csprng = new(new DigestRandomGenerator(new Sha256Digest()));
                 csprng.SetSeed(DateTime.Now.Ticks);
