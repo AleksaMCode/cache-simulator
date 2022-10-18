@@ -76,9 +76,8 @@ namespace CacheSimulator
             try
             {
                 var size = Int32.Parse(cacheSize.Text);
-                var lineSize = Int32.Parse(cacheLineSize.Text);
 
-                var associativity = GetCacheAssociativity(size, lineSize);
+                var associativity = GetCacheAssociativity(size, GetCacheLineSize());
                 var numberOfCores = GetNumberOfCores();
 
                 if (numberOfCores > 128)
@@ -86,8 +85,10 @@ namespace CacheSimulator
                     numberOfCores = 128;
                 }
 
-                cpu = new CPU((ramFileFullPath, size, associativity, lineSize,
-                    GetWritePolicy(cacheWriteHitPolicyComboBox.Text), GetWritePolicy(cacheWriteMissPolicyComboBox.Text), GetReplacementPolicy(cacheReplacementPolicyComboBox.Text)), numberOfCores);
+                // Build cache config information.
+                var cacheConfigBuilder = GetCacheConfigBuilder();
+
+                cpu = new CPU((ramFileFullPath, size, associativity), cacheConfigBuilder.Build(), numberOfCores);
 
                 logLines.Append($"Simulation {numberOfSimulation++}\n");
 
@@ -207,6 +208,18 @@ namespace CacheSimulator
             EnableWindowComponents(true);
         }
 
+
+        private CacheConfigurationBuilder GetCacheConfigBuilder()
+        {
+            var cacheConfigBuilder = new CacheConfigurationBuilder();
+            cacheConfigBuilder.Size(GetCacheLineSize());
+            cacheConfigBuilder.WriteHitPolicy(GetWritePolicy(cacheWriteHitPolicyComboBox.Text));
+            cacheConfigBuilder.WriteMissPolicy(GetWritePolicy(cacheWriteMissPolicyComboBox.Text));
+            cacheConfigBuilder.ReplacementPolicy(GetReplacementPolicy(cacheReplacementPolicyComboBox.Text));
+
+            return cacheConfigBuilder;
+        }
+
         private void StopSimulation(object sender, RoutedEventArgs e)
         {
             if (!isRunning || isCancelRequested)
@@ -216,6 +229,11 @@ namespace CacheSimulator
 
             isCancelRequested = true;
             source.Cancel();
+        }
+
+        private int GetCacheLineSize()
+        {
+            return Int32.Parse(cacheLineSize.Text);
         }
 
         private int GetCacheAssociativity(int cacheSize, int lineSize)
