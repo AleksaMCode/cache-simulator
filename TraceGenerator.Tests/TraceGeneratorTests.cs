@@ -7,7 +7,6 @@ namespace TraceGenerator.Tests
 
     public class TraceGeneratorFixture : IDisposable
     {
-        public int RamSizeInMB { get; set; } = 1_000;
         public TraceGenerator TraceGenerator { get; private set; }
 
         public TraceGeneratorFixture()
