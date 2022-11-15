@@ -51,6 +51,13 @@ namespace TraceGenerator
         public TraceGenerator(string traceSize, string fileName = "instructions")
         {
             FileName = $"{fileName}-{DateTime.Now:yyyyMMddHHmmss}.trace";
+            traceSize = traceSize.ToLower();
+
+            if (!traceSizes.ContainsKey(traceSize))
+            {
+                throw new Exception($"Trace size '{traceSize}' isn't a valid size.");
+            }
+
             this.traceSize = traceSizes[traceSize.ToLower()];
             csprng.SetSeed(DateTime.Now.Ticks);
         }
