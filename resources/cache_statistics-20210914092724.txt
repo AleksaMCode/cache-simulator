@@ -1,0 +1,40 @@
+Core 0
+CACHE SETTINGS:
+Only D-cache
+D-cache size: 32,768
+Associativity: Directly mapped
+Block size: 32
+Write-hit policy: Write-back
+Write-miss policy: Write allocate
+
+CACHE STATISTICS:
+Number of accesses: 970
+Number of hits: 812
+ (hit rate: 0.837)
+Number of misses: 158
+ (miss rate: 0.163)
+Number of cache evictions: 64
+Number of memory writes: 38
+Number of memory reads: 79
+
+
+Core 1
+CACHE SETTINGS:
+Only D-cache
+D-cache size: 32,768
+Associativity: Directly mapped
+Block size: 32
+Write-hit policy: Write-back
+Write-miss policy: Write allocate
+
+CACHE STATISTICS:
+Number of accesses: 966
+Number of hits: 826
+ (hit rate: 0.855)
+Number of misses: 140
+ (miss rate: 0.145)
+Number of cache evictions: 45
+Number of memory writes: 29
+Number of memory reads: 77
+
+
