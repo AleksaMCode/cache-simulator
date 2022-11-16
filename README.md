@@ -187,28 +187,9 @@ Below you can find an example output after a successfully run simulation.</p>
 
 <details>
   <summary>
-    cache_statistics-20210914092724.txt
+    cache_statistics.txt
   </summary>
-  <code>
-Core 0<br>
-CACHE SETTINGS:<br>
-Only D-cache<br>
-D-cache size: 32,768<br>
-Associativity: Directly mapped<br>
-Block size: 32<br>
-Write-hit policy: Write-back<br>
-Write-miss policy: Write allocate<br><br>
-
-CACHE STATISTICS:<br>
-Number of accesses: 970<br>
-Number of hits: 812<br>
- (hit rate: 0.837)<br>
-Number of misses: 158<br>
- (miss rate: 0.163)<br>
-Number of cache evictions: 64<br>
-Number of memory writes: 38<br>
-Number of memory reads: 79<br>
-</code>
+    https://github.com/AleksaMCode/cache-simulator/blob/80309dc25e36ed5274b559a57c3231e140d6c121/resources/cache_statistics.txt#L1-L38
 </details>
 
 ### LRU vs Bélády
