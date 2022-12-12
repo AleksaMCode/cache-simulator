@@ -1,7 +1,7 @@
 <img width="150" align="right" title="cpu icon" src="./resources/cpu.png" alt_text="[Cpu icons created by Freepik - Flaticon](https://www.flaticon.com/premium-icon/cpu_707374?related_id=707576)"></img>
 
 # Cache Simulator
-<p align="justify"><b>Cache Simulator</b> was created for a <i>Computer Architecture</i> course project, as taught at the Faculty of Electrical Engineering Banja Luka. The project has been since expanded and updated. This simulator is known as a <i>trace-driven</i> simulator because it takes as input a trace of events.  The memory reference events speciefied in the trace(s) will be used by the simulator to drive the movement of data in and out of cache, thus simulating its behavior. The motivation behind this project was a better understanding of the inner working of the cache memory and its policies. </p>
+<p align="justify"><b>Cache Simulator</b> was created for a <i>Computer Architecture</i> course project, as taught at the Faculty of Electrical Engineering Banja Luka. The project has been since expanded and updated. This simulator is known as a <i>trace-driven</i> simulator because it takes as input a trace of events.  The memory reference events speciefied in the trace(s) will be used by the simulator to drive the movement of data in and out of cache, thus simulating its behavior. The motivation behind this project was a better understanding of the inner working of the cache memory and its policies.</p>
 
 ## Table of contents
 - [Cache Simulator](#cache-simulator)
@@ -19,7 +19,7 @@
     - [Direct-mapped cache](#direct-mapped-cache)
   - [Ram memory](#ram-memory)
   - [Trace file](#trace-file)
-  - [Statistics (cache performance)](#statistics-cache-performance)
+  - [Cache performance - statistical analysis](#cache-performance---statistical-analysis)
     - [LRU vs Bélády](#lru-vs-bélády)
   - [References](#references)
     - [Books](#books)
@@ -152,7 +152,7 @@ ram.GenerateRam();
 ```
 
 ## Trace file
-<p align="justify">Trace file is the name of the text file which contains memory access traces. The trace files are in ASCII format, so they are human-readable form.  Each line in the trace file represents a single memory reference and contains the following data:
+<p align="justify">Trace file is the name of the text file which contains memory access traces. The trace files are in ASCII format, so they are human-readable form.  Each line in the trace file represents a single memory reference and contains the following data:</p>
 <table align="center">
   <tr>
     <td>instruction_type</td>
@@ -161,7 +161,7 @@ ram.GenerateRam();
     <td>data</td>
   </tr>
 </table>
-The instruction type can be L (load) for when data is loaded or M (modify) when data is loaded and stored. The number following the intruction type is the byte address of the memory reference itself. This number is in hexadecimal format and it specifies a 64-bit byte address in the range <code>[0, Ram_size - dataBlockSize]</code>. Trace file is created similarly as the Ram file and they also have the same name structure, <i><code>file_name-DateTime.Now:yyyyMMddHHmmss.dat</code></i>, e.q. <i>instructions-20210824203302</i>. Below you can find an example how to create a trace file:<br></p>
+<p align="justify">The instruction type can be L (load) for when data is loaded or S (stored) when data is loaded and stored. The number following the intruction type is the byte address of the memory reference itself. This number is in hexadecimal format and it specifies a 64-bit byte address in the range <code>[0, Ram_size - dataBlockSize]</code>. Trace file is created similarly as the Ram file and they also have the same name structure, <i><code>file_name-DateTime.Now:yyyyMMddHHmmss.dat</code></i>, e.q. <i>instructions-20210824203302</i>. Below you can find an example how to create a trace file:<br></p>
 
 ```C#
 var numberOfInstructions = 1_000;
@@ -171,10 +171,10 @@ trace.GenerateTraceFile(ramSize, cacheBlockize)
 
 > **_NOTE:_**
 > 
-> Every CPU core needs to have a unique trace file.
+> Every CPU core needs to have an unique trace file.
 
-## Statistics (cache performance)
-<p align="justify">In addition to all of the implemented functionalities, this simulator also collects and reports several statistics that are used to verify the correctness of the simulator and are also used to evaluate the perforance of LRU vs Bélády algorithm. This simulator keeps track of:
+## Cache performance - statistical analysis
+<p align="justify">In addition to all of the implemented functionalities, this simulator also collects and reports several statistics that are used to verify the correctness of the simulator and are also used to evaluate the perforance of LRU vs Bélády algorithm. This simulator keeps track of:</p>
 <ul>
   <li>Number of cache evictions</li>
   <li>Number of data references</li>
@@ -183,7 +183,7 @@ trace.GenerateTraceFile(ramSize, cacheBlockize)
   <li>Number of words fetched from data</li>
   <li>Number of words copied back to memory</li>
 </ul>
-Below you can find an example output after a successfully run simulation.</p>
+<p align="justify">Below you can find an example output after a successfully run simulation.</p>
 
 <details>
   <summary>
