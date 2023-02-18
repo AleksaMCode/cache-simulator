@@ -231,3 +231,4 @@ Some of the projects that helped me create my project.
 - [ ] Implement TLRU replacement policy.
 - [ ] Implement LFU replacement policy.
 - [ ] Implement LFUDA replacement policy.
+- [ ] Implement *Replacement policies* using Strategy Design Pattern.
