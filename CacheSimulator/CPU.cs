@@ -11,7 +11,7 @@ namespace CacheSimulator
         {
             cores = new List<CpuCore>(numberOfCores);
 
-            //CPU cores initialization.
+            // CPU cores initialization.
             for (var i = 0; i < numberOfCores; ++i)
             {
                 cores.Add(new CpuCore(cacheBuilder.Build()));
