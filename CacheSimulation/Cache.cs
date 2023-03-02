@@ -4,9 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using Org.BouncyCastle.Crypto.Digests;
-using Org.BouncyCastle.Crypto.Prng;
-using Org.BouncyCastle.Security;
 
 namespace CacheSimulation
 {
@@ -40,7 +37,7 @@ namespace CacheSimulation
         LeastFrequentlyUsedWithDynamicAging = 8
     }
 
-    public class Cache
+    public abstract class Cache
     {
         public List<CacheEntry> CacheEntries;
 
@@ -63,22 +60,12 @@ namespace CacheSimulation
         public string RamFileName { get; set; }
         public string TraceFileName { get; set; }
 
-        private List<int> fifoIndexQueue { get; set; }
-
-        private SecureRandom csprng;
-
         /// <summary>
         /// Index of the latest cache entry.
         /// </summary>
         private int lifoIndex { get; set; }
 
-        public Cache(string ramFileName, CacheConfiguration config)
-        {
-            RamFileName = ramFileName;
-            CacheConfig = config;
-        }
-
-        public void CreateCache()
+        public virtual void CreateCache()
         {
             if (CacheConfig.BlockSize >= Size)
             {
@@ -112,11 +99,6 @@ namespace CacheSimulation
             if (CacheConfig.ReplacementPolicy == ReplacementPolicy.FirstInFirstOut)
             {
                 fifoIndexQueue = new List<int>();
-            }
-            else if (CacheConfig.ReplacementPolicy == ReplacementPolicy.RandomReplacement)
-            {
-                csprng = new(new DigestRandomGenerator(new Sha256Digest()));
-                csprng.SetSeed(DateTime.Now.Ticks);
             }
 
             CreateColdCache();
@@ -542,7 +524,7 @@ namespace CacheSimulation
             return output;
         }
 
-        private string ConvertBinaryToHex(string binaryNumber)
+        protected string ConvertBinaryToHex(string binaryNumber)
         {
             if ((binaryNumber.Length % 8) != 0)
             {
@@ -552,74 +534,6 @@ namespace CacheSimulation
             return string.Join(string.Empty,
             Enumerable.Range(0, binaryNumber.Length / 8)
             .Select(i => Convert.ToByte(binaryNumber.Substring(i * 8, 8), 2).ToString("x2"))).TrimStart('0');
-        }
-
-        /// <summary>
-        /// Returns index of the cache entry that needs to be replaced.
-        /// </summary>
-        /// <param name="addressList">List of all of the memory addresses that will be used in the future.</param>
-        /// <returns>Index of the cache entry that needs to be replaced.</returns>
-        private int BeladyGetIndex(List<string> addressList, int startingIndex)
-        {
-            int farthestElement = 0, index = 0;
-
-            for (var i = startingIndex; i < startingIndex + Associativity; ++i)
-            {
-                if (CacheEntries[i].Tag == null)
-                {
-                    continue;
-                }
-
-                var tmpIndex = addressList.IndexOf(ConvertBinaryToHex(CacheEntries[i].Tag));
-
-                if (tmpIndex >= farthestElement)
-                {
-                    farthestElement = tmpIndex;
-                    index = i;
-                }
-                else if (tmpIndex == -1)
-                {
-                    return i;
-                }
-            }
-
-            return index;
-        }
-
-        /// <summary>
-        /// Load all of the addresses from the trace file used for the Bélády's algorithm.
-        /// </summary>
-        /// <param name="traceIndex">Current line in trace file.</param>
-        /// <returns>List of all of the unique memory addresses that will be used in the future.</returns>
-        private List<string> LoadFutureCacheEntries(int traceIndex)
-        {
-            const int bufferSize = 4_096;
-            using var fileStream = File.OpenRead(TraceFileName);
-            using var streamReader = new StreamReader(fileStream, Encoding.UTF8, true, bufferSize);
-            //streamReader.BaseStream.Seek(traceIndex, SeekOrigin.Begin);
-
-            var output = new List<string>();
-            string line;
-            var currentLine = 0;
-            while ((line = streamReader.ReadLine()) != null)
-            {
-                ++currentLine;
-
-                // Go to the trace index line.
-                if (currentLine < traceIndex + 1)
-                {
-                    continue;
-                }
-
-                // Skip 0x and any leading 0 from the address.
-                var address = line.Split('\t')[1].Trim(' ').Substring(2).TrimStart('0').TrimEnd(',').Trim(' ');
-                if (!output.Contains(address))
-                {
-                    output.Add(address);
-                }
-            }
-
-            return output;
         }
 
         public bool ReadFromCache(string address, int size, out string additionalData, int traceIndex, int coreNumber)
@@ -737,52 +651,16 @@ namespace CacheSimulation
             return false;
         }
 
-        private int GetReplacementIndex(int index, int traceIndex)
-        {
-            var replacementIndex = index;
+        protected abstract int GetReplacementIndex(int index, int traceIndex);
+        //{
+        //    var replacementIndex = index;
 
-            if (CacheConfig.ReplacementPolicy == ReplacementPolicy.LeastRecentlyUsed)
-            {
-                for (int i = index, highestAge = 0; i < index + Associativity; ++i)
-                {
-                    if (CacheEntries[i].Age > highestAge)
-                    {
-                        highestAge = CacheEntries[i].Age;
-                        replacementIndex = i;
-                    }
-                }
-            }
-            else if (CacheConfig.ReplacementPolicy == ReplacementPolicy.MostRecentlyUsed)
-            {
-                for (int i = index, lowestAge = 0; i < index + Associativity; ++i)
-                {
-                    if (CacheEntries[i].Age < lowestAge)
-                    {
-                        lowestAge = CacheEntries[i].Age;
-                        replacementIndex = i;
-                    }
-                }
-            }
-            else if (CacheConfig.ReplacementPolicy == ReplacementPolicy.FirstInFirstOut)
-            {
-                replacementIndex = fifoIndexQueue.First();
-                fifoIndexQueue.RemoveAt(0);
-                fifoIndexQueue.Add(replacementIndex);
-            }
-            else if (CacheConfig.ReplacementPolicy == ReplacementPolicy.LastInFirstOut)
-            {
-                replacementIndex = lifoIndex;
-            }
-            else if (CacheConfig.ReplacementPolicy == ReplacementPolicy.Belady)
-            {
-                return BeladyGetIndex(LoadFutureCacheEntries(traceIndex), index);
-            }
-            else if (CacheConfig.ReplacementPolicy == ReplacementPolicy.RandomReplacement)
-            {
-                return csprng.Next(index, index + Associativity);
-            }
+        //    else if (CacheConfig.ReplacementPolicy == ReplacementPolicy.LastInFirstOut)
+        //    {
+        //        replacementIndex = lifoIndex;
+        //    }
 
-            return replacementIndex;
-        }
+        //    return replacementIndex;
+        //}
     }
 }
