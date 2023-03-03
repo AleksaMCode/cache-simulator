@@ -93,7 +93,10 @@ for (var i = limit; i < limit + Associativity; ++i)
 <p align="justify">The algorithm allows for the least recently used items first to be discarded. In LRU strategy, when the cache is full, the item that hasn't been used for the longest time (least recently used item) will be eliminated or evicted from cache. It also provides a quick, constant time access to items in cache.</p>
 
 ### MRU (Most-recently used)
-<p align="justify">The algorithm allows for the most recently used items first to be discarded. In MRU strategy, when the cache is full, the most recently used item will be eliminated or evicted from cache. This algorithm is useful in situations in which the older an item is, the more likely it is to be accessed.</p>
+<p align="justify">The algorithm allows for the most recently used items first to be discarded. In MRU strategy, when the cache is full, the most recently used item will be eliminated or evicted from cache. This algorithm is useful in situations in which the older an item is, the more likely it is to be accessed.
+Now you might be asking yourself why would cache ever use this algorithm as eviction policy? Here is a quote from <a href="https://twitter.com/jonskeet">Jon Skeet</a> I think explains it well.</p>
+
+> <p align="justify">Imagine you were looking up the details of buses as they arrived at a bus stop, based on their bus number. It's somewhat reasonable to think that if you've just seen a number 36 bus, you're less likely to see another one imminently than to see one of the other buses that stops there.</p>
 
 ### Bélády's algorithm
 <p align="justify">The most efficient caching algorithm would be to always discard the information that will not be needed for the longest time in the future. This optimal result is referred to as Bélády's optimal algorithm. Since it is generally impossible to predict how far in the future information will be needed, this is generally not implementable in practice. The practical minimum can be calculated only after experimentation, and one can compare the effectiveness of the actually chosen cache algorithm. For this simulator, all of the instructions that will take place in the simulation are known because we have a finite set of instructions stored in the trace file.</p>
