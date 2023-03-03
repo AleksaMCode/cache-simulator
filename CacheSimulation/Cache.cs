@@ -203,24 +203,6 @@ namespace CacheSimulation
             return index;
         }
 
-        /// <summary>
-        /// Updates the most recently used set, allowing the LRU algorithm to work.
-        /// </summary>
-        /// <param name="newestEntryIndex">Index of the newest entry in the cache.</param>
-        /// <param name="index"></param>
-        public void Aging(int newestEntryIndex, int index)
-        {
-            var limit = index * Associativity;
-            var tmpAge = CacheEntries[newestEntryIndex].Age;
-
-            for (var i = limit; i < limit + Associativity; ++i)
-            {
-                ++CacheEntries[i].Age;
-            }
-
-            CacheEntries[newestEntryIndex].Age = tmpAge;
-        }
-
         private byte[] ConversionBugFixer(byte[] binaryAddress)
         {
             var zeroArray = new byte[4 - binaryAddress.Length];
