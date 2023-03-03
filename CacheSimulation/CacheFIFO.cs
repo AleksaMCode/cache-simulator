@@ -1,11 +1,10 @@
 using System.Collections.Generic;
-using System.Linq;
 
 namespace CacheSimulation
 {
     public sealed class CacheFIFO : Cache
     {
-        private List<int> fifoIndexQueue { get; set; }
+        private Queue<int> indexQueue { get; set; }
 
         public CacheFIFO(string ramFileName, CacheConfiguration config)
         {
@@ -15,9 +14,8 @@ namespace CacheSimulation
 
         protected override int GetReplacementIndex(int index, int traceIndex)
         {
-            var replacementIndex = fifoIndexQueue.First();
-            fifoIndexQueue.RemoveAt(0);
-            fifoIndexQueue.Add(replacementIndex);
+            var replacementIndex = indexQueue.Dequeue();
+            indexQueue.Enqueue(replacementIndex);
 
             return replacementIndex;
         }
