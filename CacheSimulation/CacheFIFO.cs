@@ -4,7 +4,7 @@ namespace CacheSimulation
 {
     public sealed class CacheFIFO : Cache
     {
-        private Queue<int> indexQueue { get; set; }
+        private Queue<int> indexQueue { get; set; } = new();
 
         public CacheFIFO(string ramFileName, CacheConfiguration config)
         {
