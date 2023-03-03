@@ -90,12 +90,6 @@ namespace CacheSimulation
             BlockOffsetLength = (int)Math.Ceiling(Math.Log(CacheConfig.BlockSize, 2));
             SetIndexLength = (int)Math.Ceiling(Math.Log(Size / (SetSize * CacheConfig.BlockSize), 2));
 
-
-            if (CacheConfig.ReplacementPolicy == ReplacementPolicy.FirstInFirstOut)
-            {
-                fifoIndexQueue = new List<int>();
-            }
-
             CreateColdCache();
         }
 
