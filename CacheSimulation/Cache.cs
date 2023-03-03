@@ -60,11 +60,6 @@ namespace CacheSimulation
         public string RamFileName { get; set; }
         public string TraceFileName { get; set; }
 
-        /// <summary>
-        /// Index of the latest cache entry.
-        /// </summary>
-        private int lifoIndex { get; set; }
-
         public virtual void CreateCache()
         {
             if (CacheConfig.BlockSize >= Size)
@@ -443,10 +438,6 @@ namespace CacheSimulation
                     {
                         fifoIndexQueue.Add(i);
                     }
-                    else if (CacheConfig.ReplacementPolicy == ReplacementPolicy.LastInFirstOut)
-                    {
-                        lifoIndex = i;
-                    }
 
                     return false;
                 }
@@ -595,10 +586,6 @@ namespace CacheSimulation
                     else if (CacheConfig.ReplacementPolicy == ReplacementPolicy.FirstInFirstOut)
                     {
                         fifoIndexQueue.Add(i);
-                    }
-                    else if (CacheConfig.ReplacementPolicy == ReplacementPolicy.LastInFirstOut)
-                    {
-                        lifoIndex = i;
                     }
 
                     return false;
