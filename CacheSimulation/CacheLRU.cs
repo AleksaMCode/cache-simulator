@@ -13,7 +13,7 @@ namespace CacheSimulation
         /// </summary>
         /// <param name="newestEntryIndex">Index of the newest entry in the cache.</param>
         /// <param name="index"></param>
-        public void Aging(int newestEntryIndex, int index)
+        protected override void Aging(int newestEntryIndex, int index)
         {
             var limit = index * Associativity;
             var tmpAge = CacheEntries[newestEntryIndex].Age;
