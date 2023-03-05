@@ -12,6 +12,11 @@ namespace CacheSimulation
             CacheConfig = config;
         }
 
+        protected override void EnqueueIndex(int index)
+        {
+            indexQueue.Enqueue(index);
+        }
+
         protected override int GetReplacementIndex(int index, int traceIndex)
         {
             var replacementIndex = indexQueue.Dequeue();
