@@ -592,15 +592,5 @@ namespace CacheSimulation
         }
 
         protected abstract int GetReplacementIndex(int index, int traceIndex);
-        //{
-        //    var replacementIndex = index;
-
-        //    else if (CacheConfig.ReplacementPolicy == ReplacementPolicy.LastInFirstOut)
-        //    {
-        //        replacementIndex = lifoIndex;
-        //    }
-
-        //    return replacementIndex;
-        //}
     }
 }
