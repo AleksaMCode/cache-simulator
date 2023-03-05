@@ -300,6 +300,10 @@ namespace CacheSimulation
             }
         }
 
+        protected virtual void Aging(int newEntryIndex, int index) { }
+
+        protected virtual void EnqueueIndex(int index) { }
+
         public bool WriteToCache(string address, int size, string data, out string additionalData, int traceIndex, int coreNumber)
         {
             additionalData = "";
@@ -348,13 +352,8 @@ namespace CacheSimulation
                             }
                         }
 
-                        if (CacheConfig.ReplacementPolicy is ReplacementPolicy.LeastRecentlyUsed
-                            or ReplacementPolicy.MostRecentlyUsed)
-                        {
-                            // Set age values.
-                            Aging(i, CacheEntries[i].Set);
-                        }
-
+                        // Set age values.
+                        Aging(i, CacheEntries[i].Set);
                         return true;
                     }
                 }
@@ -405,16 +404,10 @@ namespace CacheSimulation
                         CacheEntries[i].FlagBits.Dirty = true;
                     }
 
-                    if (CacheConfig.ReplacementPolicy is ReplacementPolicy.LeastRecentlyUsed or ReplacementPolicy.MostRecentlyUsed)
-                    {
-                        // Set age values.
-                        Aging(i, CacheEntries[i].Set);
-                    }
-                    else if (CacheConfig.ReplacementPolicy == ReplacementPolicy.FirstInFirstOut)
-                    {
-                        fifoIndexQueue.Add(i);
-                    }
-
+                    // Set age values.
+                    Aging(i, CacheEntries[i].Set);
+                    // Set FIFO eviction policy index.
+                    EnqueueIndex(i);
                     return false;
                 }
             }
@@ -458,13 +451,9 @@ namespace CacheSimulation
                 CacheEntries[replacementIndex].FlagBits.Dirty = true;
             }
 
-            if (CacheConfig.ReplacementPolicy is ReplacementPolicy.LeastRecentlyUsed or ReplacementPolicy.MostRecentlyUsed)
-            {
-                // Set age values.
-                Aging(replacementIndex, CacheEntries[replacementIndex].Set);
-            }
-
             additionalData = sb.ToString();
+            // Set age values.
+            Aging(replacementIndex, CacheEntries[replacementIndex].Set);
             return false;
         }
 
@@ -521,12 +510,8 @@ namespace CacheSimulation
                     {
                         ++StatisticsInfo.CacheHits;
 
-                        if (CacheConfig.ReplacementPolicy is ReplacementPolicy.LeastRecentlyUsed or ReplacementPolicy.MostRecentlyUsed)
-                        {
-                            // Set age values.
-                            Aging(i, CacheEntries[i].Set);
-                        }
-
+                        // Set age values.
+                        Aging(i, CacheEntries[i].Set);
                         return true;
                     }
                 }
@@ -554,15 +539,10 @@ namespace CacheSimulation
                         sb.Append($"\n[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] core={coreNumber} error=READ_FROM_RAM_FAIL");
                     }
 
-                    if (CacheConfig.ReplacementPolicy is ReplacementPolicy.LeastRecentlyUsed or ReplacementPolicy.MostRecentlyUsed)
-                    {
-                        // Set age values.
-                        Aging(i, CacheEntries[i].Set);
-                    }
-                    else if (CacheConfig.ReplacementPolicy == ReplacementPolicy.FirstInFirstOut)
-                    {
-                        fifoIndexQueue.Add(i);
-                    }
+                    // Set age values.
+                    Aging(i, CacheEntries[i].Set);
+                    // Set FIFO eviction policy index.
+                    EnqueueIndex(i);
 
                     return false;
                 }
@@ -605,10 +585,7 @@ namespace CacheSimulation
             }
 
             // Set age values.
-            if (CacheConfig.ReplacementPolicy is ReplacementPolicy.LeastRecentlyUsed or ReplacementPolicy.MostRecentlyUsed)
-            {
-                Aging(replacementIndex, CacheEntries[replacementIndex].Set);
-            }
+            Aging(replacementIndex, CacheEntries[replacementIndex].Set);
 
             additionalData = sb.ToString();
             return false;
