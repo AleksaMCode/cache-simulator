@@ -46,10 +46,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Cache.cs" />
+    <Compile Include="CacheBelady.cs" />
     <Compile Include="CacheBuilder.cs" />
     <Compile Include="CacheConfiguration.cs" />
     <Compile Include="CacheConfigurationBuilder.cs" />
     <Compile Include="CacheEntry.cs" />
+    <Compile Include="CacheFIFO.cs" />
+    <Compile Include="CacheLRU.cs" />
+    <Compile Include="CacheMRU.cs" />
+    <Compile Include="CacheRandom.cs" />
     <Compile Include="FlagBits.cs" />
     <Compile Include="ICacheBuilder.cs" />
     <Compile Include="Instruction.cs" />
