@@ -60,7 +60,7 @@ namespace CacheSimulation
         public string RamFileName { get; set; }
         public string TraceFileName { get; set; }
 
-        public virtual void CreateCache()
+        public void CreateCache()
         {
             if (CacheConfig.BlockSize >= Size)
             {
