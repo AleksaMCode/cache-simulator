@@ -313,7 +313,6 @@ namespace CacheSimulation
             byte[] buffer;
             var binaryAddress = GetBinaryAddress(address);
             var index = GetIndex(binaryAddress, GetTagLength(binaryAddress)) * Associativity;
-            var replacementIndex = index;
 
             for (var i = index; i < index + Associativity; ++i)
             {
@@ -413,7 +412,7 @@ namespace CacheSimulation
             }
 
             ++StatisticsInfo.CacheEviction;
-            replacementIndex = GetReplacementIndex(GetIndex(binaryAddress, GetTagLength(binaryAddress)) * Associativity, traceIndex);
+            var replacementIndex = GetReplacementIndex(GetIndex(binaryAddress, GetTagLength(binaryAddress)) * Associativity, traceIndex);
 
             // If the write policy is write-back and the dirty flag is set, write the cache entry to RAM first.
             if (CacheConfig.WriteHitPolicy == WritePolicy.WriteBack && CacheEntries[replacementIndex].FlagBits.Dirty)
@@ -500,7 +499,6 @@ namespace CacheSimulation
             // Check if address exists in the cache first.
             var binaryAddress = GetBinaryAddress(address);
             var index = GetIndex(binaryAddress, GetTagLength(binaryAddress)) * Associativity;
-            var replacementIndex = index;
 
             for (var i = index; i < index + Associativity; ++i)
             {
@@ -549,7 +547,7 @@ namespace CacheSimulation
             }
 
             ++StatisticsInfo.CacheEviction;
-            replacementIndex = GetReplacementIndex(GetIndex(binaryAddress, GetTagLength(binaryAddress)) * Associativity, traceIndex);
+            var replacementIndex = GetReplacementIndex(GetIndex(binaryAddress, GetTagLength(binaryAddress)) * Associativity, traceIndex);
 
             // If the write policy is write-back and the dirty flag is set, write the cache entry to RAM first.
             if (CacheConfig.WriteHitPolicy == WritePolicy.WriteBack && CacheEntries[replacementIndex].FlagBits.Dirty)
