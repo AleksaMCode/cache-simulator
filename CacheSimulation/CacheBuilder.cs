@@ -1,5 +1,8 @@
 namespace CacheSimulation
 {
+    /// <summary>
+    /// Creator/Builder with parameterized Factory Method
+    /// </summary>
     public class CacheBuilder : ICacheBuilder
     {
         private readonly string ramFileName;
