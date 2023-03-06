@@ -25,13 +25,26 @@ namespace CacheSimulation
 
         public Cache Build()
         {
-            var cache = new Cache(ramFileName, config)
+            Cache cache = config.ReplacementPolicy switch
             {
-                Size = size,
-                Associativity = associativity
+                ReplacementPolicy.Belady => new CacheBelady(ramFileName, config)
+                {
+                    Size = size,
+                    Associativity = associativity
+                },
+                ReplacementPolicy.LeastRecentlyUsed => new CacheLRU(ramFileName, config)
+                {
+                    Size = size,
+                    Associativity = associativity
+                },
+                _ => new CacheRandom(ramFileName, config)
+                {
+                    Size = size,
+                    Associativity = associativity
+                },
             };
-            cache.CreateCache();
 
+            cache.CreateCache();
             return cache;
         }
     }
