@@ -200,7 +200,7 @@ trace.GenerateTraceFile(ramSize, cacheBlockize)
 </details>
 
 ### LRU vs Bélády
-<p align="justify">After creating the simulator, I did a small analysis of the two algorithms and their performance. You can read the whole analysis in the <a href="./resources/algo_analysis.pdf">pdf file</a>. Please keep in mind that this analysis has been conducted on a relatively small sample size (trace file with less than a 1,000 instructions).</p>
+<p align="justify">After creating the simulator, I did a small analysis of the two algorithms and their performance. You can read the whole analysis in the <a href="./resources/sim_results_analysis.pdf">pdf file</a>. Please keep in mind that this analysis has been conducted on a relatively small sample size (trace file with less than a 1,000 instructions).</p>
 
 > **_NOTE:_**
 > 
