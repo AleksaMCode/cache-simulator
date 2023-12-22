@@ -1,7 +1,7 @@
 <img width="150" align="right" title="cpu icon" src="./resources/cpu.png" alt_text="[Cpu icons created by Freepik - Flaticon](https://www.flaticon.com/premium-icon/cpu_707374?related_id=707576)"></img>
 
 # Cache Simulator
-<p align="justify"><b>Cache Simulator</b> was created for a <i>Computer Architecture</i> course project, as taught at the Faculty of Electrical Engineering Banja Luka. The project has been since expanded and updated. This simulator is known as a <i>trace-driven</i> simulator because it takes as input a trace of events. The memory reference events specified in the trace(s) will be used by the simulator to drive the movement of data in and out of cache, thus simulating its behavior. The motivation behind this project was a better understanding of the inner working of the cache memory and its policies.</p>
+<p align="justify"><b>Cache Simulator</b> is a <i>trace-driven</i> simulator because it takes trace of events as input. The memory reference events specified in the trace(s) will be used by the simulator to drive the movement of data in and out of cache, thus simulating its behavior. The motivation behind this project was a better understanding of the inner working of the cache memory and its policies.</p>
 
 ## Table of contents
 - [Cache Simulator](#cache-simulator)
@@ -25,13 +25,13 @@
   - [References](#references)
     - [Books](#books)
     - [Links](#links)
-    - [Github projects](#github-projects)
+    - [GitHub projects](#github-projects)
   - [To-Do List](#to-do-list)
 
 ## Introduction
-<p align="justify"><b>Cache Simulator</b> is a simulator implemented in C#. It supports directly mapped, N-way set associative or fully associative cache memory. It also allows LRU (Least Recently Used), MRU (Most Recently Used), Bélády's or Random replacement policy. The cache is simulated inside of the computer's RAM memory and the simulated RAM is stored on the computer's NTFS file system. Data is transferred between memory and cache in blocks of fixed sizes, called cache lines. When a cache line is copied from memory into the cache, a cache entry is created. It will create the entry that contains copied data as well as the requested memory location (tag).<p align="center"><img src="./resources/cache-simulator.gif" title="Cache simulator" width="600" hspace="5" vspace="5"></p>
+<p align="justify"><b>Cache Simulator</b> is a simulator implemented in C#. It supports directly mapped, N-way set associative or fully associative cache memory. It also allows LRU (Least Recently Used), MRU (Most Recently Used), Bélády's or Random replacement policy. The cache is simulated inside the computer's RAM memory, and the simulated RAM is stored on the computer's NTFS file system. Data is transferred between memory and cache in blocks of fixed sizes, called cache lines. When a cache line is copied from memory into the cache, a cache entry is created. It will create the entry that contains copied data as well as the requested memory location (tag).<p align="center"><img src="./resources/cache-simulator.gif" title="Cache simulator" width="600" hspace="5" vspace="5"></p>
 <p align="justify">The cache simulator first checks the users inputs, after which the simulator starts reading lines from the trace file. After checking the input values, the simulator calculates number of lines, set size, number of sets, block offset length and set index length. Next, a <a href="https://stackoverflow.com/questions/22756092/what-does-it-mean-by-cold-cache-and-warm-cache-concept"><b>cold cache</b></a> is constructed in order to be able to read from and write to it. Simulator does that by calling a method <code>CreateColdCache()</code>.<br><br>
-Currently, there is only one cache memory level L1, or L1-D to be exact. The plan is to expand the simulator to support both, L1-I (for instructions) and L1-D (for data), as well as the L2 shared cache memory for CPU cores. For the simulation purposes, L2 should be made slower when reading/fetching data and it should be smaller than L1.</p>
+Currently, there is only one cache memory level L1, or L1-D to be exact. The plan is to expand the simulator to support both, L1-I (for instructions) and L1-D (for data), as well as the L2 shared cache memory for CPU cores. For the simulation purposes, L2 should be made slower when reading/fetching data, and it should be smaller than L1.</p>
 
 <p align="center"><img src="./resources/single-cache.jpg" title="single cache from Operating Systems: Internals and Design Principles by William Stallings"></p>
 
@@ -68,10 +68,8 @@ If the contents of a block in the cache are altered, then it is necessary to wri
   </tr>
 </table>
 <p align="justify">The data block (cache line/block) contains the actual data fetched from the main memory. The tag contains (part of) the address of the actual data fetched from the main memory. The "size" of the cache is the amount of main memory data it can hold. This size can be calculated as the number of bytes stored in each data block times the number of blocks stored in the cache : 
-<code>size(data_block) x count(cache_lines)</code> .<br><br>
-An instruction cache requires only one flag bit per cache row entry, a valid bit. The valid bit indicates whether the cache block has been loaded with valid data. A data cache typically requires two flag bits per cache line – a valid bit and a dirty bit. Having a dirty bit set indicates that the associated cache line has been changed since it was read from main memory ("dirty"), meaning that the processor has written data to that line and the new value has not propagated all the way to main memory.  When simulation is first started, all the valid bits in all the caches are set to "invalid".
-
-</p>
+<code>size(data_block) x count(cache_lines)</code>.<br><br>
+An instruction cache requires only one flag bit per cache row entry, a valid bit. The valid bit indicates whether the cache block has been loaded with valid data. A data cache typically requires two flag bits per cache line – a valid bit and a dirty bit. Having a dirty bit set indicates that the associated cache line has been changed since it was read from main memory ("dirty"), meaning that the processor has written data to that line and the new value has not propagated all the way to main memory. When simulation is first started, all the valid bits in all the caches are set to "invalid".</p>
 
 ## Replacement policies
 <p align="justify">To make room for the new entry on a cache miss, the cache may have to evict one of the existing entries. Cache algorithms are algorithms that the simulator uses to manage a cache of information. When the cache is full, the algorithm must choose which items to discard to make room for the new ones. The fundamental problem with any replacement policy is that it must predict which existing cache entry is least likely to be used in the future. Predicting the future is difficult, so there is no perfect method to choose among the variety of replacement policies available.</p>
@@ -99,7 +97,7 @@ Now you might be asking yourself why would cache ever use this algorithm as evic
 > <p align="justify">Imagine you were looking up the details of buses as they arrived at a bus stop, based on their bus number. It's somewhat reasonable to think that if you've just seen a number 36 bus, you're less likely to see another one imminently than to see one of the other buses that stops there.</p>
 
 ### Bélády's algorithm
-<p align="justify">The most efficient caching algorithm would be to always discard the information that will not be needed for the longest time in the future. This optimal result is referred to as Bélády's optimal algorithm. Since it is generally impossible to predict how far in the future information will be needed, this is generally not implementable in practice. The practical minimum can be calculated only after experimentation, and one can compare the effectiveness of the actually chosen cache algorithm. For this simulator, all of the instructions that will take place in the simulation are known because we have a finite set of instructions stored in the trace file.</p>
+<p align="justify">The most efficient caching algorithm would be to always discard the information that will not be needed for the longest time in the future. This optimal result is referred to as Bélády's optimal algorithm. Since it is generally impossible to predict how far in the future information will be needed, this is generally not implementable in practice. The practical minimum can be calculated only after experimentation, and one can compare the effectiveness of the actually chosen cache algorithm. For this simulator, all the instructions that will take place in the simulation are known because we have a finite set of instructions stored in the trace file.</p>
 
 ## Write policies
 <p align="justify">If data is written to the cache, at some point it must also be written to main memory. The timing of this write is known as the write policy. Both write-through and write-back policies can use either of write-miss policies.</p>
@@ -144,10 +142,10 @@ Now you might be asking yourself why would cache ever use this algorithm as evic
 </ul>
 
 ## Associativity (placement policy)
-<p align="justify">The placement policy decides where in the cache a copy of a particular entry of main memory will go. If the placement policy is free to choose any entry in the cache to hold the copy, the cache is <i>fully associattive</i>. At the other extreme, if each entry in main memory can go in just one place in the cache, the cache is <i>directly mapped</i>. The comprimise between the two extreems, in which each entry in main memory can go to any of N places in the cache are described as <i>N-way set associative</i>. Choosing the right value of associativity involves a trade-off. If there is eight places to which the placement policy have mapped memory location, then to check if that location is in the cache, eight cache entries must be searched.</p>
+<p align="justify">The placement policy decides where in the cache a copy of a particular entry of main memory will go. If the placement policy is free to choose any entry in the cache to hold the copy, the cache is <i>fully associative</i>. At the other extreme, if each entry in main memory can go in just one place in the cache, the cache is <i>directly mapped</i>. The compromise between the two extremes, in which each entry in main memory can go to any of N places in the cache, is described as <i>N-way set associative</i>. Choosing the right value of associativity involves a trade-off. If there are eight places to which the placement policy have a mapped memory location, then to check if that location is in the cache, eight cache entries must be searched.</p>
 
 ### Direct-mapped cache
-<p align="justify">It doesn't have a placement policy as such, since there is no choice of which cache entry's content to evict. This means that if two locations map to the same entry, they continually knock each other out. Although simpler, a direct-mapped cache needs to be much larger than an associative one to give comparable performance, and it is more unpredictable. It has a good best-case time, but is unpredictable in worst case.</p>
+<p align="justify">It doesn't have a placement policy as such, since there is no choice of which cache entry's content to evict. This means that if two locations map to the same entry, they continually knock each other out. Although simpler, a direct-mapped cache needs to be much larger than an associative one to give comparable performance, and it is more unpredictable. It has a good best-case time, but is unpredictable in the worst case.</p>
 
 ## Ram memory
 <p align="justify">Ram is represented with a large binary file stored on the file system. The binary file contains randomly written data. Ram files have the following name structure <i><code>file_name-DateTime.Now:yyyyMMddHHmmss.dat</code></i>, e.q. <i>ram-20210824183840.dat</i>. Below you can find an  example how to create a Ram file:<br></p>
@@ -168,7 +166,7 @@ ram.GenerateRam();
     <td>data</td>
   </tr>
 </table>
-<p align="justify">The instruction type can be L (load) for when data is loaded or S (stored) when data is loaded and stored. The number following the instruction type is the byte address of the memory reference itself. This number is in hexadecimal format and it specifies a 64-bit byte address in the range <code>[0, Ram_size - dataBlockSize]</code>. Trace file is created similarly as the Ram file and they also have the same name structure, <i><code>file_name-DateTime.Now:yyyyMMddHHmmss.dat</code></i>, e.q. <i>instructions-20210824203302</i>. Below you can find an example how to create a trace file:<br></p>
+<p align="justify">The instruction type can be L (load) for when data is loaded or S (stored) when data is loaded and stored. The number following the instruction type is the byte address of the memory reference itself. This number is in hexadecimal format, and it specifies a 64-bit byte address in the range <code>[0, Ram_size - dataBlockSize]</code>. Trace file is created similarly as the Ram file, and they also have the same name structure, <i><code>file_name-DateTime.Now:yyyyMMddHHmmss.dat</code></i>, e.q. <i>instructions-20210824203302</i>. Below you can find an example how to create a trace file:<br></p>
 
 ```C#
 var numberOfInstructions = 1_000;
@@ -181,7 +179,7 @@ trace.GenerateTraceFile(ramSize, cacheBlockize)
 > Every CPU core needs to have an unique trace file.
 
 ## Cache performance - statistical analysis
-<p align="justify">In addition to all of the implemented functionalities, this simulator also collects and reports several statistics that are used to verify the correctness of the simulator and are also used to evaluate the perforance of LRU vs Bélády algorithm. This simulator keeps track of:</p>
+<p align="justify">In addition to all the implemented functionalities, this simulator also collects and reports several statistics that are used to verify the correctness of the simulator and are also used to evaluate the performance of LRU vs Bélády algorithm. This simulator keeps track of:</p>
 <ul>
   <li>Number of cache evictions</li>
   <li>Number of data references</li>
@@ -200,7 +198,7 @@ trace.GenerateTraceFile(ramSize, cacheBlockize)
 </details>
 
 ### LRU vs Bélády
-<p align="justify">After creating the simulator, I did a small analysis of the two algorithms and their performance. You can read the whole analysis in the <a href="./resources/sim_results_analysis.pdf">pdf file</a>. Please keep in mind that this analysis has been conducted on a relatively small sample size (trace file with less than a 1,000 instructions).</p>
+<p align="justify">After creating the simulator, I did a small analysis of the two algorithms and their performance. You can read the whole analysis in the <a href="./resources/sim_results_analysis.pdf">PDF file</a>. Please keep in mind that this analysis has been conducted on a relatively small sample size (trace file with less than a 1,000 instructions).</p>
 
 > **_NOTE:_**
 > 
@@ -220,7 +218,7 @@ trace.GenerateTraceFile(ramSize, cacheBlockize)
   <li><p align="justify"><a href="https://www.cs.cornell.edu/courses/cs3410/2013sp/lecture/18-caches3-w.pdf">Hakim Weatherspoon lecture @ Cornell - <i>Caches (Writing)</i></a></p></li>
 </ul>
 
-### Github projects
+### GitHub projects
 Some of the projects that helped me create my project.
 <ul>
   <li><p align="justify"><a href="https://github.com/bilgehangecici/Cachelab">Cachelab</a></p></li>
